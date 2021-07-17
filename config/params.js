@@ -13,11 +13,8 @@ module.exports = {
     SITE_URL: "http:localhost:5000",
     CLIENT_ID_GOOGLE: "666290590783-djcj0jd6q5g7e00ovciko1elct84qrij.apps.googleusercontent.com",
     CLIENT_SECRET_GOOGLE: "X-aoQVXrMZ-tA3EdRPsCwpBh",
-    // EMAIL_PASSWORD: "18081995",
     EMAIL_PASSWORD: "e841d92282037e",
-    // EMAIL_USERNAME: "kareemyomi91@gmail.com",
     EMAIL_USERNAME: "1e544c5e5f7d79",
-    // EMAIL_HOST: 'smtp.gmail.com',
     EMAIL_HOST: 'smtp.mailtrap.io',
     EMAIL_PORT: "587"
 };
