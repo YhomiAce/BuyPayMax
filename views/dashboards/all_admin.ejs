@@ -1,0 +1,113 @@
+<!-- header -->
+<%- include("../partials/header_admin") %> <%- include("../partials/sidebar") %>
+
+<!-- Main Content -->
+<div class="main-content">
+  <%- include("../partials/alerts") %>
+  <section class="section">
+    <div class="section-body">
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h4>All Admins</h4>
+              
+            <button type="button" class="btn btn-primary" style="margin-left: 700px;" data-toggle="modal" data-target="#exampleModal">
+            Add New Admin
+            </button>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-striped" id="table-1">
+                  <thead>
+                    <tr>
+                      <th class="text-center">#</th>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Level</th>
+                      <th>Date Registered</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% for (let i = 0; i < users.length; i++ ) { %>
+                    <tr>
+                      <td><%= i + 1 %></td>
+                      <td><%= users[i].name %></td>
+                      <td><%= users[i].email %></td>
+                      <td><%= users[i].level %></td>
+                      <td><%= moment(users[i].createdAt).format('DD-MM-YYYY') %></td>
+                      <td>
+                       
+                      <a
+                          href="javascript:void(0);"
+                          class="btn btn-danger btn-pill mb-2"
+                          onclick="event.preventDefault();
+								                        document.getElementById('delete-menu').submit();"
+                          style="color: aliceblue"
+                        >
+                          Delete
+                        </a>
+                
+
+                        
+                        <form
+                          id="delete-menu"
+                          action="/delete/admin"
+                          method="POST"
+                          style="display: none"
+                        >
+                          <input
+                            type="hidden"
+                            name="id"
+                            value="<%= users[i].id %>"
+                          />
+                        </form>
+                      </td>
+                    </tr>
+                    <% } %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Create New Admin</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form action="/createAdmin" method="POST">
+              <div class="form-group">
+                  <input type="text" class="form-control" name="name" placeholder="Name">
+              </div>
+              <div class="form-group">
+                  <input type="email" class="form-control" name="email" placeholder="Email Address">
+              </div>
+              <div class="form-group">
+                  <select name="level" id="level" class="form-control">
+                      <option disabled selected>Choose Admin Level</option>
+                      <option value="1">Level 1</option>
+                      <option value="2">Level 2</option>
+                  </select>
+              </div>
+              <div class="form-group">
+                <input type="password" class="form-control" name="password" placeholder="Password">
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </form>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+</div>
+<%- include("../partials/footer2") %>

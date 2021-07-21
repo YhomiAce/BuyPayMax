@@ -351,7 +351,7 @@ router.get('/auth/google/callback',
     });
 
 
-router.post("/signin",  AuthController.login);
+router.post("/signin", AuthMiddleware.redirectHome, AuthController.login);
 router.get("/signup", AuthMiddleware.redirectHome, AuthController.signUpUser);
 router.post("/admin", AuthController.loginAdmin);
 router.post("/createAdmin", AuthController.createAdmin);
@@ -399,6 +399,7 @@ router.post("/fundwallet", AuthMiddleware.redirectLogin, WalletController.fundWa
 // users
 router.get("/settings", AuthMiddleware.redirectLogin, ProfileController.settingsPage);
 router.get("/users", AuthMiddleware.redirectAdminLogin, UserController.allUsers);
+router.get("/admins", AuthMiddleware.redirectAdminLogin, UserController.allAdmins);
 router.get("/packages_ethereum", AuthMiddleware.redirectLogin, PackageController.usersPackagesEthereum);
 router.get("/packages", AuthMiddleware.redirectLogin, PackageController.usersPackages);
 router.get("/referrals", AuthMiddleware.redirectLogin, DashboardController.userReferral);
@@ -453,8 +454,11 @@ router.get("/packages/:id", AuthMiddleware.redirectLogin, PackageController.each
 router.get("/bankdeposit/:id", AuthMiddleware.redirectAdminLogin, BankDepositController.viewADeposit);
 router.get("/chats/:id", AuthMiddleware.redirectAdminLogin, ChatController.chatPage);
 router.post("/delete/user", AuthMiddleware.redirectAdminLogin, UserController.deleteUser);
+router.post("/delete/admin", AuthMiddleware.redirectAdminLogin, UserController.deleteAdmin);
 router.get("/deleted/users", AuthMiddleware.redirectAdminLogin, UserController.viewDeletedUsers);
+router.get("/deleted/admins", AuthMiddleware.redirectAdminLogin, UserController.viewDeletedAdmins);
 router.post("/restore/user", AuthMiddleware.redirectAdminLogin, UserController.restoreUser);
+router.post("/restore/Admin", AuthMiddleware.redirectAdminLogin, UserController.restoreAdmin);
 
 // packages
 router.get("/add/package", AuthMiddleware.redirectAdminLogin, PackageController.addPackage);

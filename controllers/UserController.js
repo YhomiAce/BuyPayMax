@@ -6,6 +6,7 @@ const moment = require('moment');
 const Users = require("../models").User;
 const Chats = require("../models").Chat;
 const AdminMessages = require("../models").AdminMessage;
+const Admins = require('../models').Admin
 
 // imports initialization
 const Op = Sequelize.Op;
@@ -44,6 +45,37 @@ exports.allUsers = (req, res, next) => {
     
 }
 
+exports.allAdmins = async(req,res,next)=>{
+    AdminMessages.findAll()
+    .then(unansweredChats => {
+        Admins.findAll({
+            where: {
+                    deletedAt: {
+                        [Op.eq]: null
+                    }
+            },
+            order: [
+                ['name', 'ASC'],
+                ['createdAt', 'DESC'],
+            ],
+        })
+        .then(users => {
+            res.render("dashboards/all_admin", {
+                users: users,
+                messages: unansweredChats,
+                moment
+            });
+        })
+        .catch(error => {
+            res.redirect("/dashboard");
+        });
+    })
+    .catch(error => {
+        req.flash('error', "Server error!");
+        res.redirect("/");
+    });
+}
+
 exports.viewDeletedUsers = (req, res, next) => {
      AdminMessages.findAll()
     .then(unansweredChats => {
@@ -72,6 +104,34 @@ exports.viewDeletedUsers = (req, res, next) => {
     });
 }
 
+exports.viewDeletedAdmins = (req, res, next) => {
+    AdminMessages.findAll()
+   .then(unansweredChats => {
+       Admins.findAll({
+           where: {
+               deletedAt: {
+                   [Op.ne]: null
+               }
+           },
+               paranoid: false,
+           })
+           .then(users => {
+               res.render("dashboards/deleted_admin", {
+                   users: users,
+                   messages: unansweredChats,
+                   moment
+               });
+           })
+           .catch(error => {
+               res.redirect("/home");
+           });
+   })
+   .catch(error => {
+       req.flash('error', "Server error!");
+       res.redirect("/");
+   });
+}
+
 exports.deleteUser = (req, res, next) => {
     Users.destroy({
             where: {
@@ -90,8 +150,44 @@ exports.deleteUser = (req, res, next) => {
         });
 }
 
+exports.deleteAdmin = (req, res, next) => {
+    Admins.destroy({
+            where: {
+                id: {
+                    [Op.eq]: req.body.id
+                }
+            }
+        })
+        .then(response => {
+            req.flash('success', "User deleted successfully");
+            res.redirect("back");
+        })
+        .catch(error => {
+            req.flash('error', "something went wrong");
+            res.redirect("back");
+        });
+}
+
 exports.restoreUser = (req, res, next) => {
     Users.restore({
+            where: {
+                id: {
+                    [Op.eq]: req.body.id
+                }
+            }
+        })
+        .then(response => {
+            req.flash('success', "User deleted successfully");
+            res.redirect("back");
+        })
+        .catch(error => {
+            req.flash('error', "something went wrong");
+            res.redirect("back");
+        });
+}
+
+exports.restoreAdmin = (req, res, next) => {
+    Admins.restore({
             where: {
                 id: {
                     [Op.eq]: req.body.id

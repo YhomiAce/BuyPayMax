@@ -1,0 +1,60 @@
+<!-- header -->
+<%- include("../partials/header_admin") %>
+<%- include("../partials/sidebar") %>
+
+<!-- Main Content -->
+<div class="main-content">
+    <%- include("../partials/alerts") %>
+    <section class="section">
+        <div class="section-body">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Deleted Admins</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped" id="table-1">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">#</th>
+                                            <th>Name</th>
+                                            <th>Email</th>
+                                            <th>Level</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <%  for (let i = 0; i < users.length; i++ ) { %>
+                                        <tr>
+                                            <td><%= i + 1 %></td>
+                                            <td><%= users[i].name %></td>
+                                            <td><%= users[i].email %></td>
+                                            
+                                            <td><%= users[i].level == 2 ? 'Manager' : 'Super Admin' %></td>
+                                            
+                                            <td>
+                                                <a href="javascript:void(0);" class="btn btn-danger btn-pill"
+                                                    onclick="event.preventDefault();
+								                        document.getElementById('restore-menu').submit();" style="color: aliceblue;">
+                                                    Restore
+                                                </a>
+                                                <form id="restore-menu" action="/restore/admin" method="POST"
+                                                    style="display: none;">
+                                                    <input type="hidden" name="id" value="<%= users[i].id %>">
+                                                </form>
+                                            </td>
+                                        </tr>
+                                        <% } %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+<%- include("../partials/footer2") %>
