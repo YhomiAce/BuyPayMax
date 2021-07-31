@@ -5,13 +5,13 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <!--Website Title-->
-    <title>Signup - Tobby Epay Global Services Nigeria Ltd</title>
+    <title>Reset Password - PayBuyMax</title>
     <!--Favicon Logo-->
-    <link rel="shortcut icon" href="assests/img/logoicon-pic.png" type="image/x-icon">
+    <link rel="shortcut icon" href="/assests/img/logoicon-pic.png" type="image/x-icon">
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
     <!--CSS Stylesheet and Fontawesome-->
-    <link rel="stylesheet" href="assests/css/login--signup.css">
+    <link rel="stylesheet" href="/assests/css/forgot-password.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.7/css/all.css">
     <!--Scroll In Animation-->
@@ -27,26 +27,22 @@
   <body>
 
     <div class="container-form">
-      <%- include("./partials/alerts") %>
-        <div class="form-signup-div">
-            <a href="/">
-                <img src="assests/img/logo.jpeg" class="logo-form" alt="logo">
+      <%- include("./partials/alerts")  %> 
+      <div class="form-area-div">
+        <a href="/">
+                <img src="/assests/img/logo-login.png" class="logo-form" alt="logo">
             </a>
-            <p class="text-form">Reset Password!</p>
-            <form action="/resetpassword" method="POST">
-                
-                <label for="Password1">Enter New Password</label>
-                <input type="password" required class="form-control input" placeholder="********" name="password1" id="password1">
-                <label for="Password2">Confirm your password</label>
-                <input type="password" required class="form-control input" placeholder="*******" name="password2" id="password2">
-                <input type="submit" class="btn btn-block login-btn" value="SUBMIT" name="submit">
-            </form>
-            <p class="dont-have-acc">Already a member? <a class="link-below-form" href="/login">Login</a></p>
-            <p class="dont-have-acc text-center">By clicking Get Started you agree to our <a class="link-below-form" href="/privacy">Privacy Policy</a></p>
+          <p class="text-form">Create Password</p>
+          <form action="/resetpassword" method="POST">
+              <label for="password1">Enter New Password</label>
+              <input type="password" required class="form-control input" placeholder="New Password" name="password1" id="password1">
+              <label for="password2">Confirm Password</label>
+              <input type="password" required class="form-control input" placeholder="New Password" name="password2" id="password2">
+              <input type="submit" class="btn btn-block login-btn" value="RESET" name="submit">
+          </form>
+          <p class="dont-have-acc">Remenber password? <a class="link-below-form" href="/login">Login</a></p>
         </div>
-        <div class="img-signup-bg">
-        </div>
-    </div>
+      </div>
 
     <!--jQuery and Bootstrap Bundle-->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>

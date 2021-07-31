@@ -1,241 +1,307 @@
 <%- include("./partials/headerb") %>
 
-<div class="icon-bar">
-  <a href="#" target="_blank" title="Like us on Facebook"><i class="fab fa-facebook-f"></i></a>
-  <a href="#" target="_blank" title="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
-  <a href="#" target="_blank" title="Message us on WhatsApp"><i class="fab fa-whatsapp"></i></a>
-  <a href="#" target="_blank" title="Connect with us on LinkedIn"><i class="fab fa-linkedin"></i></a>
-  <a href="#" target="_blank" title="Subscribe to our channel on Youtube"><i class="fab fa-youtube"></i></a>
+ <!--Accept Our Cookies-->
+ <div class="container-fluid cookie-container text-center" id="clock">
+    <p>We use cookies to ensure that we give you the best experience on our website.
+    To find out more, read our <a href="/privacy">Privacy Policy.</a> <button class="cookie-button" onclick="toggleClock()" id="clockButton">Accept</button>
+    </p>
 </div>
-<!--Social Icon Sided-->
-
-<!--Accept Our Cookies-->
-<div class="container-fluid cookie-container text-center" id="clock">
-  <p>We use cookies to ensure that we give you the best experience on our website.
-  To find out more, read our <a href="/privacy">Privacy Policy.</a> <button class="cookie-button" onclick="toggleClock()" id="clockButton">Accept</button>
-  </p>
-</div>
-<script>
-     function toggleClock() {
-      var myClock = document.getElementById('clock');
-      var displaySetting = myClock.style.display;
-
-      // also get the clock button, so we can change what it says
-      var clockButton = document.getElementById('clockButton');
-
-      // now toggle the clock and the button text, depending on current state
-      if (displaySetting == null) {
-      // clock is visible. hide it
-      myClock.style.display = 'block';
-      }
-      else {
-      // clock is hidden. show it
-      myClock.style.display = 'none';
-      }
-  }
-</script>
 <!--Accept Our Cookies Ends-->
 
 <!--Header Banner-->
 <div class="container-fluid header-banner">
-  <div class="row">
-      <div class="col-md-5">
-          <p class="head-title">Get your money working. We’re the bank of the free!</p>
-          <p class="head-title-small">We’re here to help you get the best out of your money, no strings attached. Welcome to your freedom!</p>
-          <a href="/signup" class="btn btn-get-started">Get Started</a>
-          <a href="/pricing" class="explore-plan">Explore Plans <i class="fa fa-arrow-right link-arrow-right"></i></a>
-      </div>
-      <div class="col-md-1"></div>
-      <div class="col-md-6 banner-img" data-aos="fade-left" data-aos-duration="3000">
-          <img src="assests/img/img001.png" width="100%" alt="img">
-      </div>
-  </div>
+    <div class="row">
+        <div class="col-md-4">
+            <p class="head-title">Buy Your <span>Cryptocurrency</span> At The <span>Cheapest</span> Price Possible<span>!</span></p>
+            <p class="head-title-small">We’re here to help you get the best out of your money, no strings attached. Welcome to your freedom!</p>
+            <a href="/signup" class="btn btn-get-started">Get Started <i class="fa fa-arrow-right link-arrow-right"></i></a>
+        </div>
+        <div class="col-md-1"></div>
+        <div class="col-md-7 banner-img" data-aos="fade-left" data-aos-duration="3000">
+            <img src="/assests/img/pc-banner2.png" class="banner-image" alt="img">
+        </div>
+    </div>
 </div>
 <!--Header Banner Ends-->
 
 <!--About Us Section-->
-<div class="container about-section">
-  <div class="row">
-      <div class="col-md-12 text-center">
-          <p class="small-body-text">Save Money As You Spend.</p>
-          <p class="big-body-text">Trade Anywhere & Anytime!</p>
-      </div>
-      <div class="col-md-5">
-          <img src="assests/img/img0003.png" data-aos="fade-right" data-aos-duration="2000" width="100%" alt="img">
-      </div>
-      <div class="col-md-1"></div>
-      <div class="col-md-6">
-          <p class="about-text-detail">At Tobby Epay Global, we offer bitcoin and other cryptocurrencies investment opportunities, we ensure you gain over 70% ROI. Our platform is secured with a dashboard that will enable you to monitor and manage your investment. Sign up to invest and try us today.</p>
-          <div class="col-md-12">
-              <a href="/#" class="btn btn-google-play"><img src="assests/img/google-play.png" alt="link" width="170px"></a>
-              <a href="/#" class="btn btn-google-play"><img src="assests/img/app-store.png" alt="link" width="170px"></a>
-          </div>
-          <a href="/about" class="btn btn-about-link">About Us <i class="fa fa-arrow-right link-arrow-right"></i></a>
-      </div>
-  </div>
+<div class="container about-section-home">
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <p class="small-body-text">Best Trading Experience</p>
+            <p class="big-body-text">Trade Anywhere & Anytime!</p>
+        </div>
+        <div class="col-md-5 text-center ball-path">
+            <img src="/assests/img/computer.png" data-aos="fade-right" data-aos-duration="2000" width="100%" alt="img">
+        </div>
+        <div class="col-md-1"></div>
+        <div class="col-md-6">
+            <p class="about-text-detail-abt">Welcome to PayBuyMax Tech, your number one source for trading cryptocurrency, gift cards and more. We're dedicated to providing you the very best of trading, with an emphasis on integrity, passion and professionalism.</p>
+            <p class="about-text-detail-two">PayBuyMax Tech is into buying of cryptocurrency majorly Bitcoin to Usdt( and all stable coins) Etherum, Litecoin, bnb, doge and other major Alt coins.</p>
+            <a href="/about" class="btn-about-link">About Us <i class="fa fa-arrow-right link-arrow-right"></i></a>
+            <div class="col-md-12">
+                <a href="#" class="btn btn-google-play-abt"><img src="/assests/img/google-play.png" alt="link" width="170px"></a>
+                <a href="#" class="btn btn-google-play-abt"><img src="/assests/img/app-store.png" alt="link" width="170px"></a>
+            </div>
+        </div>
+    </div>
 </div>
 <!--About Us Section Ends-->
 
 <!--Body Details 1-->
 <div class="container body-details">
-  <div class="row">
-      <div class="col-md-12 text-center">
-          <p class="small-text-bd1">A BETTER WAY TO INVEST</p>
-          <p class="big-text-bd2">The World Leading Crytocurrency Platform</p>
-      </div>
-      <div class="col-md-4">
-          <div class="row">
-              <div class="col-md-12 itembox1-bd1">
-                  <p class="number-bd1">01</p>
-                  <p class="list-head-bd1">Buy & Sell Online 24/7</p>
-                  <p class="list-bd1">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse non sem hendrerit, viverra nisl in, tristique urna.</p>
-              </div>
-              <div class="col-md-12 itembox2-bd1">
-                  <p class="number-bd1">02</p>
-                  <p class="list-head-bd1">Tax Free Investment</p>
-                  <p class="list-bd1">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse non sem hendrerit, viverra nisl in, tristique urna.</p>
-              </div>
-          </div>
-      </div>
-      <div class="col-md-4" data-aos="fade-up" data-aos-duration="2000">
-          <img src="assests/img/centered-phones.png" width="95%" alt="phone">
-      </div>
-      <div class="col-md-4">
-          <div class="row">
-              <div class="col-md-12 itembox1-bd1">
-                  <p class="number-bd1">03</p>
-                  <p class="list-head-bd1">100% Satisfaction</p>
-                  <p class="list-bd1">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse non sem hendrerit, viverra nisl in, tristique urna.</p>
-              </div>
-              <div class="col-md-12 itembox2-bd1">
-                  <p class="number-bd1">04</p>
-                  <p class="list-head-bd1">24/7 Support Service</p>
-                  <p class="list-bd1">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse non sem hendrerit, viverra nisl in, tristique urna.</p>
-              </div>
-          </div>
-      </div>
-  </div>
+    <div class="row">
+        <div class="col-md-12 text-center py-5 better-way-invest">
+            <p class="small-text-bd1">A BETTER WAY TO INVEST</p>
+            <p class="big-text-bd2">The World Leading Crytocurrency Platform</p>
+        </div>
+        <div class="col-md-4">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <img src="/assests/img/num1.png" class="img-bd" alt="number 1">
+                        </div>
+                        <div class="col-sm-10">
+                            <p class="list-head-bd1">Buy & Sell Online 24/7</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <img src="/assests/img/num2.png" class="img-bd" alt="number 2">
+                        </div>
+                        <div class="col-sm-10">
+                            <p class="list-head-bd1">Tax Free Investment</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <img src="/assests/img/num3.png" class="img-bd" alt="number 3">
+                        </div>
+                        <div class="col-sm-10">
+                            <p class="list-head-bd1">100% Satisfaction</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <img src="/assests/img/num4.png" class="img-bd" alt="number 4">
+                        </div>
+                        <div class="col-sm-10">
+                            <p class="list-head-bd1">24/7 Support Service</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <img src="/assests/img/num5.png" class="img-bd" alt="number 1">
+                        </div>
+                        <div class="col-sm-10">
+                            <p class="list-head-bd1">Credit Instantly</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <img src="/assests/img/num6.png" class="img-bd" alt="number 2">
+                        </div>
+                        <div class="col-sm-10">
+                            <p class="list-head-bd1">Risk Free Investment</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <img src="/assests/img/num7.png" class="img-bd" alt="number 3">
+                        </div>
+                        <div class="col-sm-10">
+                            <p class="list-head-bd1">Smooth Trading</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <img src="/assests/img/num8.png" class="img-bd" alt="number 4">
+                        </div>
+                        <div class="col-sm-10">
+                            <p class="list-head-bd1">Bonus & Incentives</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 text-center ball-path" data-aos="fade-up" data-aos-duration="2000">
+            <img src="/assests/img/centerd-phone.png" class="img-phone" alt="phone">
+        </div>
+    </div>
 </div>
 <!--Body Details 1 Ends-->
 
 <!--Small Boxes Section-->
-<div class="container-fluid small-boxes-section">
-  <div class="row">
-      <div class="col-md-12 text-center">
-          <p class="sb-big-text">Check Our Amazing Offers</p>
-      </div>
-      <div class="offer-box text-center">
-          <p><img class="small-box-icon" src="assests/img/box-icon1.png" alt="icon"></p>
-          <p class="big-head-text-box">Bank Transfer</p>
-          <p class="small-text-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse non sem hendrerit, viverra nisl in, tristique urna.</p>
-      </div>
-      <div class="offer-box text-center">
-          <p><img class="small-box-icon" src="assests/img/box-icon2.png" alt="icon"></p>
-          <p class="big-head-text-box">Online Wallet</p>
-          <p class="small-text-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse non sem hendrerit, viverra nisl in, tristique urna.</p>
-      </div>
-      <div class="offer-box text-center">
-          <p><img class="small-box-icon" src="assests/img/box-icon3.png" alt="icon"></p>
-          <p class="big-head-text-box">Gift Cards</p>
-          <p class="small-text-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse non sem hendrerit, viverra nisl in, tristique urna.</p>
-      </div>
-      <div class="offer-box text-center">
-          <p><img class="small-box-icon" src="assests/img/box-icon4.png" alt="icon"></p>
-          <p class="big-head-text-box">Cash Payment</p>
-          <p class="small-text-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse non sem hendrerit, viverra nisl in, tristique urna.</p>
-      </div>
-      <div class="offer-box text-center">
-          <p><img class="small-box-icon" src="assests/img/box-icon5.png" alt="icon"></p>
-          <p class="big-head-text-box">Debit/Credit Cards</p>
-          <p class="small-text-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse non sem hendrerit, viverra nisl in, tristique urna.</p>
-      </div>
-      <div class="offer-box text-center">
-          <p><img class="small-box-icon" src="assests/img/box-icon6.png" alt="icon"></p>
-          <p class="big-head-text-box">Digital Currenciencs</p>
-          <p class="small-text-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse non sem hendrerit, viverra nisl in, tristique urna.</p>
-      </div>
-  </div>
-</div>
+<section class="small-boxes-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 text-center py-2">
+                <p class="small-text-bd1">OFFERS</p>
+                <p class="sb-big-text">Check Our Amazing Offers</p>
+            </div>
+            <div class="offer-box text-center" data-aos="fade-up" data-aos-duration="2000">
+                <p><img class="small-box-icon" src="/assests/img/box-icon1.png" alt="icon"></p>
+                <p class="big-head-text-box">Bank Transfer</p>
+                <p class="small-text-box"></p>
+            </div>
+            <div class="offer-box text-center" data-aos="fade-up" data-aos-duration="2000">
+                <p><img class="small-box-icon" src="/assests/img/box-icon2.png" alt="icon"></p>
+                <p class="big-head-text-box">Online Wallet</p>
+                <p class="small-text-box"></p>
+            </div>
+            <div class="offer-box text-center" data-aos="fade-up" data-aos-duration="2000">
+                <p><img class="small-box-icon" src="/assests/img/box-icon3.png" alt="icon"></p>
+                <p class="big-head-text-box">Gift Cards</p>
+                <p class="small-text-box"></p>
+            </div>
+            <div class="offer-box text-center" data-aos="fade-up" data-aos-duration="2000">
+                <p><img class="small-box-icon" src="/assests/img/box-icon4.png" alt="icon"></p>
+                <p class="big-head-text-box">Cash Payment</p>
+                <p class="small-text-box"></p>
+            </div>
+            <div class="offer-box text-center" data-aos="fade-up" data-aos-duration="2000">
+                <p><img class="small-box-icon" src="/assests/img/box-icon5.png" alt="icon"></p>
+                <p class="big-head-text-box">Debit/Credit Cards</p>
+                <p class="small-text-box"></p>
+            </div>
+            <div class="offer-box text-center" data-aos="fade-up" data-aos-duration="2000">
+                <p><img class="small-box-icon" src="/assests/img/box-icon6.png" alt="icon"></p>
+                <p class="big-head-text-box">Digital Currenciencs</p>
+                <p class="small-text-box"></p>
+            </div>
+        </div>
+    </div>
+</section>
 <!--Small Boxes Section Ends-->
 
-<!--Download Mobile App Section-->
-<div class="container-fluid download-mobile-app-div">
-  <div class="row">
-      <div class="col-md-5 download-text-div">
-          <p class="download-text">Download the mobile app for a whole new experience</p>
-          <a href="/#" class="btn btn-google-play"><img src="assests/img/google-play.png" alt="link" width="140px"></a>
-          <a href="/#" class="btn btn-google-play"><img src="assests/img/app-store.png" alt="link" width="140px"></a>
-      </div>
-      <div class="col-md-1"></div>
-      <div class="col-md-6 div-curved-img" data-aos="fade-up" data-aos-duration="2000">
-          <img class="mobile-phone-img" src="assests/img/curved-phone-new.png" alt="phone">
-      </div>
-  </div>
+<!--Download Mobile App-->
+<div class="bg-video-wrap">
+    <video class="video-download" src="/assests/img/PayBuyMax-Bitcoin-video.mp4" loop muted autoplay>
+    </video>
+    <div class="overlay">
+    </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6 download-text-div">
+                <p class="download-text">Download Our Mobile App For A Whole New Experience!</p>
+                <a href="#" class="btn btn-google-play"><img src="/assests/img/google-play.png" alt="link" width="140px"></a>
+                <a href="#" class="btn btn-google-play"><img src="/assests/img/app-store.png" alt="link" width="140px"></a>
+            </div>
+            <div class="col-md-6 div-curved-img" data-aos="fade-up" data-aos-duration="2000">
+                <img class="mobile-phone-img" src="/assests/img/curved-phones-news.png" alt="phone">
+            </div>
+        </div>
+    </div>
 </div>
-<!--Download Mobile App Section Ends-->
+<!--Download Mobile App Ends-->
 
-<!--Security Details Section-->
-<div class="container security-detail">
-  <div class="row">
-      <div class="col-md-6 text-area-sds">
-          <p class="small-text-sds">Security Details</p>
-          <p class="big-text-sds">World Class Security</p>
-          <p class="detail-text-sds">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean augue nisi, porttitor vitae interdum vel, pharetra sed metus. Ut et condimentum risus, vel convallis erat. Nunc convallis et lectus vel tempus. Aenean malesuada placerat odio, vitae elementum sapien gravida at.</p>
-          <div class="div-btn-link-sds">
-              <a href="/about" class="btn-link-sds">Read More About Our Security Details</a>
-          </div>
-      </div>
-      <div class="col-md-1"></div>
-      <div class="col-md-5" data-aos="fade-in" data-aos-duration="2000">
-          <img src="assests/img/img002.png" width="100%" alt="img">
-      </div>
-  </div>
+<!--FAQ Section-->
+<div class="container begin-div">
+    <div class="row">
+        <div class="col-md-12 text-center py-2">
+            <p class="small-text-bd1">(FAQ)</p>
+            <p class="sb-big-text">Frequently Asked Questions</p>
+        </div>
+        <div class="col-lg-7">
+            <div class="row">
+                <div class="col-md-12">
+                    <button class="accordion"><span class="fa fa-check-circle icon-accordion"></span>How long before i get credited?</button>
+                    <div class="panel">
+                    <p>Instantly!</p>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <button class="accordion"><span class="fa fa-check-circle icon-accordion"></span>Can I cancel my investment plan?</button>
+                    <div class="panel">
+                    <p>Yes, You can cancel your investment plan after 4weeks from the day of investing.</p>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <button class="accordion"><span class="fa fa-check-circle icon-accordion"></span>What is your fees charges?</button>
+                    <div class="panel">
+                    <p>Investing on our platform is totally free. We strive to maintain integrity, passion and professionalism in our dealings.</p>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <button class="accordion"><span class="fa fa-check-circle icon-accordion"></span>What is your referral bonus?</button>
+                    <div class="panel">
+                    <p>You can earn upto 10% of the capital invested by your referral. Your commission will be paid instantly as soon as your referral invests.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-5">
+            <img src="/assests/img/faq.png" class="faq-img" alt="img">
+        </div>
+    </div>
 </div>
-<!--Security Details Section Ends-->
+<!--FAQ Section Ends-->
 
-<!--Accomplishment Section-->
+<!--Accomplishment Section
 <div class="container accomplishment-section">
-  <div class="row">
-      <div class="box-acc-detail">
-          <p class="small-text-accomplish">Successful Clients</p>
-          <p class="big-text-accomplish">Trusted By<br>100,000+ Users</p>
-          <p class="average-text-accomplish">The <strong>world's largest and most secure crytocurrency platform</strong> used by thousands of clients.</p>
-      </div>
-      <div class="col-md-1"></div>
-      <div class="col-md-3 box-acc" data-aos="fade-up" data-aos-duration="1000">
-          <p><img class="quote-icon" src="assests/img/quote.png" alt="quote"></p>
-          <p class="testimony-acc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla pellentesque lacus vitae massa sagittis, id placerat libero congue.</p>
-          <p><img class="quote-icon-two" src="assests/img/quote2.png" alt="quote"></p>
-          <p class="acc-name"><strong>David H.</strong></p>
-          <p class="stars">⭐⭐⭐⭐⭐</p>
-      </div>
-      <div class="col-md-3 box-acc" data-aos="fade-down" data-aos-duration="1000">
-          <p><img class="quote-icon" src="assests/img/quote.png" alt="quote"></p>
-          <p class="testimony-acc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla pellentesque lacus vitae massa sagittis, id placerat libero congue.</p>
-          <p><img class="quote-icon-two" src="assests/img/quote2.png" alt="quote"></p>
-          <p class="acc-name"><strong>Henry D.</strong></p>
-          <p class="stars">⭐⭐⭐⭐⭐</p>
-      </div>
-      <div class="col-md-12 line-rule">
-          <hr>
-      </div>
-  </div>
+    <div class="row">
+        <div class="box-acc-detail">
+            <p class="small-text-accomplish">Successful Clients</p>
+            <p class="big-text-accomplish">Trusted By<br>100,000+ Users</p>
+            <p class="average-text-accomplish">The <strong>world's largest and most secure crytocurrency platform</strong> used by thousands of clients.</p>
+        </div>
+        <div class="col-md-1"></div>
+        <div class="col-md-3 box-acc" data-aos="fade-up" data-aos-duration="1000">
+            <p><img class="quote-icon" src="/assests/img/quote.png" alt="quote"></p>
+            <p class="testimony-acc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla pellentesque lacus vitae massa sagittis, id placerat libero congue.</p>
+            <p><img class="quote-icon-two" src="/assests/img/quote2.png" alt="quote"></p>
+            <p class="acc-name"><strong>David H.</strong></p>
+            <p class="stars">⭐⭐⭐⭐⭐</p>
+        </div>
+        <div class="col-md-3 box-acc" data-aos="fade-down" data-aos-duration="1000">
+            <p><img class="quote-icon" src="/assests/img/quote.png" alt="quote"></p>
+            <p class="testimony-acc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla pellentesque lacus vitae massa sagittis, id placerat libero congue.</p>
+            <p><img class="quote-icon-two" src="/assests/img/quote2.png" alt="quote"></p>
+            <p class="acc-name"><strong>Henry D.</strong></p>
+            <p class="stars">⭐⭐⭐⭐⭐</p>
+        </div>
+        <div class="col-md-12 line-rule">
+            <hr>
+        </div>
+    </div>
 </div>
-<!--Accomplishment Section Ends-->
+-->
 
 <!--Sign Up/Newsletter Section-->
 <div class="container signup-newsletter">
-  <div class="row">
-      <div class="col-md-6">
-          <p class="first-text-signup">Sign up for free.</p>
-          <p class="second-text-signup">Start investing today!</p>
-      </div>
-      <div class="col-md-6">
-          <form class="subscribe-news">
-              <button type="submit" class="btn-submit-news">Sign up for free</button>
-              <input type="email" required class="input-form" placeholder="email@example.com"></input>
-          </form>
-      </div>
-  </div>
+    <div class="row">
+        <div class="col-md-6">
+            <p class="first-text-signup">Sign up for free.</p>
+            <p class="second-text-signup">Start investing today!</p>
+        </div>
+        <div class="col-md-6">
+            <form class="subscribe-news">
+                <button type="submit" class="btn-submit-news">Sign up for free</button>
+                <input type="email" required class="input-form" placeholder="email@example.com"></input>
+            </form>
+        </div>
+    </div>
 </div>
+<!--Sign Up/Newsletter Section Ends-->
+
+
 <%- include("./partials/footer") %>

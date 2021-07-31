@@ -357,7 +357,6 @@ router.post("/admin", AuthController.loginAdmin);
 router.post("/createAdmin", AuthController.createAdmin);
 //router.post("/signup", [AuthMiddleware.redirectHome, AuthMiddleware.authVerirfication], AuthController.register);
 //router.get("/signup", AuthController.signup);
-router.post("/signup", AuthController.signupUser);
 router.post("/register", AuthController.register);
 router.get("/login", AuthController.signInUser);
 router.get('/admin', AuthController.adminLogin)

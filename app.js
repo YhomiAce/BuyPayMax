@@ -137,11 +137,11 @@ cron.schedule("* 6 * * *", () => {
     // if(shell.exec("node cronjob.js").code !== 0) {
     //     console.log("something went wrong");
     Investments.findAll({
-        //     where: {
-        //         expiredAt: {
-        //             [Op.lte]: moment().format('YYYY-MM-DD HH:mm:ss')
-        //         }
-        //     }
+            where: {
+                expiredAt: {
+                    [Op.lte]: moment().format('YYYY-MM-DD HH:mm:ss')
+                }
+            }
         })
         .then(inactiveInvestments => {
             const records = inactiveInvestments.map(function (expiredInvestment) {
