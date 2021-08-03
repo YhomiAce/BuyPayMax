@@ -6,7 +6,66 @@
 body{
     font-family: 'Poppins', sans-serif !important;
     scroll-behavior: smooth;
-    background-color: #fff5eb;
+    background-color: hsl(30, 100%, 96%);
+    overflow-x: hidden;
+}
+
+/* Mouse Cursor */
+.cursor {
+    width: 50px;
+    height: 50px;
+    /* border: 1px solid #0052ff; */
+    background-color: #ffc792c4;
+    border-radius: 50%;
+    position: absolute;
+    transition-duration: 100ms;
+    transition-timing-function: ease-out;
+    animation: cursorAnim .5s infinite alternate;
+    pointer-events: none;
+    z-index: 10000;
+}
+.cursor::after {
+    content: "";
+    width: 50px;
+    height: 50px;
+    position: absolute;
+    background-color: #ffab5dcc;
+    border-radius: 50%;
+    opacity: .5;
+    top: -8px;
+    left: -8px;
+    animation: cursorAnim2 .5s infinite alternate;
+}
+@keyframes cursorAnim {
+from {
+    transform: scale(1);
+}
+to {
+    transform: scale(.7);
+}
+}
+@keyframes cursorAnim2 {
+from {
+    transform: scale(1);
+}
+to {
+    transform: scale(.4);
+}
+}
+@keyframes cursorAnim3 {
+0% {
+    transform: scale(1);
+}
+50% {
+    transform: scale(2);
+}
+100% {
+    transform: scale(1);
+    opacity: 0;
+}
+}
+.expand {
+animation: cursorAnim3 .5s forwards;
 }
 
 /*Header Section */
@@ -184,6 +243,27 @@ body{
     width: 100%;
     margin-top: 20px;
 }
+.btn-sell-bit-head, .btn-buy-bit-head{
+    padding: 15px 45px;
+    font-size: 20px;
+    font-weight: 400;
+    color: #fff;
+    border-radius: 30px;
+    margin: 3px;
+    letter-spacing: 0.8px;
+    transition: 0.5;
+}
+.btn-sell-bit-head{
+    background-color: #212529;
+}
+.btn-buy-bit-head{
+    background-color: #995519;
+}
+.btn-sell-bit-head:hover, .btn-buy-bit-head:hover{
+    color: #FFF5EB;
+    border: 2px solid #FFF5EB;
+    opacity: 0.8;
+}
 @media (max-width: 765px){
     .banner-img{
         display: none;
@@ -197,6 +277,12 @@ body{
         padding-top: 20px !important;
         height: 900px;
         margin-left: -5px;
+    }
+}
+@media(max-width: 420px){
+    .btn-sell-bit-head, .btn-buy-bit-head{
+        margin: 1px;
+        padding: 15px 40px;
     }
 }
 @media (max-width: 370px){
@@ -342,11 +428,8 @@ body{
     font-weight: bolder;
     margin-top: -10px;
 }
-.itembox1-bd1{
-    margin-top: 100px;
-}
-.itembox2-bd1{
-    margin-top: 80px;
+.bd-row{
+    margin-top: 40px;
 }
 .img-bd{
     width: 45px;
@@ -361,11 +444,6 @@ body{
     font-weight: 600;
     margin-bottom: 60px;
     padding-left: 10px;
-}
-.list-bd1{
-    margin-top: -500px;
-    font-size: 15px;
-    margin-bottom: 100px;
 }
 @media (max-width: 600px){
     .img-bd{
@@ -385,77 +463,119 @@ body{
     }
 }
 
-/* Small Boxes */
-.small-boxes-section{
+/* Buy and Sell */
+.download-text-div-buy-sell{
     padding-top: 150px;
-    padding-bottom: 30px !important;
-    margin-top: 10px;
-    margin-bottom: -5px;
-    background-image: url(/assests/img/small-box-bg.png);
-    height: 750px;
+    padding-left: 60px;
+    color: #fff;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 999;
+    background-image: url('/assests/img/buy-sell-bg.png');
     background-size: cover;
+    background-position: top right;
     background-repeat: no-repeat;
-    background-position: bottom center;
 }
-.sb-big-text{
-    font-size: 30px;
-    font-weight: bolder;
-    padding-bottom: 10px;
+.bg-video-buy-sell {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    height: 100vh;
+    z-index: 1;
+    margin-top: 50px;
 }
-.offer-box{
-    width: 300px;
-    border-radius: 5px;
-    margin: 15px;
-    margin-bottom: 25px !important;
-    margin: auto;
-    float: left;
-    padding: 15px 15px 10px 15px;
-    box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.116), 2px 6px 10px 2px rgba(0, 0, 0, 0.082);
-    background-color: #fdf6eeaf;
+.video-download-buy-sell {
+min-width: 100%;
+min-height: 100vh;
+z-index: -1;
 }
-.small-box-icon{
-    width: 50px;
+.overlay-buy-sell {
+    width: 100%;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: #804a1700;
+    z-index: 3;
+    }
+.border-left-buy-sell{
+    border-left: 5px solid #FFF5EB;
+    padding-left: 30px;
+    padding-top: 50px;
+    padding-bottom: 50px;
+    padding-right: 20px;
 }
-.big-head-text-box{
-    font-weight: bold;
-    font-size: 17px;
-    margin-top: -10px;
+.download-text-buy-sell{
+    font-size: 45px;
+    font-weight: 700;
+    color: #FFF5EB;
 }
-.small-text-box{
-    margin-top: -10px;
-    font-size: 14px;
+.download-text-below{
+    font-size: 16px;
+    color: #FFF5EB;
+    letter-spacing: 0.5px;
+    padding-bottom: 20px;
 }
-.btn-view-offers{
-    background-color: #C9782F;
-    color: #fff !important;
-    margin-top: 20px;
-    font-size: 14px !important;
-    padding: 10px 20px 10px 20px;
+.btn-sell-bit, .btn-buy-bit{
+    padding: 15px 45px;
+    font-size: 20px;
+    font-weight: 400;
+    color: #fff;
+    border-radius: 30px;
+    margin: 5px;
+    letter-spacing: 0.8px;
+    transition: 0.5;
 }
-.btn-view-offers:hover{
-    background-color: #965822;
+.btn-sell-bit{
+    background-color: #FD3901;
 }
-@media (max-width: 760px){
-    .small-boxes-section{
-        height: 1300px;
+.btn-buy-bit{
+    background-color: #1fd819;
+}
+.btn-sell-bit:hover, .btn-buy-bit:hover{
+    color: #141C27;
+    border: 2px solid #FFF5EB;
+}
+@media(max-width: 862px){
+    .download-text-div-buy-sell{
+        padding-top: 10px;
+    }
+}
+@media (max-width: 765px){
+    .download-text-div-buy-sell{
+        padding-top: 150px;
     }
 }
 @media (max-width: 600px){
-    .small-boxes-section{
-        padding-bottom: 100px !important;
-    }
-    .offer-box{
-        margin-left: 80px;
+    .download-text-div-buy-sell{
+        padding-top: 100px;
     }
 }
-@media (max-width: 400px){
-    .offer-box{
-        margin-left: 40px;
+@media (max-width: 494px){
+    .download-text-div-buy-sell{
+        padding-top: 80px;
     }
 }
-@media (max-width: 360px){
-    .offer-box{
-        margin-left: 30px;
+@media(max-width: 420px){
+    .border-left-buy-sell{
+        border-left: none;
+        padding-left: 10px;
+        padding-top: 50px;
+        padding-bottom: 50px;
+        padding-right: 1px;
+    }
+    .btn-sell-bit, .btn-buy-bit{
+        margin: 1px;
+        padding: 15px 40px;
+    }
+}
+@media (max-width: 370px){
+    .download-text-div-buy-sell{
+       padding-top: 50px;
+       padding-left: 20px;
     }
 }
 
@@ -550,9 +670,22 @@ z-index: 3;
     }
 }
 
+/* Training Section */
+.learn-more{
+    margin-top: 60px;
+}
+.begin-div-learn{
+    margin-top: 30px;
+}
+@media(max-width: 765px){
+    .learn-more{
+        margin-top: 1px !important;
+    }
+}
+
 /* FAQ Section*/
 .begin-div{
-    margin-top:120px; 
+    margin-top:20px; 
     margin-bottom:100px;
   }
 .accordion {
@@ -604,37 +737,6 @@ letter-spacing:0.3px;
 .faq-img{
     width: 102%;
     margin-top: 40px;
-}
-
-/* Security Details */
-.security-detail{
-    margin-top: 120px;
-}
-.text-area-sds{
-    margin-top: 60px;
-}
-.small-text-sds{
-    color: #C9782F;
-    font-weight: bold;
-}
-.big-text-sds{
-    font-size: 35px;
-    font-weight: bolder;
-    margin-top: -10px;
-}
-.detail-text-sds{
-    font-size: 15px;
-    line-height: 25px;
-}
-.div-btn-link-sds{
-    margin-top: 50px;
-}
-.btn-link-sds{
-    text-decoration: underline;
-    color: #C9782F;
-}
-.btn-link-sds:hover{
-    color: #77461b;
 }
 
 /* Accomplishment Section */
@@ -970,6 +1072,9 @@ max-width: 100px;
 
 
 /* PRICING PLAN PAGE */
+.home-price{
+    margin-top:30px !important;
+}
 .pricing-table{
     display: flex;
     flex-wrap: wrap;
@@ -1269,7 +1374,6 @@ margin-top: 36px;
 .contact-page-form form {
 padding: 20px 15px 0;
 }
-
 
 /*** PRIVACY POLICY PAGE ****/
 .container-privacy{

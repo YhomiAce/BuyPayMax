@@ -75,6 +75,11 @@ exports.privacy = (req, res, next) => {
   res.render("privacy");
 };
 
+exports.training = (req, res, next) => {
+  //res.render("auths/login2");
+  res.render("training");
+};
+
 exports.getResendLink = (req, res, next) => {
   res.render("resendlink");
 };

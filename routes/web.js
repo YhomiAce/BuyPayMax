@@ -365,6 +365,7 @@ router.get("/faq", AuthController.faq);
 router.get("/pricing", AuthController.pricing);
 router.get("/contact", AuthController.contact);
 router.get("/privacy", AuthController.privacy);
+router.get("/training", AuthController.training);
 router.get("/terms", AuthController.terms);
 router.get("/forgot", AuthController.forgotPassword);
 router.post("/edit/user", AuthMiddleware.redirectAdminLogin, WalletController.postEditUser);
