@@ -9,12 +9,17 @@ module.exports = {
     CLIENT_ID_FB: "803481943564861",
     CLIENT_SECRET_FB: "1021bfb85276588bf79271cb2712f9cc",
     APP_NAME: "Tobby EpayCoin",
-    SITE_URL: "https://tobby-epay.herokuapp.com",
-    // SITE_URL: "http:localhost:5000",
+    // SITE_URL: "https://tobby-epay.herokuapp.com",
+    SITE_URL: "http:localhost:5000",
     CLIENT_ID_GOOGLE: "666290590783-djcj0jd6q5g7e00ovciko1elct84qrij.apps.googleusercontent.com",
     CLIENT_SECRET_GOOGLE: "X-aoQVXrMZ-tA3EdRPsCwpBh",
     EMAIL_PASSWORD: "e841d92282037e",
     EMAIL_USERNAME: "1e544c5e5f7d79",
     EMAIL_HOST: 'smtp.mailtrap.io',
-    EMAIL_PORT: "587"
+    EMAIL_PORT: "587",
+
+    // EMAIL_PASSWORD: "chairman@2020!",
+    // EMAIL_USERNAME: "info@paybuymax.greenmouseproperties.com",
+    // EMAIL_HOST: 'mail.paybuymax.greenmouseproperties.com',
+    // EMAIL_PORT: "26"
 };

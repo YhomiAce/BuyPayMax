@@ -405,7 +405,7 @@ exports.emailVerification = (req, res, next) => {
           "success",
           "Email activation successful, please login to your account"
         );
-        res.render("loginb");
+        res.redirect("/login");
     });
   });
 };
@@ -634,7 +634,7 @@ exports.login = (req, res, next) => {
     Users.findOne({
       where: {
         email: {
-          [Op.eq]: req.body.email,
+          [Op.eq]: email,
         },
       },
     })
@@ -643,7 +643,7 @@ exports.login = (req, res, next) => {
           req.flash("error", "Check your email for activation link");
           res.redirect("back");
         } else {
-          let password = req.body.password;
+          
           if (bcrypt.compareSync(password, user.password)) {
             req.session.userId = user.id;
             // req.session.role = user.role;
@@ -655,7 +655,8 @@ exports.login = (req, res, next) => {
         }
       })
       .catch((error) => {
-        req.flash("error", "Try again, something went wrong!");
+        console.log(error);
+        req.flash("error", "Try again, something went wrong!!");
         res.redirect("back");
       });
   } else {
@@ -665,26 +666,20 @@ exports.login = (req, res, next) => {
 };
 
 exports.register = async (req, res) => {
-  const { name, email, password1, password2, phone } = req.body;
+  const { email, password } = req.body;
   const mailformat = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
   const digits_only = (string) =>
     [...string].every((c) => "+0123456789".includes(c));
 
   try {
-    if (!name || !email || !phone || !password1 || !password2) {
+    if (!email || !password) {
       req.flash("warning", "Please Fill all Fields");
       res.redirect("back");
     } else if (!email.match(mailformat)) {
       req.flash("warning", "Enter valid email address");
       res.redirect("back");
-    } else if (!digits_only(phone) || phone.length < 11) {
-      req.flash("warning", "Enter valid mobile phone");
-      res.redirect("back");
-    } else if (password1.length < 6) {
+    } else if (password.length < 6) {
       req.flash("warning", "Passwords must be greater than 5 letters");
-      res.redirect("back");
-    } else if (password1 !== password2) {
-      req.flash("warning", "Passwords Do not match");
       res.redirect("back");
     } else {
       let uniqueRef = generateUniqueId({
@@ -699,7 +694,7 @@ exports.register = async (req, res) => {
         res.redirect("back");
       }else{
 
-        const password = bcrypt.hashSync(password1, 10);
+        const hasPassword = bcrypt.hashSync(password, 10);
         const reference = await Users.findOne({
             where: {
             reference: {
@@ -710,10 +705,8 @@ exports.register = async (req, res) => {
         let newUser;
         if (reference) {
             newUser = await Users.create({
-            name,
             email,
-            phone,
-            password,
+            password: hasPassword,
             reference: uniqueRef,
             referral_id: reference.id,
             });
@@ -725,10 +718,8 @@ exports.register = async (req, res) => {
             
         }else{
             newUser = await Users.create({
-                name,
                 email,
-                phone,
-                password,
+                password: hasPassword,
                 reference:uniqueRef,
             });
             
@@ -879,7 +870,7 @@ exports.register = async (req, res) => {
             <td valign="top" align="center" style="padding:0;Margin:0;width:500px">
             <table style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:separate;border-spacing:0px;border-radius:4px;background-color:#FFFFFF" width="100%" cellspacing="0" cellpadding="0" bgcolor="#ffffff" role="presentation">
             <tr style="border-collapse:collapse">
-            <td class="es-m-txt-l" bgcolor="#ffffff" align="left" style="Margin:0;padding-top:20px;padding-bottom:20px;padding-left:30px;padding-right:30px"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:lato, 'helvetica neue', helvetica, arial, sans-serif;line-height:27px;color:#666666;font-size:18px">Hi, <strong>${user_name}</strong><br>We're excited to have you get started. First, you need to activate&nbsp;your account. Just press the button below.</p></td>
+            <td class="es-m-txt-l" bgcolor="#ffffff" align="left" style="Margin:0;padding-top:20px;padding-bottom:20px;padding-left:30px;padding-right:30px"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:lato, 'helvetica neue', helvetica, arial, sans-serif;line-height:27px;color:#666666;font-size:18px">Hi, <strong>${user_email}</strong><br>We're excited to have you get started. First, you need to activate&nbsp;your account. Just press the button below.</p></td>
             </tr>
             <tr style="border-collapse:collapse">
             <td align="center" style="Margin:0;padding-left:10px;padding-right:10px;padding-top:35px;padding-bottom:35px"><span class="es-button-border" style="border-style:solid;border-color:#FFA73B;background:1px;border-width:1px;display:inline-block;border-radius:2px;width:auto"><a href="${parameters.SITE_URL}/verifyemail?email=${user_email}&token=${email_token}" class="es-button" target="_blank" style="mso-style-priority:100 !important;text-decoration:none;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;color:#FFFFFF;font-size:20px;border-style:solid;border-color:#FFA73B;border-width:15px 30px;display:inline-block;background:#FFA73B;border-radius:2px;font-family:helvetica, 'helvetica neue', arial, verdana, sans-serif;font-weight:normal;font-style:normal;line-height:24px;width:auto;text-align:center">Activate Account</a></span></td>
@@ -969,6 +960,7 @@ exports.register = async (req, res) => {
         };
         transporter.sendMail(mailOptions, async(err, info)=>{
             if (err) {
+              console.log(err);
                 req.flash("error", "Error sending mail");
                 res.redirect("back");
             }else{
