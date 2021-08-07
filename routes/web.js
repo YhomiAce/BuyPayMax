@@ -395,6 +395,9 @@ router.get('/history',AuthMiddleware.redirectLogin, TransactionController.transa
 // users specific routes
 router.get("/fundwallet", AuthMiddleware.redirectLogin, WalletController.walletPage);
 router.post("/fundwallet", AuthMiddleware.redirectLogin, WalletController.fundWallet);
+router.get("/buy", AuthMiddleware.redirectLogin, TransactionController.buyCoins);
+router.get("/sell", AuthMiddleware.redirectLogin, TransactionController.sellCoins);
+router.get("/rates", TransactionController.getRates);
 
 // users
 router.get("/settings", AuthMiddleware.redirectLogin, ProfileController.settingsPage);

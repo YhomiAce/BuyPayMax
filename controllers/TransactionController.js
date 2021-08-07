@@ -10,6 +10,11 @@ const Withdrawals = require("../models").Withdrawal;
 const History = require("../models").History;
 const Chats = require("../models").Chat;
 const AdminMessages = require("../models").AdminMessage;
+const Transactions = require("../models").Transaction;
+const Referrals = require("../models").Referral;
+const CryptBank = require("../models").CryptBank;
+const DollarValue = require("../models").DollarValue;
+
 
 // imports initialization
 const Op = Sequelize.Op;
@@ -455,4 +460,163 @@ exports.postDisApproveWithdrawal = (req, res, next) => {
             req.flash('error', "Server error");
             res.redirect("back");
         });
+}
+
+exports.buyCoins = async(req, res) =>{
+    try {
+        const unansweredChats = await Chats.findAll({
+            where: {
+                [Op.and]: [{
+                        receiver_id: {
+                            [Op.eq]: req.session.userId
+                        }
+                    },
+                    {
+                        read_status: {
+                            [Op.eq]: 0
+                        }
+                    }
+                ]
+            },
+            include: ["user"],
+        });
+        const user = await Users.findOne({
+            where: {
+                id: {
+                    [Op.eq]: req.session.userId
+                }
+            }
+        });
+        const referral = await Referrals.findAll({
+            where: {
+                referral_id: {
+                    [Op.eq]: req.session.userId
+                }
+            }
+        });
+        
+        const bank = await CryptBank.findOne({});
+
+        const dollar = await DollarValue.findOne({})
+
+        res.render("dashboards/users/buy", {
+            user: user,
+            email: user.email,
+            phone: user.phone,
+            wallet: user.wallet,
+            referral: user.referral_count,
+            referral_amount: referral.length * 1000,
+            messages: unansweredChats,
+            moment
+        });
+    } catch (error) {
+        req.flash('error', "Server error");
+        res.redirect("back");
+    }
+}
+
+exports.sellCoins = async(req, res) =>{
+    try {
+        const unansweredChats = await Chats.findAll({
+            where: {
+                [Op.and]: [{
+                        receiver_id: {
+                            [Op.eq]: req.session.userId
+                        }
+                    },
+                    {
+                        read_status: {
+                            [Op.eq]: 0
+                        }
+                    }
+                ]
+            },
+            include: ["user"],
+        });
+        const user = await Users.findOne({
+            where: {
+                id: {
+                    [Op.eq]: req.session.userId
+                }
+            }
+        });
+        const referral = await Referrals.findAll({
+            where: {
+                referral_id: {
+                    [Op.eq]: req.session.userId
+                }
+            }
+        });
+        
+        const bank = await CryptBank.findOne({});
+
+        const dollar = await DollarValue.findOne({})
+
+        res.render("dashboards/users/sell", {
+            user: user,
+            email: user.email,
+            phone: user.phone,
+            wallet: user.wallet,
+            referral: user.referral_count,
+            referral_amount: referral.length * 1000,
+            messages: unansweredChats,
+            moment
+        });
+    } catch (error) {
+        req.flash('error', "Server error");
+        res.redirect("back");
+    }
+}
+
+exports.getRates = async(req,res) =>{
+    try {
+        const unansweredChats = await Chats.findAll({
+            where: {
+                [Op.and]: [{
+                        receiver_id: {
+                            [Op.eq]: req.session.userId
+                        }
+                    },
+                    {
+                        read_status: {
+                            [Op.eq]: 0
+                        }
+                    }
+                ]
+            },
+            include: ["user"],
+        });
+        const user = await Users.findOne({
+            where: {
+                id: {
+                    [Op.eq]: req.session.userId
+                }
+            }
+        });
+        const referral = await Referrals.findAll({
+            where: {
+                referral_id: {
+                    [Op.eq]: req.session.userId
+                }
+            }
+        });
+        
+        const bank = await CryptBank.findOne({});
+
+        const dollar = await DollarValue.findOne({})
+
+        res.render("dashboards/users/sell", {
+            user: user,
+            email: user.email,
+            phone: user.phone,
+            wallet: user.wallet,
+            referral: user.referral_count,
+            referral_amount: referral.length * 1000,
+            messages: unansweredChats,
+            moment
+        });
+    } catch (error) {
+        req.flash('error', "Server error");
+        res.redirect("back");
+    }
 }
