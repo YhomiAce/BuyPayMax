@@ -6,14 +6,28 @@
     <section class="section">
         <div class="container">
             <div class="row justify-content-center">
-                <h1 class="text-defualt">Coming Soon</h1>
+                <h1 class="text-defualt">Our Products</h1>
             </div>
         </div>
             
     </section>
 
     <section class="section">
-
+        <div class="row px-auto">
+            <% for(let i = 0; i< coins.length; i++) { %> 
+            <div class="col-md-4">
+                <div class="card" style="width: 18rem;">
+                    <img src="<%= coins[i].image %>" class="card-img-top img-thumbnail"  alt="...">
+                    <div class="card-body">
+                      <h5 class="card-title"><%= coins[i].name %></h5>
+                        <h6>Current Price: <span class="text-dark">1<%= coins[i].symbol %></span>==<span class="text-warning"> $<%= coins[i].current_price. toLocaleString() %></span> </h6>
+                      
+                      <a href="/sell/coin?name=<%= coins[i].id %>" class="btn btn-primary">BUY</a>
+                    </div>
+                  </div>
+            </div>
+            <% } %>
+        </div>
        
     </section>
 </div>

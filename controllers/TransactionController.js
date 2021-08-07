@@ -1,6 +1,7 @@
 // package imports
 const Sequelize = require("sequelize");
 const moment = require("moment");
+const axios = require('axios');
 
 // local imports
 const Users = require("../models").User;
@@ -497,7 +498,12 @@ exports.buyCoins = async(req, res) =>{
         
         const bank = await CryptBank.findOne({});
 
-        const dollar = await DollarValue.findOne({})
+        const dollar = await DollarValue.findOne({});
+
+        let coin = [];
+        const resp = await axios.get("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false");
+        coin = resp.data;
+        coin = coin.slice(0,9)
 
         res.render("dashboards/users/buy", {
             user: user,
@@ -507,7 +513,71 @@ exports.buyCoins = async(req, res) =>{
             referral: user.referral_count,
             referral_amount: referral.length * 1000,
             messages: unansweredChats,
-            moment
+            moment,
+            coins:coin
+        });
+    } catch (error) {
+        req.flash('error', "Server error");
+        res.redirect("back");
+    }
+}
+
+exports.sellBitCoin = async(req, res) =>{
+    try {
+        const {name} = req.query;
+        const unansweredChats = await Chats.findAll({
+            where: {
+                [Op.and]: [{
+                        receiver_id: {
+                            [Op.eq]: req.session.userId
+                        }
+                    },
+                    {
+                        read_status: {
+                            [Op.eq]: 0
+                        }
+                    }
+                ]
+            },
+            include: ["user"],
+        });
+        const user = await Users.findOne({
+            where: {
+                id: {
+                    [Op.eq]: req.session.userId
+                }
+            }
+        });
+        const referral = await Referrals.findAll({
+            where: {
+                referral_id: {
+                    [Op.eq]: req.session.userId
+                }
+            }
+        });
+        
+        const bank = await CryptBank.findOne({});
+
+        const dollar = await DollarValue.findOne({});
+
+        let coin = [];
+        const resp = await axios.get(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${name}&order=market_cap_desc&per_page=100&page=1&sparkline=false`);
+        coin = resp.data;
+        coin = coin[0];
+        console.log(coin);
+        // const currentPrice = coin.current_price;
+        // const rate = amount * currentPrice;
+
+        res.render("dashboards/users/sell_coin", {
+            user: user,
+            email: user.email,
+            phone: user.phone,
+            wallet: user.wallet,
+            referral: user.referral_count,
+            referral_amount: referral.length * 1000,
+            messages: unansweredChats,
+            moment,
+            coins:coin
         });
     } catch (error) {
         req.flash('error', "Server error");
@@ -568,8 +638,22 @@ exports.sellCoins = async(req, res) =>{
     }
 }
 
+const fetchRates = () =>{
+    axios.get("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false")
+    .then(res =>{
+        // console.log(res);
+        const data = res.data;
+        return data;
+        
+    }).catch(err =>{
+        console.log(err);
+    })
+}
+
 exports.getRates = async(req,res) =>{
     try {
+        // const coin = fetchRates(); 
+        // console.log(coin);
         const unansweredChats = await Chats.findAll({
             where: {
                 [Op.and]: [{
@@ -603,9 +687,13 @@ exports.getRates = async(req,res) =>{
         
         const bank = await CryptBank.findOne({});
 
-        const dollar = await DollarValue.findOne({})
+        const dollar = await DollarValue.findOne({});
+        let loading = false;
+        let coin = [];
+        const resp = await axios.get("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false");
+        coin = resp.data
 
-        res.render("dashboards/users/sell", {
+        res.render("dashboards/users/rates", {
             user: user,
             email: user.email,
             phone: user.phone,
@@ -613,7 +701,9 @@ exports.getRates = async(req,res) =>{
             referral: user.referral_count,
             referral_amount: referral.length * 1000,
             messages: unansweredChats,
-            moment
+            moment,
+            coins: coin,
+            loading
         });
     } catch (error) {
         req.flash('error', "Server error");

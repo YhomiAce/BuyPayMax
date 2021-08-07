@@ -1,0 +1,64 @@
+<%- include("../../partials/header") %>
+<%- include("../../partials/user_sidebar") %>
+
+<div class="main-content">
+    <%- include("../../partials/alerts") %>
+    <section class="section">
+        <div class="section-body">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Crypto Currency Exchange Rates</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped" id="table-1">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">#</th>
+                                            <th>Name</th>
+                                            <th>Symbol</th>
+                                            <th>Image</th>
+                                            <th>Current Price</th>
+                                            <th>Market Cap</th>
+                                            <th>Price Change</th>
+                                        </tr>
+                                    </thead>
+                                    
+                                    <tbody>
+                                      
+                                    <% if(coins.length > 0 && coins != null) { %>
+                                        
+                                        <%  for (let i = 0; i < coins.length; i++ ) { %>
+                                        <tr>
+                                            <td><%= i + 1 %> </td>
+                                            <td><%= coins[i].name %> </td>
+                                            <td><%= coins[i].symbol %> </td>
+                                            <td><img src="<%= coins[i].image %>" alt="" width="70px"> </td>
+                                            <td>$<%= coins[i].current_price. toLocaleString() %> </td>
+                                            <td>$<%= coins[i].market_cap.toLocaleString() %> </td>
+                                            <% if(coins[i].price_change_percentage_24h > 0 ) { %> 
+                                            <td class="text-success">  <%= coins[i].price_change_percentage_24h %>% </td>
+                                            <% }  else { %>
+                                            <td class="text-danger">  <%= coins[i].price_change_percentage_24h %>% </td>
+                                            <% } %>
+                                        </tr>
+                                        <% } %>
+                                    <% }  else { %>
+                                        <h1>Loading</h1>
+                                    <% } %>
+                                    </tbody>
+                                    
+                                    
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<%- include("../../partials/user_footer2") %>

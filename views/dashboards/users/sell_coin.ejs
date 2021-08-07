@@ -1,0 +1,70 @@
+<%- include("../../partials/header") %>
+<%- include("../../partials/user_sidebar") %>
+
+<div class="main-content">
+    <%- include("../../partials/alerts") %>
+    <section class="section mb-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <marquee behavior="scroll" direction="left">Naira to dollar</marquee>
+            </div>
+        </div>
+            
+    </section>
+
+    <section class="section mt-5">
+        <div class="row">
+            
+            <div class="col-md-6">
+                <img src="<%= coins.image %>" alt="">
+                <h2>Name: <%= coins.name %></h2>
+                <h3>Current Price: <span class="text-success">$<%= coins.current_price. toLocaleString() %></span></h3>
+                <p style="display: none;" id="currentPrice"> <%=  coins.current_price %>  </p>
+            </div>
+            <div class="col-md-6">
+                <form action="">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="">Amount <%= coins.symbol %></label>
+                                <input type="number" id="amount" name="amount" step="0.0000000000001" class="form-control" required>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="">Wallet Address</label>
+                                <input type="text" name="wallet" class="form-control" required>
+                            </div>
+                        </div>
+                        <h2 id="price" style="display: none;"></h2>
+                        <input type="submit" value="Send" class="btn btn-primary btn-block">
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        
+        
+    </section>
+</div>
+
+
+<%- include("../../partials/user_footer2") %>
+
+<script>
+    $(document).ready(function(){
+        var currentPrice = $('#currentPrice').text();
+        var amount = $("#amount").val();
+        $("#amount").change(()=>{
+            // 1btc = currentPrice
+            // x-amount = x
+            var rate = currentPrice * amount;
+            // rate = rate.toLocaleString();
+            console.log(rate);
+            // $("#price").show();
+            // alert($("#price").text(`N${rate}`))
+        })
+    })
+    
+</script>
