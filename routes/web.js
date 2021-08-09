@@ -388,6 +388,7 @@ router.get("/admin-password", [AuthMiddleware.redirectAdminLogin, AuthMiddleware
 router.post("/update-password", [AuthMiddleware.redirectLogin, AuthMiddleware.authVerirfication], AuthController.changePassword);
 router.post("/admin-update-password", [AuthMiddleware.redirectAdminLogin, AuthMiddleware.authVerirfication], AuthController.changeAdminPassword);
 router.get("/dashboard", AuthMiddleware.redirectAdminLogin, DashboardController.AdminHome);
+router.get("/agent/home", AuthMiddleware.redirectAdminLogin, DashboardController.agentHome);
 // coinqvest routes
 router.post("/createcheckout", AuthMiddleware.redirectLogin, CoinqvestController.createCheckout);
 

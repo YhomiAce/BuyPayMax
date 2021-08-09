@@ -101,10 +101,17 @@ exports.loginAdmin = async(req,res,next) =>{
           req.flash("error", "Incorrect Password!");
           res.redirect("back");
         }else{
-          req.flash("success", "LoggedIn Successfully");
-          req.session.adminId = admin.id;
-          req.session.role = admin.level
-          res.redirect('/dashboard')
+          if (admin.level === 2 ) {
+            req.flash("success", "LoggedIn Successfully");
+            req.session.adminId = admin.id;
+            req.session.role = admin.level
+            res.redirect('/agent/home')
+          }else{
+            req.flash("success", "LoggedIn Successfully");
+            req.session.adminId = admin.id;
+            req.session.role = admin.level
+            res.redirect('/dashboard')
+          }
         }
       }
     }

@@ -3,86 +3,141 @@
         <div class="sidebar-brand">
             <a href="/dashboard"> <img src="/assests/img/logo.png" class="header-logo"  alt="logo"></a>
         </div>
-        <ul class="sidebar-menu">
+        <% if(role == 0) { %>
+            <ul class="sidebar-menu">
            
-            <% if(role == 0) { %>
-                <li class="dropdown text-center">
-                    <span style="padding-left: 10px; font-size: large; color: white;">Welcome Super Admin</span>
+            <li class="dropdown text-center">
+                <span style="padding-left: 10px; font-size: large; color: white;">Welcome Super Admin</span>
+            </li>
+                <li class="dropdown">
+                    <a href="/dashboard" class="nav-link"><i class="fas fa-university" data-feather="home"></i><span>Dashboard</span></a>
                 </li>
-                <% }  else if( role == 2) { %>
-                <li class="dropdown text-center">
-                    <span style="padding-left: 10px; font-size: large; color: white;">Welcome Manager</span>
+                
+                <li class="dropdown">
+                    <a href="#" class="menu-toggle nav-link has-dropdown"><i fas fa-piggy-bank
+                            class="fa fa-users"></i><span>Users</span></a>
+                            <ul class="dropdown-menu">
+                                <li><a class="nav-link" href="/users">Active</a></li>
+                                <li><a class="nav-link" href="/admins">Admin</a></li>
+                                <li><a class="nav-link" href="/deleted/users">Deleted Users</a></li>
+                                <li><a class="nav-link" href="/deleted/admins">Deleted Admins</a></li>
+                                
+                            </ul>
                 </li>
-                <% } else if( role == 3) { %>
-                <li class="dropdown text-center">
-                    <span style="padding-left: 10px; font-size: large; color: white;">Welcome User</span>
+                <li class="dropdown">
+                    <a href="/adminmessages" class="nav-link"><i class="fas fa-envelope"></i><span>Broadcast Message</span></a>
                 </li>
-                <% } %>
-            <li class="dropdown">
-                <a href="/dashboard" class="nav-link"><i class="fas fa-university" data-feather="home"></i><span>Dashboard</span></a>
-            </li>
+                <li class="dropdown">
+                    <a href="/allreferrals" class="nav-link"><i class="fas fa-users"></i><span>All referrals</span></a>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="menu-toggle nav-link has-dropdown">
+                        <i class="fas fa-piggy-bank"></i>
+                        <span>BTC Deposits</span></a>
+                    <ul class="dropdown-menu">
+                        <li><a class="nav-link" href="/btc-unapproved">Unapproved</a></li>
+                        <li><a class="nav-link" href="/btc-approved">Approved</a></li>
+                        
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="menu-toggle nav-link has-dropdown"><i
+                            class="fa fa-university"></i><span>Withdrawals</span></a>
+                    <ul class="dropdown-menu">
+                        <li><a class="nav-link" href="/unapproved-withdrawal">Unapproved</a></li>
+                        <li><a class="nav-link" href="/approved-withdrawal">Approved</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="menu-toggle nav-link has-dropdown"><i
+                            class="fas fa-gift"></i><span>Packages</span></a>
+                    <ul class="dropdown-menu">
+                        <li><a class="nav-link" href="/add/package">Add New</a></li>
+                        <li><a class="nav-link" href="/view/packages">View All</a></li>
+                    </ul>
+                </li>
+                
+                <li class="dropdown">
+                    <a href="#" class="menu-toggle nav-link has-dropdown"><i class="fas fa-user-cog"></i><span>Settings</span></a>
+                    <ul class="dropdown-menu">
+                        <li><a class="nav-link" href="/admin-password">Password</a></li>
+                        
+                        
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="javascript:void(0);" class="nav-link" onclick="event.preventDefault();
+                                    document.getElementById('logout-menu').submit();">
+                                        <i class="fas fa-sign-out-alt"></i><span>Logout</span>
+                                    </a>
+                                    <form id="logout-menu" action="/logout" method="POST" style="display: none;">
+                                    </form>
+                </li>
+                
+            </ul>
             
-            <li class="dropdown">
-                <a href="#" class="menu-toggle nav-link has-dropdown"><i fas fa-piggy-bank
-                        class="fa fa-users"></i><span>Users</span></a>
-                        <ul class="dropdown-menu">
-                            <li><a class="nav-link" href="/users">Active</a></li>
-                            <li><a class="nav-link" href="/admins">Admin</a></li>
-                            <li><a class="nav-link" href="/deleted/users">Deleted Users</a></li>
-                            <li><a class="nav-link" href="/deleted/admins">Deleted Admins</a></li>
-                            
-                        </ul>
+            <% }  else if( role == 1) { %>
+            <li class="dropdown text-center">
+                <span style="padding-left: 10px; font-size: large; color: white;">Welcome Manager</span>
             </li>
-            <li class="dropdown">
-                <a href="/adminmessages" class="nav-link"><i class="fas fa-envelope"></i><span>Broadcast Message</span></a>
-            </li>
-            <li class="dropdown">
-                <a href="/allreferrals" class="nav-link"><i class="fas fa-users"></i><span>All referrals</span></a>
-            </li>
-            <li class="dropdown">
-                <a href="#" class="menu-toggle nav-link has-dropdown">
-                    <i class="fas fa-piggy-bank"></i>
-                    <span>BTC Deposits</span></a>
-                <ul class="dropdown-menu">
-                    <li><a class="nav-link" href="/btc-unapproved">Unapproved</a></li>
-                    <li><a class="nav-link" href="/btc-approved">Approved</a></li>
-                    
-                </ul>
-            </li>
-            <li class="dropdown">
-                <a href="#" class="menu-toggle nav-link has-dropdown"><i
-                        class="fa fa-university"></i><span>Withdrawals</span></a>
-                <ul class="dropdown-menu">
-                    <li><a class="nav-link" href="/unapproved-withdrawal">Unapproved</a></li>
-                    <li><a class="nav-link" href="/approved-withdrawal">Approved</a></li>
-                </ul>
-            </li>
-            <li class="dropdown">
-                <a href="#" class="menu-toggle nav-link has-dropdown"><i
-                        class="fas fa-gift"></i><span>Packages</span></a>
-                <ul class="dropdown-menu">
-                    <li><a class="nav-link" href="/add/package">Add New</a></li>
-                    <li><a class="nav-link" href="/view/packages">View All</a></li>
-                </ul>
-            </li>
+            <% } else if( role == 2) { %>
             
-            <li class="dropdown">
-                <a href="#" class="menu-toggle nav-link has-dropdown"><i class="fas fa-user-cog"></i><span>Settings</span></a>
-                <ul class="dropdown-menu">
-                    <li><a class="nav-link" href="/admin-password">Password</a></li>
-                    
-                    
-                </ul>
-            </li>
-            <li class="dropdown">
-                <a href="javascript:void(0);" class="nav-link" onclick="event.preventDefault();
-								document.getElementById('logout-menu').submit();">
-									<i class="fas fa-sign-out-alt"></i><span>Logout</span>
-								</a>
-								<form id="logout-menu" action="/logout" method="POST" style="display: none;">
-								</form>
-            </li>
-            
-        </ul>
+            <ul class="sidebar-menu">
+           
+                <li class="dropdown text-center">
+                    <span style="padding-left: 10px; font-size: large; color: white;">Welcome Trader</span>
+                </li>
+                <li class="dropdown">
+                    <a href="/dashboard" class="nav-link"><i class="fas fa-university" data-feather="home"></i><span>Dashboard</span></a>
+                </li>
+                
+                
+                <li class="dropdown">
+                    <a href="#" class="menu-toggle nav-link has-dropdown">
+                        <i class="fas fa-piggy-bank"></i>
+                        <span>Deposits</span></a>
+                    <ul class="dropdown-menu">
+                        <li><a class="nav-link" href="/btc-unapproved">Unapproved</a></li>
+                        <li><a class="nav-link" href="/btc-approved">Approved</a></li>
+                        
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="menu-toggle nav-link has-dropdown"><i
+                            class="fa fa-university"></i><span>Withdrawals</span></a>
+                    <ul class="dropdown-menu">
+                        <li><a class="nav-link" href="/unapproved-withdrawal">Unapproved</a></li>
+                        <li><a class="nav-link" href="/approved-withdrawal">Approved</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="menu-toggle nav-link has-dropdown"><i
+                            class="fas fa-gift"></i><span>Packages</span></a>
+                    <ul class="dropdown-menu">
+                        <li><a class="nav-link" href="/add/package">Add New</a></li>
+                        <li><a class="nav-link" href="/view/packages">View All</a></li>
+                    </ul>
+                </li>
+                
+                <li class="dropdown">
+                    <a href="#" class="menu-toggle nav-link has-dropdown"><i class="fas fa-user-cog"></i><span>Settings</span></a>
+                    <ul class="dropdown-menu">
+                        <li><a class="nav-link" href="/admin-password">Password</a></li>
+                        
+                        
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="javascript:void(0);" class="nav-link" onclick="event.preventDefault();
+                                    document.getElementById('logout-menu').submit();">
+                                        <i class="fas fa-sign-out-alt"></i><span>Logout</span>
+                                    </a>
+                                    <form id="logout-menu" action="/logout" method="POST" style="display: none;">
+                                    </form>
+                </li>
+                
+            </ul>
+            <% } %>
+        
     </aside>
 </div>
