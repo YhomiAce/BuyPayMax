@@ -37,9 +37,19 @@
                                 <input type="text" name="wallet" class="form-control" required>
                             </div>
                         </div>
-                        <h2 id="price" style="display: none;"></h2>
-                        <input type="submit" value="Send" class="btn btn-primary btn-block">
+                        
+                        
                     </div>
+                    <div class="form-group">
+                        <select name="agent" id="agent" class="form-control">
+                            <option value="" disabled selected>Select Trader</option>
+                            <option value="agent1">Trader1</option>
+                            <option value="agent2">Trader2</option>
+                            <option value="agent3">Trader3</option>
+                        </select>
+                    </div>
+                    <h2 id="price" style="display: none;"></h2>
+                        <a href="javascript: void(0);" class="btn btn-warning" data-toggle="modal" id = "payBtn" data-target="#payNow">Start Now</a>
                 </form>
             </div>
         </div>
@@ -48,7 +58,33 @@
         
     </section>
 </div>
-
+<div class="modal fade" id="payNow" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <!-- <h4 class="modal-title" id="myCenterModalLabel">Payment for: </h4> -->
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <center>
+                    <img src="https://chart.googleapis.com/chart?chs=300x300&amp;cht=qr&amp;chl=1B2GbofYB6Y3D39f4Ag6aDCWJUcxgyRuwC" class="img-fluid">
+                    <p class="text-muted font-16" id="statement"></p>
+                    <h3 class="mb-0">Bitcoin Address</h3>
+                    <input id="walletAddress" class="text-muted font-18 form-control text-center border-0 bg-white" value="
+                    bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh" readonly="">
+                    <p class="text-muted font-13 mt-1">
+                       
+                        <form action="#" method="POST">
+                            <input type="hidden" name="idd" >
+                            <input type="hidden" name="amount" >
+                            <button class="btn btn-info" id="confirmPayment">Confirm Payment</button></p>
+                    </form>
+                       
+                </center>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div>
 
 <%- include("../../partials/user_footer2") %>
 
