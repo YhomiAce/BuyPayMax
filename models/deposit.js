@@ -11,7 +11,10 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      Deposit.belongsTo(models.User, {
+        foreignKey: "user_id",
+        as: "user",
+      });
     }
   };
   Deposit.init({
@@ -36,6 +39,10 @@ module.exports = (sequelize, DataTypes) => {
     channel: {
       allowNull: true,
       type: DataTypes.STRING
+    },
+    walletAddressId: {
+      allowNull: true,
+      type: DataTypes.UUID
     },
     createdAt: {
       allowNull: false,

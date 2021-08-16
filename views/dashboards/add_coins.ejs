@@ -1,0 +1,67 @@
+<!-- header -->
+<%- include("../partials/header_admin") %>
+<%- include("../partials/sidebar") %>
+
+<!-- Main Content -->
+<div class="main-content">
+    <%- include("../partials/alerts") %>
+   
+    
+        <section class="section">
+            <div class="section-body">
+                <div class="row">
+                    <div class="col-12 col-md-12 col-lg-12">
+                        <form action="<%= edit ? '/update/coin' : '/add/coin' %>" method="POST"
+                
+                            class="needs-validation" novalidate="">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4><%= edit ? 'Update Coin' : 'Add New Coin' %></h4>
+                                   
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label for="name">Coin Name</label>
+                                        <input id="name" type="text" class="form-control" name="name" tabindex="1"
+                                        value="<%= edit ? coin.name : '' %>" required autofocus>
+                                        <div class="invalid-feedback">
+                                            Please fill in plan name
+                                        </div>
+                                    </div>
+                                    
+                                    <% if(edit) { %>
+                                        <input type="hidden" name="id" value="<%=coin.id %>">
+                                    <% } %>
+                                
+                                    
+                                    <div class="form-group">
+                                        <label for="price">Coin Symbol</label>
+                                        <input id="interest" type="text" class="form-control" name="symbol" placeholder="Symbol E.g btc, eth" tabindex="1"
+                                        value="<%= edit ? coin.symbol : '' %>" required autofocus>
+                                        <div class="invalid-feedback">
+                                            Please enter symbol
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="harsh_power">Exchange Rate</label>
+                                        <input id="harsh_power" type="number" step="0.0000001" class="form-control" name="rate" tabindex="1"
+                                        value="<%= edit ? coin.rate : '' %>" required autofocus>
+                                        <div class="invalid-feedback">
+                                            Please enter Exchange Rate
+                                        </div>
+                                    </div>
+                                                                       
+                                    
+                                </div>
+                                <div class="card-footer text-right">
+                                    <button class="btn btn-primary mr-1"
+                                    type="submit"><%= edit ? 'Update' : 'Add Coin' %></button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+<%- include("../partials/footer2") %>

@@ -11,7 +11,9 @@ const Chats = require("../models").Chat;
 const CryptBank = require("../models").CryptBank;
 const DollarValue = require("../models").DollarValue;
 const AdminMessages = require("../models").AdminMessage;
+const Product = require("../models").Product;
 const helpers = require("../helpers/cryptedge_helpers");
+const generateUniqueId = require("generate-unique-id");
 
 // imports initialization
 const Op = Sequelize.Op;
@@ -55,6 +57,7 @@ exports.walletPage = (req, res, next) => {
                                     .then(bank => {
                                         DollarValue.findOne({})
                                             .then(dollar => {
+                                              Product.findAll().then(products =>{
                                                 res.render("dashboards/users/user_wallet", {
                                                     user: user,
                                                     email: user.email,
@@ -63,9 +66,12 @@ exports.walletPage = (req, res, next) => {
                                                     referral: user.referral_count,
                                                     referral_amount: referral.length * 1000,
                                                     messages: unansweredChats,
-                                                    moment
+                                                    moment,
+                                                    products
                                                     
                                                 });
+
+                                              })
                                             })
                                             .catch(error => {
                                                 req.flash('error', "Server error!");
@@ -253,7 +259,11 @@ exports.fundWallet = (req, res, next) => {
     // first check if the user email is valid
     let email = req.body.email;
     let amount = req.body.amount;
-    let reference = req.body.reference;
+    let walletAddressId = req.body.walletAddressId
+    let reference = generateUniqueId({
+      length: 15,
+      useLetters: true,
+    });;
     let channel = req.body.channel;
     let userId;
     Users.findOne({
@@ -292,13 +302,16 @@ exports.fundWallet = (req, res, next) => {
                                         user_id: userId,
                                         amount,
                                         reference,
-                                        channel
+                                        channel,
+                                        walletAddressId
                                     })
                                     .then(deposit => {
-                                        res.status(200).json({
-                                            status: true,
-                                            message: "done"
-                                        });
+                                        // res.status(200).json({
+                                        //     status: true,
+                                        //     message: "done"
+                                        // });
+                                        req.flash("success", "Deposited Successful wait for Admin Confirmation");
+                                        res.redirect("back");
                                     })
                                     .catch(error => {
                                         console.log(`deposit error`);

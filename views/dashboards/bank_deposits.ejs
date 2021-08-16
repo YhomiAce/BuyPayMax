@@ -23,6 +23,8 @@
                                             <th>Name</th>
                                             <th>Email</th>
                                             <th>Amount</th>
+                                            <th>Coin Type</th>
+                                            <th>Reference</th>
                                             <th>Date</th>
                                             <th>Action</th>
                                         </tr>
@@ -31,9 +33,11 @@
                                         <%  for (let i = 0; i < deposits.length; i++ ) { %>
                                         <tr>
                                             <td><%= i + 1 %></td>
-                                            <td>Test One</td>
-                                            <td>jdoe@gmail.com</td>
-                                            <td>$<%= deposits[i].amount %>.00</td>
+                                            <td><%= deposits[i].user.name %></td>
+                                            <td><%= deposits[i].user.email %></td>
+                                            <td><%= deposits[i].amount %></td>
+                                            <td><%= deposits[i].channel %></td>
+                                            <td><%= deposits[i].reference %></td>
                                             <td><%= deposits[i].createdAt %></td>
                                             <td>
                                                 <a href="/bankdeposit/<%= deposits[i].id %>"

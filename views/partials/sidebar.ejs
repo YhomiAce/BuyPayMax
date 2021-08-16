@@ -3,7 +3,7 @@
         <div class="sidebar-brand">
             <a href="/dashboard"> <img src="/assests/img/logo.png" class="header-logo"  alt="logo"></a>
         </div>
-        <% if(role == 0) { %>
+        <% if(role == 1) { %>
             <ul class="sidebar-menu">
            
             <li class="dropdown text-center">
@@ -50,10 +50,20 @@
                 </li>
                 <li class="dropdown">
                     <a href="#" class="menu-toggle nav-link has-dropdown"><i
-                            class="fas fa-gift"></i><span>Packages</span></a>
+                            class="fas fa-gift"></i><span>Coins & Packages</span></a>
                     <ul class="dropdown-menu">
-                        <li><a class="nav-link" href="/add/package">Add New</a></li>
-                        <li><a class="nav-link" href="/view/packages">View All</a></li>
+                        <li><a class="nav-link" href="/add/coin">Add New Coin</a></li>
+                        <li><a class="nav-link" href="/add/package">Add New Package</a></li>
+                        <li><a class="nav-link" href="/view/coins">View Coins</a></li>
+                        <li><a class="nav-link" href="/view/packages">View Packages</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="menu-toggle nav-link has-dropdown"><i
+                            class="fas fa-wallet"></i><span>Wallets</span></a>
+                    <ul class="dropdown-menu">
+                        <li><a class="nav-link" href="/add/wallet">Add New</a></li>
+                        <li><a class="nav-link" href="/view/wallet">View Wallets</a></li>
                     </ul>
                 </li>
                 
@@ -76,7 +86,7 @@
                 
             </ul>
             
-            <% }  else if( role == 1) { %>
+            <% }  else if( role == 0) { %>
             <li class="dropdown text-center">
                 <span style="padding-left: 10px; font-size: large; color: white;">Welcome Manager</span>
             </li>

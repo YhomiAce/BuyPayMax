@@ -1,0 +1,165 @@
+<!-- header -->
+<%- include("../../partials/header") %>
+<%- include("../../partials/user_sidebar") %>
+<!-- Main Content -->
+<div class="main-content">
+    <%- include("../../partials/alerts") %>
+    <section class="section">
+        <div class="row ">
+            <div class="col-lg-4 col-md-6 col-sm-6 col-12">
+               <div class="card">
+                   <div class="card-header">
+                        <h4>Fund Your PayBuyMax Wallet</h4>
+                   </div>
+                   <div class="card-body">
+
+                   </div>
+               </div>
+            </div>
+            <div class="col-lg-4 col-md-6 col-sm-6 col-12">
+                <div class="card">
+                    <div class="card-header">
+                         <h4>Fund Your PayBuyMax Wallet</h4>
+                    </div>
+                    <div class="card-body">
+ 
+                    </div>
+                </div>
+             </div>
+             <div class="col-lg-4 col-md-6 col-sm-6 col-12">
+                <div class="card">
+                    <div class="card-header">
+                         <h4>Fund Your PayBuyMax Wallet</h4>
+                    </div>
+                    <div class="card-body">
+ 
+                    </div>
+                </div>
+             </div>
+        </div>  
+           
+            
+    </section>
+
+    <section class="section" style="background: #eee; padding: 5%;">
+
+        <div class="row container-fluid">
+            <div class="col-lg-12 " style="padding: 2% 7%;">
+                <form action="" method="post">
+                    <h3 class="text-center">Sell Coin</h3>
+                    <div class="form-group">
+                        <label for="amount">Amount</label>
+                        <input type="text" placeholder="Enter Amount" value="" class="form-control text-center" id="amount"
+                        name="amount">
+                    </div>
+                    <input type="hidden" id="user_email" value="<%= email %>">
+                    <input type="hidden" id="user_phone" value="09000202020">
+                    <div class="form-group">
+                        <select name="coin" id="coin" class="form-control">
+                            <option value="" disabled selected>Select Coin</option>
+                            <% for(let i=0; i< products.length; i++) { %> 
+                            <option value="<%= products[i].id  %>"><%= products[i].name  %> (<%= products[i].symbol  %>)</option>
+                            <% } %> 
+                        </select>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <div class="row">
+                <div class="col-lg-4 col-md-6">
+                    <label for="">Pay with Crypto</label>
+                    <button type="button" class="btn btn-dark btn-block btn-lg"
+                        onclick="payWithCryptos()">Sell Coin</button>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    
+                </div>
+            </div>
+
+            <!-- arrange the payment platforms into sections
+        from paystack, crypto, and deposits -->
+    </section>
+</div>
+<%- include("../../partials/user_footer2") %>
+
+<!-- bitmint scripts -->
+<script src="https://js.paystack.co/v1/inline.js"></script>
+<script src="https://js.paylot.co/v1/inline.min.js"></script>
+<script src="/js/payments.js"></script>
+</body>
+
+</html>
+
+<div class="main-content">
+    <%- include("../../partials/alerts") %>
+    <section class="section">
+        <div class="row ">
+            <div class="col-lg-4 col-md-6 col-sm-6 col-12">
+               <div class="card">
+                   <div class="card-header">
+                        <h4>Fund Your PayBuyMax Wallet</h4>
+                   </div>
+                   <div class="card-body">
+                    <img src="https://s2.coinmarketcap.com/static/img/coins/200x200/1.png" alt="">
+                   </div>
+               </div>
+            </div>
+            <div class="col-lg-4 col-md-6 col-sm-6 col-12">
+                <div class="card">
+                    <div class="card-header">
+                         <h4>Fund Your PayBuyMax Wallet</h4>
+                    </div>
+                    <div class="card-body">
+                        <img src="https://s2.coinmarketcap.com/static/img/coins/200x200/1027.png" alt="">
+                    </div>
+                </div>
+             </div>
+             <div class="col-lg-4 col-md-6 col-sm-6 col-12">
+                <div class="card">
+                    <div class="card-header">
+                         <h4>Fund Your PayBuyMax Wallet</h4>
+                    </div>
+                    <div class="card-body">
+                        <img src="https://upload.wikimedia.org/wikipedia/en/d/d0/Dogecoin_Logo.png" alt="">
+                    </div>
+                </div>
+             </div>
+             <div class="col-lg-4 col-md-6 col-sm-6 col-12">
+                <div class="card">
+                    <div class="card-header">
+                         <h4>Fund Your PayBuyMax Wallet</h4>
+                    </div>
+                    <div class="card-body">
+                        <img src="data:image/png;base64,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" alt="">
+                    </div>
+                </div>
+             </div>
+             <div class="col-lg-4 col-md-6 col-sm-6 col-12">
+                <div class="card">
+                    <div class="card-header">
+                         <h4>Fund Your PayBuyMax Wallet</h4>
+                    </div>
+                    <div class="card-body">
+                        <img src="https://s2.coinmarketcap.com/static/img/coins/200x200/1839.png" alt="">
+                    </div>
+                </div>
+             </div>
+             <div class="col-lg-4 col-md-6 col-sm-6 col-12">
+                <div class="card">
+                    <div class="card-header">
+                         <h4>Fund Your PayBuyMax Wallet</h4>
+                    </div>
+                    <div class="card-body">
+                        <img src="https://s2.coinmarketcap.com/static/img/coins/200x200/52.png" alt="">
+                    </div>
+                </div>
+             </div>
+        </div>  
+           
+            
+    </section>
+
+    
+</div>

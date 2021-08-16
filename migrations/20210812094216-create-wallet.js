@@ -1,33 +1,34 @@
 'use strict';
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('Deposits', {
+    await queryInterface.createTable('wallet_address', {
       id: {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV1,
       },
-      user_id: {
+      coinId: {
+          allowNull: false,
+          type: Sequelize.UUID
+      },
+      walletAddress: {
+        allowNull: false,
+        type: Sequelize.STRING
+      },
+      balance: {
         allowNull: true,
+        type: Sequelize.FLOAT,
+        defaultValue: 0
+      },
+      status: {
+        allowNull: false,
+        type: Sequelize.ENUM("in_use", "pending"),
+        defaultValue: "pending"
+      },
+      userId: {
         type: Sequelize.UUID,
-      },
-      amount: {
-        allowNull: true,
-        type: Sequelize.DECIMAL(65, 0),
-        defaultValue: 0,
-      },
-      reference: {
-        allowNull: true,
-        type: Sequelize.STRING
-      },
-      channel: {
-        allowNull: true,
-        type: Sequelize.STRING
-      },
-      walletAddressId: {
-        allowNull: true,
-        type: Sequelize.UUID
+        allowNull: true
       },
       createdAt: {
         allowNull: false,
@@ -38,11 +39,12 @@ module.exports = {
         type: Sequelize.DATE
       },
       deletedAt: {
+        allowNull: true,
         type: Sequelize.DATE
       }
     });
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('Deposits');
+    await queryInterface.dropTable('wallet_address');
   }
 };

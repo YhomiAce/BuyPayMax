@@ -1,0 +1,59 @@
+<!-- header -->
+<%- include("../partials/header_admin") %>
+<%- include("../partials/sidebar") %>
+
+<!-- Main Content -->
+<div class="main-content">
+    <%- include("../partials/alerts") %>
+   
+    
+        <section class="section">
+            <div class="section-body">
+                <div class="row">
+                    <div class="col-12 col-md-12 col-lg-12">
+                        <form action="/add/wallet" method="POST"
+                
+                            class="needs-validation" novalidate="">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4> Add New Wallet Address</h4>
+                                   
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label for="duration">Wallet Type</label>
+                                        <select id="coinId" type="text" class="form-control" name="coinId" tabindex="1"
+                                        value="coinId"required autofocus>
+                                        <option disabled selected>Select Wallet Type</option>
+                                        <%  for (let i = 0; i < products.length; i++ ) { %>
+                                          <option value="<%= products[i].id %>" > <%= products[i].name %>  </option>  
+                                          <% } %>
+                                        </select>
+                                        <div class="invalid-feedback">
+                                            Please enter package description
+                                        </div>
+                                         
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="name">Wallet Address</label>
+                                        <input id="wallet" type="text" class="form-control" name="wallet" tabindex="1" required autofocus>
+                                        <div class="invalid-feedback">
+                                            Please fill in Wallet Address
+                                        </div>
+                                    </div>                             
+                                    
+                                                                   
+                                    
+                                </div>
+                                <div class="card-footer text-right">
+                                    <button class="btn btn-primary mr-1"
+                                    type="submit">Add Wallet</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+<%- include("../partials/footer2") %>

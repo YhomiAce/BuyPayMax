@@ -10,6 +10,9 @@ const History = require('../models').History;
 const helpers = require("../helpers/cryptedge_helpers");
 const Chats = require("../models").Chat;
 const AdminMessages = require('../models').AdminMessage;
+const Product = require('../models').Product;
+const Wallet = require('../models').Wallet;
+
 // imports initialization
 const Op = Sequelize.Op;
 
@@ -17,6 +20,21 @@ exports.addPackage = (req, res, next) => {
     AdminMessages.findAll()
         .then(unansweredChats => {
             res.render("dashboards/add_packages", {
+                edit: false,
+                messages: unansweredChats,
+                moment
+            });
+        })
+        .catch(error => {
+            req.flash('error', "Server error!");
+            res.redirect("/");
+        });
+}
+
+exports.addCoinPackage = (req, res, next) => {
+    AdminMessages.findAll()
+        .then(unansweredChats => {
+            res.render("dashboards/add_coins", {
                 edit: false,
                 messages: unansweredChats,
                 moment
@@ -468,6 +486,79 @@ exports.editPackage = (req, res, next) => {
         });
 }
 
+exports.deleteCoin = async(req, res)=>{
+    try {
+        const {id} = req.params;
+        const product = await Product.findOne({where:{id}});
+        if (!product) {
+            req.flash('warning', "Invalid Coin Type");
+            res.redirect("back");
+        }
+        await Product.destroy({where:{id}});
+        req.flash('success', "Coin Type deleted Successfully");
+        res.redirect("back");
+    } catch (error) {
+        req.flash('error', "Server error!");
+        res.redirect("back");
+    }
+}
+
+exports.deleteWalletAddress = async(req, res)=>{
+    try {
+        const {id} = req.params;
+        const wallet = await Wallet.findOne({where:{id}});
+        if (!wallet) {
+            req.flash('warning', "Wallet address does not exist!");
+            res.redirect("back");
+        }
+        if (wallet.userId != null || wallet.status === "in_use") {
+            req.flash('warning', "This Wallet is still in use");
+            res.redirect("back");
+        }else{
+            await Wallet.destroy({where:{id}});
+            req.flash('success', "Wallet Address deleted Successfully");
+            res.redirect("back");
+        }
+        
+    } catch (error) {
+        req.flash('error', "Server error!");
+        res.redirect("back");
+    }
+}
+
+exports.editCoin = (req, res, next) => {
+    const id = req.params.id;
+    AdminMessages.findAll()
+        .then(unansweredChats => {
+            Product.findOne({
+                    where: {
+                        id: {
+                            [Op.eq]: id
+                        }
+                    }
+                })
+                .then(product => {
+                    if (product) {
+                        res.render("dashboards/add_coins", {
+                            edit: true,
+                            coin:product,
+                            messages: unansweredChats,
+                            moment
+                        });
+                    } else {
+                        res.redirect("back");
+                    }
+                })
+                .catch(error => {
+                    res.redirect("back");
+                });
+        })
+        .catch(error => {
+            req.flash('error', "Server error!");
+            res.redirect("back");
+        });
+}
+
 exports.adminAllPackages = (req, res, next) => {
     AdminMessages.findAll()
         .then(unansweredChats => {
@@ -496,6 +587,204 @@ exports.adminAllPackages = (req, res, next) => {
             req.flash('error', "Server error!");
             res.redirect("/");
         });
+}
+
+exports.adminAllCoins = (req, res, next) => {
+    AdminMessages.findAll()
+        .then(unansweredChats => {
+            Product.findAll({
+                    where: {
+                        deletedAt: {
+                            [Op.eq]: null
+                        }
+                    },
+                    order: [
+                        ['createdAt', 'ASC'],
+                    ],
+                })
+                .then(products => {
+                    res.render("dashboards/coins_packages", {
+                        products,
+                        messages: unansweredChats,
+                        moment
+                    });
+                })
+                .catch(error => {
+                    res.redirect("/");
+                });
+        })
+        .catch(error => {
+            req.flash('error', "Server error!");
+            res.redirect("/");
+        });
+}
+exports.viewAllWallets = (req, res, next) => {
+    AdminMessages.findAll()
+        .then(unansweredChats => {
+            Wallet.findAll({
+                    where: {
+                        deletedAt: {
+                            [Op.eq]: null
+                        }
+                    },
+                    
+                    order: [
+                        ['createdAt', 'ASC'],
+                    ],
+                    include: [
+                        {
+                            model: Product,
+                            as: 'coin'
+                        },
+                        {
+                            model: Users,
+                            as: 'user'
+                        },
+                    ]
+                })
+                .then(wallets => {
+                    // console.log(wallets);
+                    res.render("dashboards/wallets", {
+                        wallets,
+                        messages: unansweredChats,
+                        moment
+                    });
+                    // return res.send(wallets)
+                })
+                .catch(error => {
+                    res.redirect("/");
+                    // return res.send("Server error");
+                });
+        })
+        .catch(error => {
+            req.flash('error', "Server error!");
+            res.redirect("/");
+            // return res.send("Server error");
+        });
+}
+
+exports.addWalletAddress = (req, res, next) => {
+    AdminMessages.findAll()
+        .then(unansweredChats => {
+            Product.findAll({
+                    where: {
+                        deletedAt: {
+                            [Op.eq]: null
+                        }
+                    },
+                    order: [
+                        ['createdAt', 'ASC'],
+                    ],
+                })
+                .then(products => {
+                    console.log(products);
+                    res.render("dashboards/add_wallet", {
+                        products,
+                        messages: unansweredChats,
+                        moment
+                    });
+                })
+                .catch(error => {
+                    res.redirect("/");
+                });
+        })
+        .catch(error => {
+            req.flash('error', "Server error!");
+            res.redirect("/");
+        });
+}
+
+exports.updateWalletAddress = async(req,res)=>{
+    try {
+        const request = req.body;
+        
+        const walletAddress = await Wallet.findOne({where:{id:request.id}});
+        if (!walletAddress) {
+            req.flash('warning', "This Wallet Address already exist");
+            res.redirect("back");
+        }else{
+            
+            await Wallet.update(request, {where: {id: request.id}});
+            req.flash('success', "Wallet Address updated successful");
+            res.redirect("back");
+        }
+
+    } catch (error) {
+        req.flash('error', "Server error!");
+        res.redirect("back");
+    }
+}
+
+exports.getFreeWallet = async(req, res) =>{
+    try {
+        const {coinId} = req.params;
+        const wallet = await Wallet.findOne({where: {coinId, status: "pending"}});
+        return res.json({wallet}) 
+    } catch (error) {
+        return res.status(500).json({msg: 'Server Error'})
+    }
+}
+
+exports.editWalletAddress = (req, res, next) => {
+    AdminMessages.findAll()
+        .then(unansweredChats => {
+            Wallet.findOne({
+                    where: {
+                        deletedAt: {
+                            [Op.eq]: null
+                        },
+                        id: req.params.id
+                    },
+                    include: [
+                        {
+                            model: Product,
+                            as: "coin"
+                        },
+                        {
+                            model: Users,
+                            as: "user"
+                        },
+                    ]
+                })
+                .then(wallet => {
+                    console.log(wallet);
+                    res.render("dashboards/edit_wallet", {
+                        wallet,
+                        messages: unansweredChats,
+                        moment
+                    });
+                })
+                .catch(error => {
+                    res.redirect("/");
+                });
+        })
+        .catch(error => {
+            req.flash('error', "Server error!");
+            res.redirect("/");
+        });
+}
+
+exports.createWalletAddress = async(req,res) =>{
+    try {
+        const {coinId, wallet} = req.body;
+        if(!coinId || !wallet) {
+            req.flash('warning', "Fill all Field");
+            res.redirect("back");
+        }
+        const walletAddress = await Wallet.findOne({where:{walletAddress:wallet}});
+        if (walletAddress) {
+            req.flash('warning', "This Wallet Address already exist");
+            res.redirect("back");
+        }else{
+            await Wallet.create({coinId, walletAddress: wallet});
+            req.flash('success', "Wallet Address Added successful");
+            res.redirect("back");
+        }
+
+    } catch (error) {
+        req.flash('error', "Server error!");
+        res.redirect("back");
+    }
 }
 
 exports.deletePackage = (req, res, next) => {
@@ -602,6 +891,56 @@ exports.postAddPackage = (req, res, next) => {
     }
 }
 
+exports.postAddCoin = (req, res, next) => {
+    const {
+        name,
+        symbol,
+        rate
+    } = req.body;
+    // check if any of them are empty
+    if (!name || !symbol || !rate) {
+        req.flash('warning', "enter all fields");
+        res.redirect("back");
+    }
+    // else if (Math.abs(Number(interest)) > 100) {
+    //     req.flash('warning', "Interest must be less than 100%");
+    //     res.redirect("back");
+    // } 
+     else {
+        Product.findOne({
+                where: {
+                    name: {
+                        [Op.eq]: req.body.name
+                    }
+                }
+            })
+            .then(product => {
+                if (product) {
+                    req.flash('warning', "name already exists");
+                    res.redirect("back");
+                } else {
+                    Product.create({
+                        name,
+                        rate,
+                        symbol
+                        })
+                        .then(products => {
+                            req.flash('success', "Package added successfully!");
+                            res.redirect("back");
+                        })
+                        .catch(error => {
+                            req.flash('error', "Something went wrong!");
+                            res.redirect("back");
+                        });
+                }
+            })
+            .catch(error => {
+                req.flash('error', "something went wrong");
+                res.redirect("back");
+            });
+    }
+}
+
 exports.postUpdatePackage = (req, res, next) => {
     const {
         name,
@@ -658,6 +997,57 @@ exports.postUpdatePackage = (req, res, next) => {
                         })
                         .then(packages => {
                             req.flash('success', "Package updated successfully!");
+                            res.redirect("back");
+                        })
+                        .catch(error => {
+                            req.flash('error', "Something went wrong!");
+                            res.redirect("back");
+                        });
+                }
+            })
+            .catch(error => {
+                req.flash('error', "something went wrong");
+                res.redirect("back");
+            });
+    }
+}
+
+exports.postUpdateCoin = (req, res, next) => {
+    const {
+        name,
+        symbol,
+        rate
+    } = req.body;
+    // check if any of them are empty
+    if (!name || !symbol || !rate) {
+        req.flash('warning', "enter all fields");
+        res.redirect("back");
+    } else {
+        Product.findOne({
+                where: {
+                    id: {
+                        [Op.eq]: req.body.id
+                    }
+                }
+            })
+            .then(product => {
+                if (!product) {
+                    req.flash('warning', "Invalid Coin Type");
+                    res.redirect("back");
+                } else {
+                    Product.update({
+                        name,
+                        symbol,
+                        rate
+                        }, {
+                            where: {
+                                id: {
+                                    [Op.eq]: req.body.id
+                                }
+                            }
+                        })
+                        .then(packages => {
+                            req.flash('success', "Coin Type updated successfully!");
                             res.redirect("back");
                         })
                         .catch(error => {

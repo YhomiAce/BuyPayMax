@@ -16,9 +16,10 @@ module.exports = {
         allowNull: true,
         type: Sequelize.STRING
       },
-      description: {
+      rate: {
         allowNull: true,
-        type: Sequelize.TEXT
+        type: Sequelize.FLOAT,
+        defaultValue: 0
       },
       createdAt: {
         allowNull: false,

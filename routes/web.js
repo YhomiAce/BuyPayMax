@@ -396,9 +396,10 @@ router.get('/history',AuthMiddleware.redirectLogin, TransactionController.transa
 // users specific routes
 router.get("/fundwallet", AuthMiddleware.redirectLogin, WalletController.walletPage);
 router.post("/fundwallet", AuthMiddleware.redirectLogin, WalletController.fundWallet);
-router.get("/buy", AuthMiddleware.redirectLogin, TransactionController.sellCoins);
-router.get("/sell", AuthMiddleware.redirectLogin, TransactionController.buyCoins);
+router.get("/buy", AuthMiddleware.redirectLogin, TransactionController.buyCoin);
+router.get("/sell", AuthMiddleware.redirectLogin, TransactionController.sellCoin);
 router.get("/sell/coin", AuthMiddleware.redirectLogin, TransactionController.sellBitCoin);
+router.get("/method/coin",TransactionController.getMethodForSelling )
 router.get("/rates", TransactionController.getRates);
 
 // users
@@ -465,12 +466,26 @@ router.get("/deleted/admins", AuthMiddleware.redirectAdminLogin, UserController.
 router.post("/restore/user", AuthMiddleware.redirectAdminLogin, UserController.restoreUser);
 router.post("/restore/Admin", AuthMiddleware.redirectAdminLogin, UserController.restoreAdmin);
 
-// packages
+// packages & Coins
 router.get("/add/package", AuthMiddleware.redirectAdminLogin, PackageController.addPackage);
+router.get("/add/coin", AuthMiddleware.redirectAdminLogin, PackageController.addCoinPackage);
 router.get("/view/packages", AuthMiddleware.redirectAdminLogin, PackageController.adminAllPackages);
+router.get("/view/coins", AuthMiddleware.redirectAdminLogin, PackageController.adminAllCoins);
 router.post("/add/package", AuthMiddleware.redirectAdminLogin, PackageController.postAddPackage);
+router.post("/add/coin", AuthMiddleware.redirectAdminLogin, PackageController.postAddCoin);
 router.post("/update/package", AuthMiddleware.redirectAdminLogin, PackageController.postUpdatePackage);
+router.post("/update/coin", AuthMiddleware.redirectAdminLogin, PackageController.postUpdateCoin);
 router.post("/delete/package", AuthMiddleware.redirectAdminLogin, PackageController.deletePackage);
+router.post("/delete/coin", AuthMiddleware.redirectAdminLogin, PackageController.deletePackage);
+
+// Wallets
+router.get("/add/wallet", AuthMiddleware.redirectAdminLogin, PackageController.addWalletAddress);
+router.post("/add/wallet", AuthMiddleware.redirectAdminLogin, PackageController.createWalletAddress);
+router.get("/view/wallet", AuthMiddleware.redirectAdminLogin, PackageController.viewAllWallets);
+router.get("/delete/wallet/:id", AuthMiddleware.redirectAdminLogin, PackageController.deleteWalletAddress);
+router.get("/edit/wallet/:id", AuthMiddleware.redirectAdminLogin, PackageController.editWalletAddress);
+router.post("/update/wallet", AuthMiddleware.redirectAdminLogin, PackageController.updateWalletAddress);
+router.get("/free/wallet/:coinId", PackageController.getFreeWallet);
 
 // managers
 router.get("/add/manager", AuthMiddleware.redirectAdminLogin, ManagerController.addManager);
@@ -480,6 +495,8 @@ router.post("/update/manager", AuthMiddleware.redirectAdminLogin, ManagerControl
 router.post("/delete/managers", AuthMiddleware.redirectAdminLogin, ManagerController.deleteManager);
 
 router.get("/edit/package/:id", AuthMiddleware.redirectAdminLogin, PackageController.editPackage);
+router.get("/edit/coin/:id", AuthMiddleware.redirectAdminLogin, PackageController.editCoin);
+router.get("/delete/coin/:id", AuthMiddleware.redirectAdminLogin, PackageController.deleteCoin);
 router.get("/edit/manager/:id", AuthMiddleware.redirectAdminLogin, ManagerController.editManager);
 
 module.exports = router;

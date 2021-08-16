@@ -463,7 +463,7 @@ exports.postDisApproveWithdrawal = (req, res, next) => {
         });
 }
 
-exports.buyCoins = async(req, res) =>{
+exports.sellCoin = async(req, res) =>{
     try {
         const unansweredChats = await Chats.findAll({
             where: {
@@ -585,7 +585,7 @@ exports.sellBitCoin = async(req, res) =>{
     }
 }
 
-exports.sellCoins = async(req, res) =>{
+exports.buyCoin = async(req, res) =>{
     try {
         const unansweredChats = await Chats.findAll({
             where: {
@@ -648,6 +648,65 @@ const fetchRates = () =>{
     }).catch(err =>{
         console.log(err);
     })
+}
+
+exports.getMethodForSelling = async(req,res)=>{
+    try {
+        const unansweredChats = await Chats.findAll({
+            where: {
+                [Op.and]: [{
+                        receiver_id: {
+                            [Op.eq]: req.session.userId
+                        }
+                    },
+                    {
+                        read_status: {
+                            [Op.eq]: 0
+                        }
+                    }
+                ]
+            },
+            include: ["user"],
+        });
+        const user = await Users.findOne({
+            where: {
+                id: {
+                    [Op.eq]: req.session.userId
+                }
+            }
+        });
+        const referral = await Referrals.findAll({
+            where: {
+                referral_id: {
+                    [Op.eq]: req.session.userId
+                }
+            }
+        });
+        
+        const bank = await CryptBank.findOne({});
+
+        const dollar = await DollarValue.findOne({});
+
+        let coin = [];
+        const resp = await axios.get("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false");
+        coin = resp.data;
+        coin = coin.slice(0,9)
+
+        res.render("dashboards/users/method", {
+            user: user,
+            email: user.email,
+            phone: user.phone,
+            wallet: user.wallet,
+            referral: user.referral_count,
+            referral_amount: referral.length * 1000,
+            messages: unansweredChats,
+            moment,
+            coins:coin
+        });
+    } catch (error) {
+        req.flash('error', "Server error");
+        res.redirect("back");
+    }
 }
 
 exports.getRates = async(req,res) =>{

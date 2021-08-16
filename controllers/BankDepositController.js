@@ -74,7 +74,7 @@ exports.viewADeposit = (req, res, next) => {
         include: ["user"],
     })
     .then(unansweredChats => {
-        Investment.findOne({
+        Deposits.findOne({
             where: {
                 id: {
                     [Op.eq]: id
@@ -126,21 +126,14 @@ exports.unApprovedDeposit = (req, res, next) => {
         include: ["user"],
     })
     .then(unansweredChats => {
-        Investment.findAll({
-           
-            
-            where: {
-                status: {
-                    [Op.eq]: 0
-                }
-            },
+        Deposits.findAll({
             include: ["user"],
             order: [
                 ['createdAt', 'DESC'],
             ],
         })
         .then(bankdeposits => {
-            console.log({bankdeposits});
+            console.log(bankdeposits);
             res.render("dashboards/bank_deposits", {
                 deposits: bankdeposits,
                 messages: unansweredChats,
@@ -150,7 +143,7 @@ exports.unApprovedDeposit = (req, res, next) => {
         .catch(error => {
             console.log(error)
             req.flash('error', "Server error!");
-            res.redirect("/");
+            // res.redirect("/");
         });
     })
     .catch(error => {
