@@ -17,7 +17,5 @@ module.exports = {
     EMAIL_USERNAME: "1e544c5e5f7d79",
     EMAIL_HOST: 'smtp.mailtrap.io',
     EMAIL_PORT: "587",
-    // EMAIL_PASSWORD: "18081995",
-    // EMAIL_USERNAME: "kareemyomi91@gmail.com",
-    // EMAIL_HOST: 'smtp.gmail.com',
+    
 };
