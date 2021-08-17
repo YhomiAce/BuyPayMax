@@ -39,7 +39,7 @@ module.exports = (sequelize, DataTypes) => {
     balance: {
       allowNull: true,
       type: DataTypes.FLOAT,
-      defaultValue: 0
+      defaultValue: 0.0
     },
     status: {
       allowNull: true,

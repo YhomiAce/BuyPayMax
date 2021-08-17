@@ -14,7 +14,7 @@ module.exports = {
       },
       amount: {
         allowNull: true,
-        type: Sequelize.DECIMAL(65, 0),
+        type: Sequelize.FLOAT,
         defaultValue: 0,
       },
       reference: {
@@ -28,6 +28,11 @@ module.exports = {
       walletAddressId: {
         allowNull: true,
         type: Sequelize.UUID
+      },
+      status: {
+        allowNull: false,
+        type: Sequelize.ENUM("pending", "completed"),
+        defaultValue: "pending"
       },
       createdAt: {
         allowNull: false,

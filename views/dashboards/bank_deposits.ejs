@@ -25,6 +25,7 @@
                                             <th>Amount</th>
                                             <th>Coin Type</th>
                                             <th>Reference</th>
+                                            <th>Status</th>
                                             <th>Date</th>
                                             <th>Action</th>
                                         </tr>
@@ -38,20 +39,11 @@
                                             <td><%= deposits[i].amount %></td>
                                             <td><%= deposits[i].channel %></td>
                                             <td><%= deposits[i].reference %></td>
+                                            <td><%= deposits[i].status %></td>
                                             <td><%= deposits[i].createdAt %></td>
                                             <td>
                                                 <a href="/bankdeposit/<%= deposits[i].id %>"
                                                     class="btn btn-primary btn-pill">View</a>
-                                                <a href="javascript:void(0);" class="btn btn-warning btn-pill"
-                                                    onclick="event.preventDefault();
-								                        document.getElementById('approve-deposit').submit();" style="color: aliceblue;">
-                                                    Approve
-                                                </a>
-                                                <form id="approve-deposit" action="/approve-deposit" method="POST"
-                                                    style="display: none;">
-                                                    <input type="hidden" name="id" value="<%= deposits[i].id %>">
-                                                    <input type="hidden" name="amount" value="<%= deposits[i].amount %>">
-                                                </form>
                                             </td>
                                         </tr>
                                         <% } %>

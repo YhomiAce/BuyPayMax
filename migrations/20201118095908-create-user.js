@@ -31,18 +31,18 @@ module.exports = {
       },
       wallet: {
         allowNull: true,
-        type: Sequelize.DECIMAL(65, 0),
-        defaultValue: 0,
+        type: Sequelize.FLOAT,
+        defaultValue: 0.0,
       },
       revenue: {
         allowNull: true,
-        type: Sequelize.DECIMAL(65, 0),
+        type: Sequelize.FLOAT,
         defaultValue: 0,
       },
       ledger: {
         allowNull: true,
-        type: Sequelize.DECIMAL(65, 0),
-        defaultValue: 0,
+        type: Sequelize.FLOAT,
+        defaultValue: 0.0,
       },
       mining: {
         allowNull: true,
@@ -59,8 +59,8 @@ module.exports = {
       },
       referral_amount: {
         allowNull: true,
-        type: Sequelize.DECIMAL(65, 0),
-        defaultValue: 0,
+        type: Sequelize.FLOAT,
+        defaultValue: 0.0,
       },
       password: {
         allowNull: true,

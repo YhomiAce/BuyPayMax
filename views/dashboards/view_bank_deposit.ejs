@@ -27,17 +27,32 @@
                                             <td><%= deposits.user.email %></td>
                                         </tr>
                                         <tr>
-                                            <td>Phone</td>
-                                            <td><%= deposits.user.phone %></td>
+                                            <td>Transaction reference</td>
+                                            <td><%= deposits.reference %></td>
                                         </tr>
                                         <tr>
                                             <td>Amount</td>
-                                            <td><%= deposits.amount %>.00</td>
+                                            <td><%= deposits.amount %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Coin Type</td>
+                                            <td><%= deposits.channel %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Transaction Status</td>
+                                            <td class="text-default"><%= deposits.status %></td>
+                                            
                                         </tr>
                                         <tr>
                                             <td>Date</td>
-                                            <td><%= deposits.createdAt %></td>
+                                            <td><%= moment(deposits.createdAt).format("DD-MM-YYYY") %></td>
                                         </tr>
+                                        <% if(deposits.status === "pending") { %> 
+                                        <tr>
+                                            <td>Approve</td>
+                                            <td><a class="btn btn-warning" href="/approve-deposit/<%= deposits.id %>">Approve</a></td>
+                                        </tr>
+                                        <% } %> 
                                     </tbody>
                                 </table>
                             </div>

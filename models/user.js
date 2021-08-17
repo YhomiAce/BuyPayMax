@@ -81,11 +81,13 @@ module.exports = (sequelize, DataTypes) => {
     },
     wallet: {
       allowNull: true,
-      type: DataTypes.DECIMAL,
+      type: DataTypes.FLOAT,
+      defaultValue: 0.0
     },
     revenue: {
       allowNull: true,
-      type: DataTypes.DECIMAL,
+      type: DataTypes.FLOAT,
+      defaultValue: 0.0,
     },
     walletAddress: {
       allowNull: true,
@@ -94,11 +96,12 @@ module.exports = (sequelize, DataTypes) => {
     referral_count: {
       allowNull: true,
       type: DataTypes.INTEGER,
+      defaultValue: 0,
     },
     referral_amount: {
       allowNull: true,
-      type: DataTypes.DECIMAL(65, 0),
-      defaultValue: 0,
+      type: DataTypes.FLOAT,
+      defaultValue: 0.0,
     },
     password: {
       allowNull: true,
@@ -128,5 +131,6 @@ module.exports = (sequelize, DataTypes) => {
     paranoid: true,
     tableName: 'users',
   });
+  // User.sync({force: true})
   return User;
 };

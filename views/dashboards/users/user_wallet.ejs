@@ -22,7 +22,7 @@
                     <h3 class="text-center">Sell Coin</h3>
                     <div class="form-group">
                         <label for="amount">Amount</label>
-                        <input type="number" step="0.00001" placeholder="Enter Amount" value="" required class="form-control text-center" id="deposit"
+                        <input type="number" step="any" placeholder="Enter Amount" value="" required class="form-control text-center" id="deposit"
                         name="deposit">
                     </div>
                     <input type="hidden" id="user_email" value="<%= email %>">
@@ -66,7 +66,7 @@
                         <img src="https://chart.googleapis.com/chart?chs=300x300&amp;cht=qr&amp;chl=1B2GbofYB6Y3D39f4Ag6aDCWJUcxgyRuwC" class="img-fluid">
                         <p class="text-muted font-16" id="statement"></p>
                         <h3 class="mb-0">Wallet Address</h3>
-                        <input id="walletAddress"  class="text-muted font-18 form-control text-center border-0 bg-white" value="" readonly="">
+                        <input id="walletAddress" name="walletAddress"  class="text-muted font-18 form-control text-center border-0 bg-white" value="" readonly="">
                         <p class="text-muted font-13 mt-1">
                            
                             <form action="/fundwallet" method="POST">
@@ -94,6 +94,7 @@
         // var walletType = $('#coin').find(":selected").val();
         $("#payBtn").click(()=>{
             var amount = $("#deposit").val();
+            console.log(amount);
             $('#amount').val(amount);
             
         })

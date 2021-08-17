@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     amount: {
       allowNull: true,
-      type: DataTypes.DECIMAL(65, 0),
+      type: DataTypes.FLOAT,
       defaultValue: 0,
     },
     type: {
@@ -39,5 +39,6 @@ module.exports = (sequelize, DataTypes) => {
     paranoid: true,
     tableName: 'Transactions',
   });
+  // Transaction.sync({force: true})
   return Transaction;
 };

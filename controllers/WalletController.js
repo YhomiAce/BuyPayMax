@@ -12,6 +12,7 @@ const CryptBank = require("../models").CryptBank;
 const DollarValue = require("../models").DollarValue;
 const AdminMessages = require("../models").AdminMessage;
 const Product = require("../models").Product;
+const Wallet = require("../models").Wallet;
 const helpers = require("../helpers/cryptedge_helpers");
 const generateUniqueId = require("generate-unique-id");
 
@@ -255,17 +256,19 @@ exports.postEditUser = (req, res, next) => {
 };
 
 
-exports.fundWallet = (req, res, next) => {
+exports.fundWallet = async (req, res, next) => {
     // first check if the user email is valid
     let email = req.body.email;
     let amount = req.body.amount;
     let walletAddressId = req.body.walletAddressId
+    const {walletAddress, balance} = await Wallet.findOne({where:{id: walletAddressId}})
     let reference = generateUniqueId({
       length: 15,
       useLetters: true,
     });;
     let channel = req.body.channel;
     let userId;
+    // amount = 0.2;
     Users.findOne({
             where: {
                 email: {
@@ -276,22 +279,7 @@ exports.fundWallet = (req, res, next) => {
         .then(user => {
             if (user) {
                 userId = user.id;
-                // if user exists, get amount paid and add to wallet
-                let userWallet = Math.abs(Number(user.wallet));
-                amount = (amount == null || amount == "") ? 0 : Math.abs(Number(amount));
-                let currentWallet = userWallet + amount;
-                Users.update({
-                        wallet: currentWallet
-                    }, {
-                        where: {
-                            email: {
-                                [Op.eq]: email
-                            }
-                        }
-                    })
-                    .then(wallet => {
-                        console.log("user2 from wallet is  id is for " + userId);
-                        // add it to transaction as deposits, and also add it to the deposit table with useful details
+                 // add it to transaction as deposits, and also add it to the deposit table with useful details
                         Transactions.create({
                                 user_id: userId,
                                 amount,
@@ -306,12 +294,13 @@ exports.fundWallet = (req, res, next) => {
                                         walletAddressId
                                     })
                                     .then(deposit => {
-                                        // res.status(200).json({
-                                        //     status: true,
-                                        //     message: "done"
-                                        // });
-                                        req.flash("success", "Deposited Successful wait for Admin Confirmation");
+                                      // const updateBalance = Number(amount) + Number(balance)
+                                      Wallet.update({status: 'in_use', userId}, {where: {walletAddress}})
+                                      .then(wallet =>{
+
+                                        req.flash("success", "Deposit Successful wait for Admin Confirmation");
                                         res.redirect("back");
+                                      })
                                     })
                                     .catch(error => {
                                         console.log(`deposit error`);
@@ -322,11 +311,6 @@ exports.fundWallet = (req, res, next) => {
                                 console.log(`transaction error`);
                                 res.redirect("back");
                             });
-                    })
-                    .catch(error => {
-                        console.log(`wallet update error`);
-                        res.redirect("back");
-                    });
             } else {
                 console.log(`user not found`);
                 res.redirect("back");

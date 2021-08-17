@@ -13,7 +13,7 @@ const Users = require("../models").User;
 const Chats = require("../models").Chat;
 const History = require('../models').History;
 const helpers = require("../helpers/cryptedge_helpers");
-
+const Wallet = require("../models").Wallet;
 //Here admin can
 //1 View all deposits - approved and declined
 // 2 Approves all deposits
@@ -127,6 +127,7 @@ exports.unApprovedDeposit = (req, res, next) => {
     })
     .then(unansweredChats => {
         Deposits.findAll({
+            where: {status: "pending"},
             include: ["user"],
             order: [
                 ['createdAt', 'DESC'],
@@ -171,11 +172,9 @@ exports.approvedDeposit = (req, res, next) => {
         include: ["user"],
     })
     .then(unansweredChats => {
-        Investment.findAll({
+        Deposits.findAll({
             where: {
-                status: {
-                    [Op.eq]: 1
-                }
+                status: "completed"
             },
             include: ["user"],
             order: [
@@ -198,6 +197,28 @@ exports.approvedDeposit = (req, res, next) => {
         req.flash('error', "Server error!");
         res.redirect("/");
     });
+}
+
+exports.approvedCoinDesposit = async(req, res) =>{
+    try {
+        const {id} = req.params;
+        const deposit = await Deposits.findOne({where: {id}});
+        await Deposits.update({status:"completed"}, {where:{id}});
+        const userId = deposit.user_id;
+        const amount = Number(deposit.amount);
+        const walletAddressId = deposit.walletAddressId;
+        const walletAddress = await Wallet.findOne({where:{id: walletAddressId}})
+        const {wallet} = await Users.findOne({where:{id: userId}});
+        const balance = Number(wallet) + amount;
+        await Users.update({wallet: balance}, {where:{id: userId}});
+        const walletAddBalance = amount + Number(walletAddress.balance);
+        await Wallet.update({balance: walletAddBalance, status:"pending", userId: null}, {where:{id: walletAddressId}});
+        req.flash('success', "Deposit Approved");
+        res.redirect("back");
+    } catch (error) {
+        req.flash('error', "Server error!");
+        res.redirect("/dashboard");
+    }
 }
 
 exports.approveDeposits = (req, res, next) => {

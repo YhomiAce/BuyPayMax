@@ -29,7 +29,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     amount: {
       allowNull: true,
-      type: DataTypes.DECIMAL(65, 0),
+      type: DataTypes.FLOAT,
       defaultValue: 0,
     },
     reference: {
@@ -43,6 +43,11 @@ module.exports = (sequelize, DataTypes) => {
     walletAddressId: {
       allowNull: true,
       type: DataTypes.UUID
+    },
+    status: {
+      allowNull: false,
+      type: DataTypes.ENUM("pending", "completed"),
+      defaultValue: "pending"
     },
     createdAt: {
       allowNull: false,
@@ -58,5 +63,6 @@ module.exports = (sequelize, DataTypes) => {
     paranoid: true,
     tableName: 'Deposits',
   });
+  // Deposit.sync({force: true})
   return Deposit;
 };

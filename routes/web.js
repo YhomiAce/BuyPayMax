@@ -350,9 +350,8 @@ router.get('/auth/google/callback',
             });
     });
 
-
 router.post("/signin", AuthMiddleware.redirectHome, AuthController.login);
-router.get("/signup", AuthMiddleware.redirectHome, AuthController.signUpUser);
+router.get("/signup", AuthController.signUpUser);
 router.post("/admin", AuthController.loginAdmin);
 router.post("/createAdmin", AuthController.createAdmin);
 //router.post("/signup", [AuthMiddleware.redirectHome, AuthMiddleware.authVerirfication], AuthController.register);
@@ -486,6 +485,7 @@ router.get("/delete/wallet/:id", AuthMiddleware.redirectAdminLogin, PackageContr
 router.get("/edit/wallet/:id", AuthMiddleware.redirectAdminLogin, PackageController.editWalletAddress);
 router.post("/update/wallet", AuthMiddleware.redirectAdminLogin, PackageController.updateWalletAddress);
 router.get("/free/wallet/:coinId", PackageController.getFreeWallet);
+router.get("/approve-deposit/:id", AuthMiddleware.redirectAdminLogin, BankDepositController.approvedCoinDesposit);
 
 // managers
 router.get("/add/manager", AuthMiddleware.redirectAdminLogin, ManagerController.addManager);
