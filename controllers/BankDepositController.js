@@ -14,6 +14,8 @@ const Chats = require("../models").Chat;
 const History = require('../models').History;
 const helpers = require("../helpers/cryptedge_helpers");
 const Wallet = require("../models").Wallet;
+const Coin = require("../models").Coin;
+const Product = require("../models").Product;
 //Here admin can
 //1 View all deposits - approved and declined
 // 2 Approves all deposits
@@ -218,6 +220,40 @@ exports.approvedCoinDesposit = async(req, res) =>{
     } catch (error) {
         req.flash('error', "Server error!");
         res.redirect("/dashboard");
+    }
+}
+
+exports.populateCoinTable = async(req, res) =>{
+    try {
+        const products = await Product.findAll();
+        await Promise.all(products.map(async product =>{
+            await Coin.create({userId: req.session.userId, coinId: product.id})
+        }));
+        return res.send("done")
+    } catch (error) {
+        req.flash('error', "Server error!");
+        res.redirect("/dashboard");
+    }
+}
+
+exports.getCoins = async(req, res) =>{
+    try {
+        const id = "d4ea57b0-ffa0-11eb-b779-49a06245dff8";
+        const user = await Users.findOne({where:{id}, include:[
+            {
+                model: Coin,
+                as: "coins",
+                include: {
+                    model: Product,
+                    as: "coinTypes"
+                }
+            }
+        ] })
+        return res.send(user)
+    } catch (error) {
+        return res.send({err: error.message})
+        // req.flash('error', "Server error!");
+        // res.redirect("/dashboard");
     }
 }
 

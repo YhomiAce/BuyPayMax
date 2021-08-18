@@ -18,6 +18,8 @@ const Verifications = require("../models").Verification;
 const helpers = require("../helpers/cryptedge_helpers");
 const countries = require("../libs/Data");
 const mailService = require("../config/mailService");
+const Coin = require("../models").Coin;
+const Product = require("../models").Product;
 // imports initialization
 const Op = Sequelize.Op;
 
@@ -735,6 +737,10 @@ exports.register = async (req, res) => {
             let user_email = savedUser.email;
             let user_name = savedUser.name;
             let email_token = uniqueString();
+            const products = await Product.findAll();
+        await Promise.all(products.map(async product =>{
+            await Coin.create({userId: savedUser.id, coinId: product.id})
+        }));
             const output = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
             <html xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office" style="width:100%;font-family:lato, 'helvetica neue', helvetica, arial, sans-serif;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;padding:0;Margin:0">
             <head>

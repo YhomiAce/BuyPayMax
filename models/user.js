@@ -27,6 +27,11 @@ module.exports = (sequelize, DataTypes) => {
         as: "chats"
       });
 
+      User.hasMany(models.Coin, {
+        foreignKey: "userId",
+        as: "coins"
+      });
+
       User.hasMany(models.Referral, {
         foreignKey: "user_id",
         as: "ref_user"

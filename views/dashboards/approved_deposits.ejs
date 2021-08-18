@@ -19,8 +19,6 @@
                                     <thead>
                                         <tr>
                                             <th class="text-center">#</th>
-                                           
-                                            <th>Name</th>
                                             <th>Email</th>
                                             <th>Amount</th>
                                             <th>Coin Type</th>
@@ -34,7 +32,6 @@
                                         <%  for (let i = 0; i < deposits.length; i++ ) { %>
                                         <tr>
                                             <td><%= i + 1 %></td>
-                                            <td><%= deposits[i].user.name %></td>
                                             <td><%= deposits[i].user.email %></td>
                                             <td><%= deposits[i].amount %></td>
                                             <td><%= deposits[i].channel %></td>

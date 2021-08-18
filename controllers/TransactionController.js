@@ -15,6 +15,8 @@ const Transactions = require("../models").Transaction;
 const Referrals = require("../models").Referral;
 const CryptBank = require("../models").CryptBank;
 const DollarValue = require("../models").DollarValue;
+const Product = require("../models").Product;
+const Coin = require("../models").Coin;
 
 
 // imports initialization
@@ -109,7 +111,7 @@ exports.withdrawWallet = (req, res, next) => {
         })
         .then(user => {
             if (user) {
-                
+                Product
                 let wallet = Math.abs(Number(user.wallet));
                 let revenue = Math.abs(Number(user.revenue));
                 let userTotal = wallet + revenue
@@ -631,6 +633,137 @@ exports.buyCoin = async(req, res) =>{
             referral_amount: referral.length * 1000,
             messages: unansweredChats,
             moment
+        });
+    } catch (error) {
+        req.flash('error', "Server error");
+        res.redirect("back");
+    }
+}
+
+exports.sellFromExternalWallet = async(req, res) =>{
+    try {
+        const unansweredChats = await Chats.findAll({
+            where: {
+                [Op.and]: [{
+                        receiver_id: {
+                            [Op.eq]: req.session.userId
+                        }
+                    },
+                    {
+                        read_status: {
+                            [Op.eq]: 0
+                        }
+                    }
+                ]
+            },
+            include: ["user"],
+        });
+        const user = await Users.findOne({
+            where: {
+                id: {
+                    [Op.eq]: req.session.userId
+                }
+            }
+        });
+        const referral = await Referrals.findAll({
+            where: {
+                referral_id: {
+                    [Op.eq]: req.session.userId
+                }
+            }
+        });
+        
+        const bank = await CryptBank.findOne({});
+
+        const dollar = await DollarValue.findOne({})
+
+        res.render("dashboards/users/external_wallet", {
+            user: user,
+            email: user.email,
+            phone: user.phone,
+            wallet: user.wallet,
+            referral: user.referral_count,
+            referral_amount: referral.length * 1000,
+            messages: unansweredChats,
+            moment
+        });
+    } catch (error) {
+        req.flash('error', "Server error");
+        res.redirect("back");
+    }
+}
+
+exports.sellCoinFromInternalWallet = async(req, res) =>{
+    try {
+        const {amount, coinId} = req.body;
+        const user = await Users.findOne({where:{id: req.session.userId}});
+        const wallet = await Coin.findOne({where:{userId: req.session.userId, coinId}});
+        const balance = Number(wallet.balance);
+        if (balance < amount) {
+            req.flash('warning', "Your balance is Low. Can't Perform this transaction");
+            res.redirect("back");
+        }
+        // Todo 
+        req.flash("success", "Done")
+        res.redirect("back");
+    } catch (error) {
+        req.flash('error', "Server error");
+        res.redirect("back");
+    }
+}
+
+exports.sellFromInternalWallet = async(req, res) =>{
+    try {
+        const unansweredChats = await Chats.findAll({
+            where: {
+                [Op.and]: [{
+                        receiver_id: {
+                            [Op.eq]: req.session.userId
+                        }
+                    },
+                    {
+                        read_status: {
+                            [Op.eq]: 0
+                        }
+                    }
+                ]
+            },
+            include: ["user"],
+        });
+        const user = await Users.findOne({where:{id: req.session.userId}, include:[
+            {
+                model: Coin,
+                as: "coins",
+                include: {
+                    model: Product,
+                    as: "coinTypes"
+                }
+            }
+        ] })
+        const referral = await Referrals.findAll({
+            where: {
+                referral_id: {
+                    [Op.eq]: req.session.userId
+                }
+            }
+        });
+        
+        const bank = await CryptBank.findOne({});
+
+        const dollar = await DollarValue.findOne({})
+        const products = await Product.findAll();
+        const coins = user.coins
+        res.render("dashboards/users/internal_wallet", {
+            user: user,
+            email: user.email,
+            phone: user.phone,
+            wallet: user.wallet,
+            referral: user.referral_count,
+            referral_amount: referral.length * 1000,
+            messages: unansweredChats,
+            moment,
+            products,
+            coins
         });
     } catch (error) {
         req.flash('error', "Server error");

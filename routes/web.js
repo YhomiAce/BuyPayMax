@@ -398,8 +398,11 @@ router.post("/fundwallet", AuthMiddleware.redirectLogin, WalletController.fundWa
 router.get("/buy", AuthMiddleware.redirectLogin, TransactionController.buyCoin);
 router.get("/sell", AuthMiddleware.redirectLogin, TransactionController.sellCoin);
 router.get("/sell/coin", AuthMiddleware.redirectLogin, TransactionController.sellBitCoin);
-router.get("/method/coin",TransactionController.getMethodForSelling )
-router.get("/rates", TransactionController.getRates);
+router.get("/method/coin", AuthMiddleware.redirectLogin, TransactionController.getMethodForSelling )
+router.get("/sell/external", AuthMiddleware.redirectLogin, TransactionController.sellFromExternalWallet)
+router.get("/sell/internal", AuthMiddleware.redirectLogin, TransactionController.sellFromInternalWallet)
+router.post("/sell-coin", AuthMiddleware.redirectLogin, TransactionController.sellCoinFromInternalWallet)
+router.get("/rates", AuthMiddleware.redirectLogin, TransactionController.getRates);
 
 // users
 router.get("/settings", AuthMiddleware.redirectLogin, ProfileController.settingsPage);
@@ -486,6 +489,8 @@ router.get("/edit/wallet/:id", AuthMiddleware.redirectAdminLogin, PackageControl
 router.post("/update/wallet", AuthMiddleware.redirectAdminLogin, PackageController.updateWalletAddress);
 router.get("/free/wallet/:coinId", PackageController.getFreeWallet);
 router.get("/approve-deposit/:id", AuthMiddleware.redirectAdminLogin, BankDepositController.approvedCoinDesposit);
+// router.get("/coin/create", AuthMiddleware.redirectLogin, BankDepositController.populateCoinTable);
+router.get("/coin/get",BankDepositController.getCoins);
 
 // managers
 router.get("/add/manager", AuthMiddleware.redirectAdminLogin, ManagerController.addManager);

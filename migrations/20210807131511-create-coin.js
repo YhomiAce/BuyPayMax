@@ -3,22 +3,23 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable('coins', {
       id: {
+        allowNull: false,
+        primaryKey: true,
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV1,
-        primaryKey: true
       },
-      name:{
-        type:Sequelize.STRING,
+      userId:{
+        type:Sequelize.UUID,
         allowNull: false
       },
-      rate:{
+      coinId:{
+        type:Sequelize.UUID,
+        allowNull: false
+      },
+      balance:{
         type:Sequelize.FLOAT,
-        defaultValue: 0,
-        allowNull: false
-      },
-      description:{
-        type:Sequelize.TEXT,
-        allowNull: true
+        allowNull: false,
+        defaultValue: 0
       },
       createdAt: {
         allowNull: false,
