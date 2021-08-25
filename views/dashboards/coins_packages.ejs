@@ -34,7 +34,7 @@
                                             <td><%= i + 1 %></td>
                                             <td><%= products[i].name %></td>
                                             <td><%= products[i].symbol %></td>
-                                            <td>$<%= products[i].rate %></td>
+                                            <td><%= Intl.NumberFormat('de-DE', { style: 'currency', currency: 'NGN' }).format(products[i].rate.toFixed(3))  %></td>
 
                                             <td>
                                                 <a href="/edit/coin/<%= products[i].id %>"

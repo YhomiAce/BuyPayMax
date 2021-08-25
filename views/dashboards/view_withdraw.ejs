@@ -32,7 +32,7 @@
                                         </tr>
                                         <tr>
                                             <td>Amount</td>
-                                            <td><%= withdraw.amount %></td>
+                                            <td><%= Intl.NumberFormat('de-DE', { style: 'currency', currency: 'NGN' }).format(withdraw.amount.toFixed(3))  %></td>
                                         </tr>
                                         <tr>
                                             <td>Account Name</td>
