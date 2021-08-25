@@ -19,13 +19,10 @@
                                     <thead>
                                         <tr>
                                             <th class="text-center">#</th>
-                                            <th>Name</th>
                                             <th>Email</th>
                                             <th>Amount</th>
-                                           
-                                            
-                                            <th>Wallet Name</th>
-                                            <th>Wallet Address</th>
+                                            <th>Transaction Reference</th>
+                                            <th>Status</th>
                                             <th>Date</th>
                                             <th>Action</th>
                                         </tr>
@@ -34,26 +31,18 @@
                                         <%  for (let i = 0; i < withdrawals.length; i++ ) { %>
                                         <tr>
                                             <td><%= i + 1 %></td>
-                                            <td><%= withdrawals[i].user.name%></td>
                                             <td><%= withdrawals[i].user.email %></td>
-                                            <td>$<%= withdrawals[i].amount %>.00</td>
+                                            <td>N<%= withdrawals[i].amount %></td>
+                                            <td><%= withdrawals[i].reference %></td>
                                            
 
-                                            <td><%= withdrawals[i].wallet_name %></td>
-                                            <td><%= withdrawals[i].wallet_address %></td>
-                                            <td><%= withdrawals[i].createdAt %></td>
+                                            <td><%= withdrawals[i].status %></td>
+                                            <td><%= moment(withdrawals[i].createdAt).format("DD-MMM-YYYY") %></td>
                                             <td>
-                                                <a href="javascript:void(0);" class="btn btn-warning btn-pill"
-                                                    onclick="event.preventDefault();
-								                        document.getElementById('approve-withdrawal').submit();" style="color: aliceblue;">
-                                                    Approve
+                                                <a href="/withdraw/details/<%= withdrawals[i].id  %> " class="btn btn-warning btn-pill" style="color: aliceblue;">
+                                                    View
                                                 </a>
-                                                <form id="approve-withdrawal" action="/approve-withdrawal" method="POST"
-                                                    style="display: none;">
-                                                    <input type="hidden" name="id" value="<%= withdrawals[i].id %>">
-                                                    <input type="hidden" name="amount" value="<%= withdrawals[i].amount %>">
-                                                    
-                                                </form>
+                                                
                                             </td>
                                         </tr>
                                         <% } %>

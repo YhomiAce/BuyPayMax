@@ -12,6 +12,8 @@ const Chats = require("../models").Chat;
 const AdminMessages = require('../models').AdminMessage;
 const Product = require('../models').Product;
 const Wallet = require('../models').Wallet;
+const Coin = require('../models').Coin;
+const Admin = require('../models').Admin;
 
 // imports initialization
 const Op = Sequelize.Op;
@@ -495,6 +497,10 @@ exports.deleteCoin = async(req, res)=>{
             res.redirect("back");
         }
         await Product.destroy({where:{id}});
+        const coins = await Coin.findAll({where:{coinId:id}});
+        await Promise.all(coins.map(async coin =>{
+            await Coin.destroy({where:{id:coin.id}})
+        }))
         req.flash('success', "Coin Type deleted Successfully");
         res.redirect("back");
     } catch (error) {
@@ -618,6 +624,7 @@ exports.adminAllCoins = (req, res, next) => {
             res.redirect("/");
         });
 }
+
 exports.viewAllWallets = (req, res, next) => {
     AdminMessages.findAll()
         .then(unansweredChats => {
@@ -640,6 +647,10 @@ exports.viewAllWallets = (req, res, next) => {
                             model: Users,
                             as: 'user'
                         },
+                        {
+                            model: Admin,
+                            as: 'trader'
+                        },
                     ]
                 })
                 .then(wallets => {
@@ -649,6 +660,58 @@ exports.viewAllWallets = (req, res, next) => {
                         messages: unansweredChats,
                         moment
                     });
+                    // return res.send(wallets)
+                })
+                .catch(error => {
+                    res.redirect("/");
+                    // return res.send("Server error");
+                });
+        })
+        .catch(error => {
+            req.flash('error', "Server error!");
+            res.redirect("/");
+            // return res.send("Server error");
+        });
+}
+
+exports.viewAllTradersWallet = (req, res, next) => {
+    AdminMessages.findAll()
+        .then(unansweredChats => {
+            Wallet.findAll({
+                    where: {
+                        traderId:req.session.adminId
+                    },
+                    
+                    order: [
+                        ['createdAt', 'ASC'],
+                    ],
+                    include: [
+                        {
+                            model: Product,
+                            as: 'coin'
+                        },
+                        {
+                            model: Users,
+                            as: 'user'
+                        },
+                        {
+                            model: Admin,
+                            as: 'trader'
+                        },
+                    ]
+                })
+                .then(wallets => {
+                    // console.log(wallets);
+                    Admin.findOne({where:{id:req.session.adminId}})
+                    .then(admin =>{
+
+                        res.render("dashboards/Trader/wallets", {
+                            wallets,
+                            messages: unansweredChats,
+                            moment,
+                            admin
+                        });
+                    })
                     // return res.send(wallets)
                 })
                 .catch(error => {
@@ -744,15 +807,29 @@ exports.editWalletAddress = (req, res, next) => {
                             model: Users,
                             as: "user"
                         },
+                        {
+                            model: Admin,
+                            as: "trader"
+                        },
                     ]
                 })
                 .then(wallet => {
-                    console.log(wallet);
-                    res.render("dashboards/edit_wallet", {
-                        wallet,
-                        messages: unansweredChats,
-                        moment
-                    });
+                    Admin.findAll({where:{level:2}})
+                    .then(trader =>{
+                        console.log(wallet);
+                        Admin.findOne({where:{id:req.session.adminId}})
+                        .then(admin =>{
+                            res.render("dashboards/edit_wallet", {
+                                wallet,
+                                messages: unansweredChats,
+                                moment,
+                                traders:trader,
+                                admin
+                            });
+
+                        })
+
+                    })
                 })
                 .catch(error => {
                     res.redirect("/");
@@ -891,7 +968,7 @@ exports.postAddPackage = (req, res, next) => {
     }
 }
 
-exports.postAddCoin = (req, res, next) => {
+exports.postAddCoin =  async(req, res, next) => {
     const {
         name,
         symbol,
@@ -924,7 +1001,11 @@ exports.postAddCoin = (req, res, next) => {
                         rate,
                         symbol
                         })
-                        .then(products => {
+                        .then( async products => {
+                            const users=  await Users.findAll();
+                            await Promise.all(users.map(async user=>{
+                                await Coin.create({userId: user.id, coinId: products.id})
+                            }))
                             req.flash('success', "Package added successfully!");
                             res.redirect("back");
                         })

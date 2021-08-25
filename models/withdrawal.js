@@ -32,35 +32,33 @@ module.exports = (sequelize, DataTypes) => {
     },
     amount: {
       allowNull: true,
-      type: DataTypes.DECIMAL(65, 0),
+      type: DataTypes.FLOAT,
       defaultValue: 0,
     },
-    bank: {
+    acct_name: {
       allowNull: true,
       type: DataTypes.TEXT,
     },
-    bank_code: {
+    acct_number: {
       allowNull: true,
       type: DataTypes.TEXT,
     },
-    recipient_id: {
+    bank_name: {
       allowNull: true,
       type: DataTypes.TEXT,
     },
-    wallet_name: {
-      allowNull: true,
-      type: DataTypes.TEXT,
-    },
-    wallet_address: {
-      allowNull: true,
-      type: DataTypes.TEXT,
+    reference: {
+      type: DataTypes.TEXT
     },
     status: {
       allowNull: true,
-      type: DataTypes.INTEGER,
-      defaultValue: 0,
+      type: DataTypes.ENUM("pending", "completed"),
+      defaultValue: "pending",
     },
-    
+    fileDoc: {
+      allowNull: true,
+      type: DataTypes.TEXT
+    }
   }, {
     sequelize,
     modelName: 'Withdrawal',
@@ -68,5 +66,6 @@ module.exports = (sequelize, DataTypes) => {
     paranoid: true,
     tableName: 'Withdrawals',
   });
+  // Withdrawal.sync({force:true})
   return Withdrawal;
 };

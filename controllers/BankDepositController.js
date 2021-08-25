@@ -3,6 +3,7 @@ const Sequelize = require("sequelize");
 const multer = require("multer");
 const path = require("path");
 const moment = require('moment')
+const nodemailer = require("nodemailer");
 
 // local imports
 const BankDeposits = require("../models").BankDeposit;
@@ -16,6 +17,8 @@ const helpers = require("../helpers/cryptedge_helpers");
 const Wallet = require("../models").Wallet;
 const Coin = require("../models").Coin;
 const Product = require("../models").Product;
+const Withdrawals = require("../models").Withdrawal;
+const parameters = require("../config/params");
 //Here admin can
 //1 View all deposits - approved and declined
 // 2 Approves all deposits
@@ -95,6 +98,52 @@ exports.viewADeposit = (req, res, next) => {
             // }
             res.render("dashboards/view_bank_deposit", {
                 deposits: deposits,
+                messages: unansweredChats,
+                moment
+            });
+        })
+        .catch(error => {
+            req.flash('error', "Server error!");
+            res.redirect("/");
+        }); 
+    })
+    .catch(error => {
+        req.flash('error', "Server error!");
+        res.redirect("/");
+    });
+}
+
+exports.viewWithdrawalDetails = (req, res, next) => {
+    const id = req.params.id;
+    Chats.findAll({
+        where: {
+            [Op.and]: [{
+                receiver_id: {
+                    [Op.eq]: req.session.userId
+                }
+            }, 
+            {
+                read_status: {
+                    [Op.eq]: 0
+                }
+            }]
+            
+        },
+        include: ["user"],
+    })
+    .then(unansweredChats => {
+        Withdrawals.findOne({
+            where: {
+                id: {
+                    [Op.eq]: id
+                },
+            },
+            include: ["user"],
+        })
+        .then(withdraw => {
+            
+            res.render("dashboards/view_withdraw", {
+                withdraw,
                 messages: unansweredChats,
                 moment
             });
@@ -208,13 +257,66 @@ exports.approvedCoinDesposit = async(req, res) =>{
         await Deposits.update({status:"completed"}, {where:{id}});
         const userId = deposit.user_id;
         const amount = Number(deposit.amount);
+        const channel = deposit.channel;
+        const reference = deposit.reference;
         const walletAddressId = deposit.walletAddressId;
-        const walletAddress = await Wallet.findOne({where:{id: walletAddressId}})
-        const {wallet} = await Users.findOne({where:{id: userId}});
-        const balance = Number(wallet) + amount;
-        await Users.update({wallet: balance}, {where:{id: userId}});
+        const walletAddress = await Wallet.findOne({where:{id: walletAddressId}});
+        const now = moment();
+        const {wallet, email} = await Users.findOne({where:{id: userId}});
+        const product = await Product.findOne({where:{name: channel}});
+        const symbol = product.symbol;
+        const coin = await Coin.findOne({where:{userId, coinId: product.id}});
+        const coinBal = Number(coin.balance);
+        const newBal = coinBal +amount;
+        await Coin.update({balance: newBal}, {where:{userId, coinId: product.id}});
         const walletAddBalance = amount + Number(walletAddress.balance);
         await Wallet.update({balance: walletAddBalance, status:"pending", userId: null}, {where:{id: walletAddressId}});
+        const output = `<html>
+        <head>
+          <title>Deposit Approval</title>
+        </head>
+        <body>
+        <p>Your Transaction was successful. You just credit your PayBuyMax Wallet ${amount} ${symbol}</p>
+        <h2> Receipt </h2>
+        <ul>
+            <li>Coin Type:.....................${channel}</li>
+            <li>Quantity:.....................${amount} ${symbol} </li>
+            <li>Transaction Reference:.....................${reference}</li>
+            <li>Date Approved:.....................${now}</li>
+        </ul>
+
+        <h3>Happy Trading with Us!</h3>
+        </body>
+                </html>`;
+      let transporter = await nodemailer.createTransport({
+        host: parameters.EMAIL_HOST,
+        port: parameters.EMAIL_PORT,
+        secureConnection: true, // true for 465, false for other ports
+        auth: {
+          user: parameters.EMAIL_USERNAME, // generated ethereal user
+          pass: parameters.EMAIL_PASSWORD, // generated ethereal password
+        },
+        
+      });
+
+      // send mail with defined transport object
+      let mailOptions = {
+        from: ` "PayBuyMax" <${parameters.EMAIL_USERNAME}>`, // sender address
+        to: `${email}`, // list of receivers
+        subject: "[PayBuyMax] Transaction Receipt", // Subject line
+        text: "PayBuyMax", // plain text body
+        html: output, // html body
+      };
+      const sendMail = await transporter.sendMail(mailOptions, async(err, info) => {
+        if (err) {
+            console.log(err);
+          return res.json({msg:"Error sending mail, please try again"});
+          
+        } else {
+            return res.json({success:"Done"});
+          
+        }
+      });
         req.flash('success', "Deposit Approved");
         res.redirect("back");
     } catch (error) {

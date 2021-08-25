@@ -19,7 +19,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "userId",
         as: "user"
       });
-      
+      Wallet.belongsTo(models.Admin, {
+        foreignKey: "traderId",
+        as: "trader"
+      });
     }
   };
   Wallet.init({
@@ -47,6 +50,10 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: "pending"
     },
     userId: {
+      type: DataTypes.UUID,
+      allowNull: true
+    },
+    traderId: {
       type: DataTypes.UUID,
       allowNull: true
     }

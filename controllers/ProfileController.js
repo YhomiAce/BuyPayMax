@@ -317,7 +317,7 @@ exports.editProfileSettings = (req, res, next) => {
 exports.updateProfile = (req, res, next) => {
     const digits_only = string => [...string].every(c => '+0123456789'.includes(c));
     const {
-        phone
+        phone, name
     } = req.body;
     if (!phone) {
         req.flash('warning', "Please enter phone");
@@ -327,7 +327,8 @@ exports.updateProfile = (req, res, next) => {
         res.redirect("back");
     } else {
         Users.update({
-                phone: phone
+                phone: phone,
+                name
             }, {
                 where: {
                     id: {

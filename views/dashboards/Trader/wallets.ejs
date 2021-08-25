@@ -1,20 +1,20 @@
 <!-- header -->
-<%- include("../partials/header_admin") %>
-<%- include("../partials/sidebar") %>
+<%- include("../../partials/header_admin") %>
+<%- include("../../partials/sidebar") %>
 
 
 <!-- Main Content -->
 
 <!-- Main Content -->
 <div class="main-content">
-    <%- include("../partials/alerts") %>
+    <%- include("../../partials/alerts") %>
     <section class="section">
         <div class="section-body">
             <div class="row">
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <h4>Investment Plans</h4>
+                            <h4>Trader Wallet</h4>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
@@ -26,7 +26,7 @@
                                             <th>Wallet Type</th>
                                             <th>Wallet Balance</th>
                                             <th>Status</th>
-                                            <th>AssignTo</th>
+                                            <th>Current</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
@@ -38,15 +38,9 @@
                                             <td><%= wallets[i].coin.name %></td>
                                             <td><%= wallets[i].balance %></td>
                                             <td><%= wallets[i].status %></td>
-                                            <td><%= wallets[i].trader ? wallets[i].trader.name : "Unassign"   %></td>
-
+                                            <td><%= wallets[i].user ? wallets[i].user.email : "Unassign"  %></td>
                                             <td>
-                                                <a href="/edit/wallet/<%= wallets[i].id %>"
-                                                    class="btn btn-primary btn-pill">Edit</a>
-                                                <a href="/delete/wallet/<%= wallets[i].id %>" class="btn btn-danger btn-pill" style="color: aliceblue;">
-                                                    Delete
-                                                </a>
-                                                
+                                                <a href="/edit/wallet/<%= wallets[i].id %>" class="btn btn-primary btn-pill">Edit</a>
                                             </td>
                                         </tr>
                                         <% } %>
@@ -61,4 +55,4 @@
     </section>
 </div>
 
-<%- include("../partials/footer2") %>
+<%- include("../../partials/footer2") %>

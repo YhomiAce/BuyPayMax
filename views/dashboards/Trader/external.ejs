@@ -1,0 +1,104 @@
+<!-- header -->
+<%- include("../../partials/header_admin") %>
+<%- include("../../partials/sidebar") %>
+
+<!-- Main Content -->
+<div class="main-content">
+    <%- include("../../partials/alerts") %>
+   
+    
+        <section class="section">
+            <div class="section-body">
+                <div class="row">
+                    <div class="col-12 col-md-12 col-lg-12">
+                        <form action="/external/create-receipt" method="POST" class="needs-validation" novalidate="">
+                            <input type="hidden" name="traderId" value="<%= admin.id  %> ">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4>Generate Receipt For Transaction</h4>
+                                   
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label for="name">Customer Name</label>
+                                        <input id="name" type="text" class="form-control" name="name" tabindex="1" required autofocus>
+                                        <div class="invalid-feedback">
+                                            Please fill in Customer name
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="email">Customer Email</label>
+                                        <input id="email" type="text" class="form-control" name="email" tabindex="1" required autofocus>
+                                        <div class="invalid-feedback">
+                                            Please fill in Customer Email
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="duration">Package Type</label>
+                                        <select name="coinId" id="coin" class="form-control" required>
+                                            <option value="" disabled selected>Select Coin</option>
+                                            <% for(let i=0; i< products.length; i++) { %> 
+                                            <option value="<%= products[i].id  %>"><%= products[i].name  %></option>
+                                            <% } %> 
+                                        </select>
+
+                                        <div class="invalid-feedback" id="rate-box" style="display: none;">
+                                            Exchange Rate<input type="number" value="" name="rate" id="rate" class="form-control" readonly>
+                                        </div>
+                                    </div>
+                                    
+                                
+                                    
+                                    <div class="form-group">
+                                        <label for="quantity">Quantity</label>
+                                        <input id="quantity" type="number" step="any" class="form-control" name="quantity" tabindex="1" required autofocus>
+                                        <div class="invalid-feedback">
+                                            Please enter Quantity
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="amount">Amount</label>
+                                        <input id="amount" type="text" readonly class="form-control" name="amount" tabindex="1" required autofocus>
+                                        <div class="invalid-feedback">
+                                            Please enter Amount
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                <div class="card-footer text-right">
+                                    <button class="btn btn-primary btn-block"
+                                    type="submit">Generate Receipt</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+<%- include("../../partials/footer2") %>
+<script>
+    $("#coin").change(()=>{
+        const id = $("#coin").val();
+        console.log(id);
+        $.ajax({
+            url:`/get/exchange/${id}`,
+            method:"get",
+            success:(res=>{
+                console.log(res);
+                $("#rate-box").show();
+                $("#rate").val(res.rate)
+                
+            })
+        })
+        
+    })
+    $("#quantity").keyup(()=>{
+        var rate = $("#rate").val();
+        var qty = $("#quantity").val();
+        const cost = rate * qty;
+        console.log(rate, qty, cost);
+        $("#amount").val(cost)
+    })
+</script>

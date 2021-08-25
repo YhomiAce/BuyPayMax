@@ -11,6 +11,10 @@ const Investments = require("../models").Investment;
 const Chats = require("../models").Chat;
 const AdminMessages = require('../models').AdminMessage;
 const Admins = require('../models').Admin;
+const Product = require('../models').Product;
+const Coin = require('../models').Coin;
+const Deposit = require('../models').Deposit;
+const Withdrawal = require('../models').Withdrawal;
 
 // imports initialization
 const Op = Sequelize.Op;
@@ -19,7 +23,16 @@ const Op = Sequelize.Op;
 exports.home = async(req, res, next) => {
     try {
         const unansweredChats = await Chats.findAll({where: {sender_id: req.session.userId }});
-        const user = await Users.findOne({where: {id: req.session.userId}});
+        const user = await Users.findOne({where:{id: req.session.userId}, include:[
+            {
+                model: Coin,
+                as: "coins",
+                include: [ {
+                    model: Product,
+                    as: "coinTypes"
+                }]
+            }
+        ] })
         const referral = await Referrals.findAll({where:{referral_id: req.session.userId}});
         const investment = await  Investments.findAll({where: {user_id: req.session.userId}});
         const activeInvestments = await Investments.findAll({
@@ -44,8 +57,9 @@ exports.home = async(req, res, next) => {
                     [Op.eq]: req.session.userId
                 }
             }
-        })
-
+        });
+        const coins = user.coins;
+        console.log(coins);
         if (kyc) {
             res.render("dashboards/users/user_home", {
                 user: user,
@@ -56,7 +70,8 @@ exports.home = async(req, res, next) => {
                 investment: investment.length,
                 active_investment: activeInvestments.length,
                 messages: unansweredChats,
-                moment
+                moment,
+                coins
             });
         } else {
             res.render("dashboards/users/user_home", {
@@ -69,7 +84,8 @@ exports.home = async(req, res, next) => {
                 investment: investment.length,
                 active_investment: activeInvestments.length,
                 messages: unansweredChats,
-                moment
+                moment,
+                coins
             });
         }
     
@@ -79,6 +95,26 @@ exports.home = async(req, res, next) => {
             res.redirect("/");
     }
      
+}
+
+exports.getCoinsWithProduct = async(req, res)=>{
+    try {
+        id= "d4ea57b0-ffa0-11eb-b779-49a06245dff8"
+        const user = await Users.findOne({where:{id }, include:[
+            {
+                model: Coin,
+                as: "coins",
+                include: [ {
+                    model: Product,
+                    as: "coinTypes"
+                }]
+            }
+        ] });
+        const {coins} =  user
+        return res.send({user, coins})
+    } catch (error) {
+        return res.send({err:error.response})
+    }
 }
 
 exports.AdminHome = async(req,res,next) =>{
@@ -118,7 +154,26 @@ exports.agentHome = async(req,res,next) =>{
         const unansweredChats = await AdminMessages.findAll();
         const referral = await Referrals.findAll();
         const referralCount = referral.length;
-        res.render("dashboards/home", {
+        const withdrawal = await Withdrawal.findAll({where:{status:"pending"}, 
+            include:[{model: Users, as: "user"}],
+            order: [
+                ['createdAt', 'DESC'],
+            ],
+        });
+        const deposit = await Deposit.findAll({
+           
+            where: {
+                status: "pending"
+            },
+            include: ["user"],
+            order: [
+                ['createdAt', 'DESC'],
+            ],
+        })
+        
+        const transaction = [...withdrawal, ...deposit]
+       
+        res.render("dashboards/Trader/home", {
             usersCount: usersCount,
             adminCount: adminCount,
             activeUsersCount: usersCount,
@@ -126,8 +181,39 @@ exports.agentHome = async(req,res,next) =>{
             packageCount: packageCount,
             users: user,
             messages: unansweredChats,
-            moment
+            moment,
+            transaction
       })
+    } catch (err) {
+        res.redirect("/")
+    }
+}
+
+exports.getWithdrawal = async(req,res,next) =>{
+    try {
+        
+        const withdrawal = await Withdrawal.findAll({where:{status:"pending"}, 
+            include:[{model: Users, as: "user"}],
+            order: [
+                ['createdAt', 'DESC'],
+            ],
+        });
+
+        const deposit = await Deposit.findAll({
+           
+            where: {
+                status: "pending"
+            },
+            include: ["user"],
+            order: [
+                ['createdAt', 'DESC'],
+            ],
+        })
+        
+        const transaction = [...withdrawal, ...deposit]
+        return res.send({transaction})
+       
+       
     } catch (err) {
         res.redirect("/")
     }

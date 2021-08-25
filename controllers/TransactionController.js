@@ -2,6 +2,7 @@
 const Sequelize = require("sequelize");
 const moment = require("moment");
 const axios = require('axios');
+const nodemailer = require("nodemailer");
 
 // local imports
 const Users = require("../models").User;
@@ -17,7 +18,14 @@ const CryptBank = require("../models").CryptBank;
 const DollarValue = require("../models").DollarValue;
 const Product = require("../models").Product;
 const Coin = require("../models").Coin;
-
+const Internal = require("../models").Internal;
+const parameters = require("../config/params");
+const generateUniqueId = require("generate-unique-id");
+const upload = require("../helpers/mult_helper");
+const cloudinary = require("../helpers/cloudinary");
+const Admins = require('../models').Admin;
+const External = require('../models').External;
+const router = require("../routes/web");
 
 // imports initialization
 const Op = Sequelize.Op;
@@ -138,29 +146,28 @@ exports.withdrawWallet = (req, res, next) => {
 
 exports.withdrawFromWallet = (req, res, next) => {
     let {
-       
-        wallet_name,
-        wallet_address,
-        amount
+        code,
+        acct_name,
+        acct_number,
+        amount,
+        bank_name,
+        userId
     } = req.body;
    
-    if (!wallet_name || !wallet_address || !amount) {
+    if (!acct_name || !acct_number || !amount || !bank_name) {
         req.flash('warning', "Enter all fields");
-        res.redirect("back");
-    } else if (!helpers.isNumeric(amount)) {
-        req.flash('warning', "Enter valid amount");
         res.redirect("back");
     } else {
         // get user wallet
         Users.findOne({
                 where: {
                     id: {
-                        [Op.eq]: req.session.userId
+                        [Op.eq]: userId
                     }
                 }
             })
             .then(user => {
-                if (user) {
+                if (user.oauth_token === code) {
                     let type = 'Withdrawal'
                     let desc = 'Withdrawal request initiated'
                     let userWallet = Math.abs(Number(user.wallet));
@@ -170,38 +177,30 @@ exports.withdrawFromWallet = (req, res, next) => {
                         req.flash('warning', "Insufficient fund");
                         res.redirect("back");
                     } else {
-                        Users.update({
-                                wallet: currentWallet
-                            }, {
-                                where: {
-                                    id: req.session.userId
-                                }
+                        let reference = generateUniqueId({
+                            length: 15,
+                            useLetters: true,
+                          });
+                        Withdrawals.create({
+                                amount,
+                                user_id:userId,
+                                bank_name,
+                                acct_name,
+                                acct_number,
+                                reference
                             })
-                            .then(updatedUser => {
-                                let owner = req.session.userId
-                                Withdrawals.create({
-                                       
-                                        amount,
-                                        user_id:owner,
-                                        wallet_name,
-                                        wallet_address,
-                                        status: 0
-                                    })
-                                    .then(withdrawal => {
-                                        
-                                         History.create({
-                                                type,
-                                                desc,
-                                                value:req.body.amount,
-                                                user_id:req.session.userId
-                                            })
-                                        req.flash('success', "Withdrawal success, awaiting disbursement!");
-                                        res.redirect("back");
-                                    })
-                                    .catch(error => {
-                                        req.flash('error', "Server error");
-                                        res.redirect("back");
-                                    });
+                            .then(withdrawal => {
+                                
+                                History.create({
+                                    type,
+                                    desc,
+                                    value:amount,
+                                    user_id:userId
+                                }).then(hist =>{
+
+                                    req.flash('success', "Withdrawal success, awaiting disbursement!");
+                                    res.redirect("back");
+                                })
                             })
                             .catch(error => {
                                 req.flash('error', "Server error");
@@ -209,7 +208,7 @@ exports.withdrawFromWallet = (req, res, next) => {
                             });
                     }
                 } else {
-                    req.flash('warning', "Session expired");
+                    req.flash('warning', "Invalid Confirmation Code");
                     res.redirect("back");
                 }
             })
@@ -276,9 +275,7 @@ exports.unapprovedWithdrawals = (req, res, next) => {
         Withdrawals.findAll({
            
             where: {
-                status: {
-                    [Op.eq]: 0
-                }
+                status: "pending"
             },
             include: ["user"],
             order: [
@@ -289,7 +286,8 @@ exports.unapprovedWithdrawals = (req, res, next) => {
             console.log({withdrawals});
             res.render("dashboards/unapproved_withdrawals", {
                 withdrawals,
-                messages: unansweredChats
+                messages: unansweredChats,
+                moment
             });
         })
         .catch(error => {
@@ -347,9 +345,7 @@ exports.approvedWithdrawals = (req, res, next) => {
     .then(unansweredChats => {
         Withdrawals.findAll({
             where: {
-                status: {
-                    [Op.eq]: 1
-                }
+                status: "completed"
             },
             include: ["user"],
             order: [
@@ -374,9 +370,11 @@ exports.approvedWithdrawals = (req, res, next) => {
     });
 }
 
-exports.postApproveWithdrawal = (req, res, next) => {
-   let id = req.body.id;
-   let amount = req.body.amount
+exports.postApproveWithdrawal = async(req, res, next) => {
+   
+   const {id} = req.body;
+   const result = await cloudinary.uploader.upload(req.file.path);
+   const docPath = result.secure_url;
   
     Withdrawals.findOne({
             where: {
@@ -390,7 +388,8 @@ exports.postApproveWithdrawal = (req, res, next) => {
                 let owner = withdrawal.user_id
                 
                 Withdrawals.update({
-                    status: 1
+                    status: "completed",
+                    fileDoc: docPath
                 }, {
                     where: {
                         id: {
@@ -407,9 +406,65 @@ exports.postApproveWithdrawal = (req, res, next) => {
                         desc,
                         value:req.body.amount,
                         user_id:owner
+                    }).then(history =>{
+                        Users.findOne({where:{id:owner}}).then(user =>{
+                            const userBalance = Number(user.wallet) - Number(withdrawal.amount);
+                            const email = user.email;
+                            Users.update({wallet: userBalance}, {where:{id: user.id}}).then(update =>{
+                                const now  = moment();
+                                const output = `<html>
+        <head>
+          <title>TRANSACTION RECEIPT</title>
+        </head>
+        <body>
+        <p>Your Withdrawal was successful. You just withdraw ${withdrawal.amount} from Your PayBuyMax wallet</p>
+        <h2> Receipt </h2>
+        <ul>
+            
+            <li>Amount:.....................${withdrawal.amount} </li>
+            <li>Account Name:.....................${withdrawal.acct_name} </li>
+            <li>Account Number:.....................${withdrawal.acct_number} </li>
+            <li>Bank Name:.....................${withdrawal.bank_name} </li>
+            <li>Transaction Reference:.....................${withdrawal.reference}</li>
+            <li>Transaction Receipt:.....................<a href="${docPath}">Reciept</a></li>
+            <li>Date:.....................${now}</li>
+        </ul>
+        </body>
+                </html>`;
+      let transporter = nodemailer.createTransport({
+        host: parameters.EMAIL_HOST,
+        port: parameters.EMAIL_PORT,
+        secureConnection: true, // true for 465, false for other ports
+        auth: {
+          user: parameters.EMAIL_USERNAME, // generated ethereal user
+          pass: parameters.EMAIL_PASSWORD, // generated ethereal password
+        },
+        
+      });
+
+      // send mail with defined transport object
+      let mailOptions = {
+        from: ` "PayBuyMax" <${parameters.EMAIL_USERNAME}>`, // sender address
+        to: `${user.email}`, // list of receivers
+        subject: "[PayBuyMax] Withdrawal Receipt", // Subject line
+        text: "PayBuyMax", // plain text body
+        html: output, // html body
+      };
+      const sendMail = transporter.sendMail(mailOptions, async(err, info) => {
+        if (err) {
+            console.log(err);
+          return res.json({msg:"Error sending mail, please try again"});
+          
+        } else {
+            req.flash('success', "Withdrawal updated successfully");
+            res.redirect("back");
+          
+        }
+      });
+                    
+                            })
+                        })
                     })
-                    req.flash('success', "Withdrawal updated successfully");
-                    res.redirect("back");
                 })
                 .catch(error => {
                     req.flash('error', "Server error");
@@ -425,6 +480,100 @@ exports.postApproveWithdrawal = (req, res, next) => {
             res.redirect("back");
         });
 }
+
+exports.approveExternalTransaction = async(req, res, next) => {
+   
+    const {id} = req.body;
+    const result = await cloudinary.uploader.upload(req.file.path);
+    const docPath = result.secure_url;
+   
+     External.findOne({
+             where: {
+                 id: {
+                     [Op.eq]: id
+                 }
+             },
+             include:["coin"]
+         })
+         .then(withdrawal => {
+                     console.log(withdrawal);         
+                 External.update({
+                     status: "approved",
+                     receipt: docPath
+                 }, {
+                     where: {
+                         id: {
+                             [Op.eq]: id
+                         }
+                     }
+                 })
+                 .then(updatedWithdrawal => {
+                    const now  = moment();
+                    const output = `<html>
+         <head>
+           <title>TRANSACTION RECEIPT</title>
+         </head>
+         <body>
+         <p>Your Transaction was successful. You just sold ${withdrawal.quantity} ${withdrawal.coin.symbol} to PayBuyMax</p>
+         <h2> Details Of Transaction </h2>
+         <ul>
+             
+             <li>Name:.....................${withdrawal.name} </li>
+             <li>Email:.....................${withdrawal.email} </li>
+             <li>Sold:.....................${withdrawal.quantity} ${withdrawal.coin.symbol}</li>
+             <li>Rate:.....................${ Intl.NumberFormat('de-DE', { style: 'currency', currency: 'NGN' }).format(withdrawal.currentRate.toFixed(3)) }</li>
+             <li>Amount:.....................${ Intl.NumberFormat('de-DE', { style: 'currency', currency: 'NGN' }).format(withdrawal.amount.toFixed(3)) }</li>
+             <li>Transaction Reference:.....................${withdrawal.reference}</li>
+             <li>Transaction Receipt:.....................<a href="${docPath}">Reciept</a></li>
+             <li>Date:.....................${now}</li>
+         </ul>
+
+         <h5>Thank You for Trading with Us!</h5>
+         </body>
+                 </html>`;
+       let transporter = nodemailer.createTransport({
+         host: parameters.EMAIL_HOST,
+         port: parameters.EMAIL_PORT,
+         secureConnection: true, // true for 465, false for other ports
+         auth: {
+           user: parameters.EMAIL_USERNAME, // generated ethereal user
+           pass: parameters.EMAIL_PASSWORD, // generated ethereal password
+         },
+         
+       });
+ 
+       // send mail with defined transport object
+       let mailOptions = {
+         from: ` "PayBuyMax" <${parameters.EMAIL_USERNAME}>`, // sender address
+         to: `${withdrawal.email}`, // list of receivers
+         subject: "[PayBuyMax] Withdrawal Receipt", // Subject line
+         text: "PayBuyMax", // plain text body
+         html: output, // html body
+       };
+       const sendMail = transporter.sendMail(mailOptions, async(err, info) => {
+         if (err) {
+             console.log(err);
+           return res.json({msg:"Error sending mail, please try again"});
+           
+         } else {
+             req.flash('success', "Withdrawal updated successfully");
+             res.redirect("back");
+           
+         }
+       });
+                     
+                             })
+                 .catch(error => {
+                     req.flash('error', "Server error");
+                     res.redirect("back");
+                 });
+             
+         })
+         .catch(error => {
+             req.flash('error', "Server error");
+             res.redirect("back");
+         });
+ }
 
 exports.postDisApproveWithdrawal = (req, res, next) => {
     id = req.body.id;
@@ -695,17 +844,294 @@ exports.sellFromExternalWallet = async(req, res) =>{
 
 exports.sellCoinFromInternalWallet = async(req, res) =>{
     try {
-        const {amount, coinId} = req.body;
-        const user = await Users.findOne({where:{id: req.session.userId}});
-        const wallet = await Coin.findOne({where:{userId: req.session.userId, coinId}});
+        const {amount, coinId, code, user_id} = req.body;
+        
+        const user = await Users.findOne({where:{id: user_id}});
+        const wallet = await Coin.findOne({where:{userId: user_id, coinId}});
         const balance = Number(wallet.balance);
-        if (balance < amount) {
-            req.flash('warning', "Your balance is Low. Can't Perform this transaction");
+        console.log(user.oauth_token);
+        console.log(user);
+        if (code  !== user.oauth_token) {
+            req.flash('warning', "Wrong Transaction Code");
             res.redirect("back");
         }
         // Todo 
+        let reference = generateUniqueId({
+            length: 15,
+            useLetters: true,
+          });
+        const newBalance = balance - amount;
+        await Internal.create({userId:user_id, coinId, amount, reference});
+        await Coin.update({balance:newBalance}, {where:{userId: user_id, coinId}});
+        
+        const product = await Product.findOne({where:{id:coinId}});
+        const paybuymaxAmount = Number(product.rate) * amount;
+        const userAcctBal = Number(user.wallet);
+        const newWalletBalance = (paybuymaxAmount+ userAcctBal).toFixed(3);
+        await Users.update({wallet:newWalletBalance}, {where:{id: user_id}});
+        const coinTypes = product.name;
+        const symbol = product.symbol;
+        const now = moment();
+        const output = `<html>
+        <head>
+          <title>TRANSACTION RECEIPT</title>
+        </head>
+        <body>
+        <p>Your Transaction was successful. You just sold ${amount} ${symbol} from Your PayBuyMax wallet</p>
+        <h2> Receipt </h2>
+        <ul>
+            <li>Coin Type:.....................${coinTypes}</li>
+            <li>Quantity:.....................${amount} ${symbol}</li>
+            <li>Transaction Reference:.....................${reference}</li>
+            <li>Wallet Credit:.....................N${paybuymaxAmount.toFixed(3)}</li>
+            <li>Date:.....................${now}</li>
+        </ul>
+        </body>
+                </html>`;
+      let transporter = await nodemailer.createTransport({
+        host: parameters.EMAIL_HOST,
+        port: parameters.EMAIL_PORT,
+        secureConnection: true, // true for 465, false for other ports
+        auth: {
+          user: parameters.EMAIL_USERNAME, // generated ethereal user
+          pass: parameters.EMAIL_PASSWORD, // generated ethereal password
+        },
+        
+      });
+
+      // send mail with defined transport object
+      let mailOptions = {
+        from: ` "PayBuyMax" <${parameters.EMAIL_USERNAME}>`, // sender address
+        to: `${user.email}`, // list of receivers
+        subject: "[PayBuyMax] Transaction Receipt", // Subject line
+        text: "PayBuyMax", // plain text body
+        html: output, // html body
+      };
+      const sendMail = await transporter.sendMail(mailOptions, async(err, info) => {
+        if (err) {
+            console.log(err);
+          return res.json({msg:"Error sending mail, please try again"});
+          
+        } else {
+            return res.json({success:"Done"});
+          
+        }
+      });
+
         req.flash("success", "Done")
         res.redirect("back");
+    } catch (error) {
+        req.flash('error', "Server error");
+        res.redirect("back");
+    }
+}
+
+exports.sendConfirmationCode = async(req, res) =>{
+    try {
+        const {userId, coinId, amount} = req.body;
+        const user = await Users.findOne({where:{id: userId}});
+        const wallet = await Coin.findOne({where:{userId: userId, coinId}});
+        const code = Math.floor(100000 + Math.random() * 900000);
+        // Todo 
+        const balance = Number(wallet.balance);
+        console.log(userId, coinId, amount, balance);
+        if (balance < amount) {
+            return res.json({msg:"Your balance is Low. Can't Perform this transaction"});
+        }
+
+        const output = `<html>
+        <head>
+          <title>TRANSACTION CONFIRMATION</title>
+        </head>
+        <body>
+        <p>Use The Code Below to ComPlete Your Transaction. It will Expire in 3 minutes </p>
+        <h2> ${code} </h2>
+        </body>
+                </html>`;
+      let transporter = await nodemailer.createTransport({
+        host: parameters.EMAIL_HOST,
+        port: parameters.EMAIL_PORT,
+        secureConnection: true, // true for 465, false for other ports
+        auth: {
+          user: parameters.EMAIL_USERNAME, // generated ethereal user
+          pass: parameters.EMAIL_PASSWORD, // generated ethereal password
+        },
+        
+      });
+
+      // send mail with defined transport object
+      let mailOptions = {
+        from: ` "PayBuyMax" <${parameters.EMAIL_USERNAME}>`, // sender address
+        to: `${user.email}`, // list of receivers
+        subject: "[PayBuyMax] Transaction Code", // Subject line
+        text: "PayBuyMax", // plain text body
+        html: output, // html body
+      };
+      const sendMail = await transporter.sendMail(mailOptions, async(err, info) => {
+        if (err) {
+            console.log(err);
+          return res.json({msg:"Error sending mail, please try again"});
+          
+        } else {
+            await Users.update({oauth_token: code}, {where:{id: userId}})
+            return res.json({success:"Code Sent"});
+          
+        }
+      });
+
+        // return res.json({user, wallet, code});
+    } catch (error) {
+        req.flash('error', "Server error");
+        res.redirect("back");
+    }
+}
+
+exports.getExchange = async(req,res)=>{
+    try {
+        const {id} = req.params
+        const product = await Product.findOne({where:{id}})
+        return res.json(product)
+    } catch (error) {
+        return res.send({msg:error.response})
+    }
+}
+
+exports.generateReceiptForExternal = async(req, res) =>{
+    try {
+        const admin = await Admins.findOne({where:{id:req.session.adminId}});
+        const product = await Product.findAll();
+        res.render("dashboards/Trader/external",{
+            admin,
+            products:product
+        })
+    } catch (error) {
+        req.flash('error', "Server error");
+        res.redirect("back");
+    }
+}
+
+exports.getPendingExternalTransaction = async(req, res)=>{
+    try {
+        const transactions = await External.findAll({where:{status:"pending"}, include:["coin","trader"]});
+        res.render("dashboards/Trader/unapproved_external",{
+            transactions,
+            moment
+        })
+    } catch (error) {
+        req.flash('error', "Server error");
+        res.redirect("/agent/home");
+    }
+}
+
+exports.getApprovedExternalTransaction = async(req, res)=>{
+    try {
+        const transactions = await External.findAll({where:{status:"approved"}, include:["coin","trader"]});
+        res.render("dashboards/Trader/approved_external",{
+            transactions,
+            moment
+        })
+    } catch (error) {
+        req.flash('error', "Server error");
+        res.redirect("/agent/home");
+    }
+}
+
+exports.viewPendingExternalTx = async(req, res)=>{
+    try {
+        const transaction = await External.findOne({where:{id:req.params.id}, include:["coin","trader"]});
+        res.render("dashboards/Trader/view_pending",{
+            transaction,
+            moment
+        })
+    } catch (error) {
+        req.flash('error', "Server error");
+        res.redirect("/agent/home");
+    }
+}
+
+exports.createReceiptForExternalTransaction = async(req, res)=>{
+    try {
+        const {traderId, name, email, amount, quantity, coinId, rate} = req.body;
+        if (!amount || !name || !email || !quantity || !coinId) {
+            req.flash("danger", "Please Fill all Fields!");
+            res.redirect("back");
+        }
+        let reference = generateUniqueId({
+            length: 15,
+            useLetters: true,
+          });
+        await External.create({
+            traderId,
+            name,
+            email,
+            amount,
+            quantity,
+            currentRate: rate,
+            coinId,
+            reference
+        });
+        req.flash("success", "Transaction generated successfully");
+            res.redirect("back");
+    } catch (error) {
+        req.flash('error', "Server error");
+        res.redirect("back");
+    }
+}
+
+exports.sendConfirmationCodeForWithdraw = async(req, res) =>{
+    try {
+        const {userId, amount } = req.body;
+        const user = await Users.findOne({where:{id: userId}});
+        
+        const code = Math.floor(100000 + Math.random() * 900000);
+        // Todo 
+        const balance = Number(user.wallet);
+       
+        if (balance < amount) {
+            return res.json({msg:"Your balance is Low. Can't Perform this transaction"});
+        }
+
+        const output = `<html>
+        <head>
+          <title>TRANSACTION CONFIRMATION</title>
+        </head>
+        <body>
+        <p>Use The Code Below to ComPlete Your Transaction. It will Expire in 3 minutes </p>
+        <h2> ${code} </h2>
+        </body>
+                </html>`;
+      let transporter = await nodemailer.createTransport({
+        host: parameters.EMAIL_HOST,
+        port: parameters.EMAIL_PORT,
+        secureConnection: true, // true for 465, false for other ports
+        auth: {
+          user: parameters.EMAIL_USERNAME, // generated ethereal user
+          pass: parameters.EMAIL_PASSWORD, // generated ethereal password
+        },
+        
+      });
+
+      // send mail with defined transport object
+      let mailOptions = {
+        from: ` "PayBuyMax" <${parameters.EMAIL_USERNAME}>`, // sender address
+        to: `${user.email}`, // list of receivers
+        subject: "[PayBuyMax] Transaction Code", // Subject line
+        text: "PayBuyMax", // plain text body
+        html: output, // html body
+      };
+      const sendMail = await transporter.sendMail(mailOptions, async(err, info) => {
+        if (err) {
+            console.log(err);
+          return res.json({msg:"Error sending mail, please try again"});
+          
+        } else {
+            await Users.update({oauth_token: code}, {where:{id: userId}})
+            return res.json({success:"Code Sent"});
+          
+        }
+      });
+
+        // return res.json({user, wallet, code});
     } catch (error) {
         req.flash('error', "Server error");
         res.redirect("back");

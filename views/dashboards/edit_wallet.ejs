@@ -12,7 +12,7 @@
                 <div class="row">
                     <div class="col-12 col-md-12 col-lg-12">
                         <form action="/update/wallet" method="POST"
-                            
+                        
                             class="needs-validation" novalidate="">
                             <div class="card">
                                 <div class="card-header">
@@ -32,17 +32,28 @@
                                             Please fill in Wallet Balance
                                         </div>
                                     </div>
-                                    <% if(wallet.user) { %>
+                                    <% if(wallet.user && admin.level != 1) { %>
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" name="userId" value="" id="flexCheckDefault" <%= wallet.user ? "" : 'checked'  %> >
                                             <label class="form-check-label" for="flexCheckDefault">
                                               <%= wallet.user ? "Unassign" : "Assign"  %>  
                                             </label>
                                         </div>
-                                        <input type="hidden" name="status" value="pending">
                                     <% } %> 
-                                    <input type="hidden" name="id" value="<%= wallet.id %> ">
+                                    <% if(!wallet.trader && admin.level != 2) { %>
+                                        
+                                        <div class="form-group">
+                                            <label for="duration">Assign To Trader</label>
+                                            <select name="traderId" id="traderId" class="form-control" required>
+                                                <option value="" disabled selected>Select Trader</option>
+                                                <% for(let i=0; i< traders.length; i++) { %> 
+                                                <option value="<%= traders[i].id  %>"><%= traders[i].name  %></option>
+                                                <% } %> 
+                                            </select>
+                                        </div>
+                                    <% } %> 
                                     
+                                    <input type="hidden" name="id" value="<%= wallet.id  %> ">
                                 </div>
                                 <div class="card-footer text-right">
                                     <button class="btn btn-primary mr-1"

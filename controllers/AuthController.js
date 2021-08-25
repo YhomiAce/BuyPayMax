@@ -192,10 +192,10 @@ exports.postResendLink = async (req, res, next) => {
 
       // send mail with defined transport object
       let mailOptions = {
-        from: ` "BITMINT OPTION" <${parameters.EMAIL_USERNAME}>`, // sender address
+        from: ` "PayBuyMax" <${parameters.EMAIL_USERNAME}>`, // sender address
         to: `${user.email}`, // list of receivers
-        subject: "[Bitmint] Please activate your account", // Subject line
-        text: "BITMINT", // plain text body
+        subject: "[PayBuyMax] Please activate your account", // Subject line
+        text: "PayBuyMax", // plain text body
         html: output, // html body
       };
       const sendMail = transporter.sendMail(mailOptions, (error, info) => {
@@ -280,7 +280,7 @@ exports.emailFaPage = (req, res, next) => {
               .then((auth) => {
                 const output = `<html>
                                         <head>
-                                          <title>Bitmint Email Authentication</title>
+                                          <title>PayBuyMax Email Authentication</title>
                                         </head>
                                         <body>
                                         <p>Use the below value to verify your email</p></br>
@@ -300,10 +300,10 @@ exports.emailFaPage = (req, res, next) => {
                 });
 
                 let mailOptions = {
-                  from: ` "BITMINT" <${parameters.EMAIL_USERNAME}>`, // sender address
+                  from: ` "PayBuyMax" <${parameters.EMAIL_USERNAME}>`, // sender address
                   to: `${user.email}`, // list of receivers
-                  subject: "[Bitmint] Email Authentication", // Subject line
-                  text: "Bitmint", // plain text body
+                  subject: "[PayBuyMax] Email Authentication", // Subject line
+                  text: "PayBuyMax", // plain text body
                   html: output, // html body
                 };
                 transporter.sendMail(mailOptions, (error, info) => {

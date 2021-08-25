@@ -1,0 +1,107 @@
+<!-- header -->
+<%- include("../../partials/header_admin") %>
+<%- include("../..//partials/sidebar") %>
+<!-- Main Content -->
+<%- include("../../partials/alerts") %>
+<div class="main-content">
+    
+    <section class="section">
+        <div class="row ">
+            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                <div class="card">
+                    <div class="card-statistic-4">
+                        <div class="align-items-center justify-content-between">
+                            <div class="row ">
+                                <div class="col-lg-9 col-md-9 col-sm-9 col-xs-9 pr-0 pt-3">
+                                    <div class="card-content">
+                                        <p></p>
+                                        <h2 class="font-18">Pending Deposit Request</h2>
+                                        <p></p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3 pl-0 pt-3">
+                                    <div class="card-content">
+                                        <p></p>
+                                        <h2 class="font-18"><%= usersCount %></h2>
+                                        <p></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                <div class="card">
+                    <div class="card-statistic-4">
+                        <div class="align-items-center justify-content-between">
+                            <div class="row ">
+                                <div class="col-lg-9 col-md-9 col-sm-9 col-xs-9 pr-0 pt-3">
+                                    <div class="card-content">
+                                        <p></p>
+                                        <h2 class="font-18">Pending Withdrawal Request</h2>
+                                        <p></p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3 pl-0 pt-3">
+                                    <div class="card-content">
+                                        <p></p>
+                                        <h2 class="font-18"><%= packageCount %></h2>
+                                        <p></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            
+            
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="section-body">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Transaction Pool</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped" id="table-1">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">#</th>
+                                            <th>Email</th>
+                                            <th>Request Type</th>
+                                            <th>Reference</th>
+                                            <th>Status</th>
+                                            <th>Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <%  for (let i = 0; i < transaction.length; i++ ) { %>
+                                        <tr>
+                                            <td><%= i + 1 %></td>
+                                            <td><%= transaction[i].user.email %></td>
+                                            <td><%= transaction[i].channel ? "DEPOSIT" : "WITHDRAWAL" %></td>
+                                            <td><%= transaction[i].reference %></td>
+                                            <td><%= transaction[i].status %></td>
+                                            <td><%= moment(transaction[i].createdAt).format('DD-MMM-YYYY') %></td>
+                                        </tr>
+                                        <% } %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+<%- include("../../partials/footer2") %>

@@ -12,6 +12,8 @@ const Sequelize = require("sequelize");
 const Data = require('../libs/Data')
 const uniqueString = require('unique-string');
 const generateUniqueId = require('generate-unique-id');
+const upload = require("../helpers/mult_helper");
+const cloudinary = require("../helpers/cloudinary");
 
 // imports initialization
 const Op = Sequelize.Op;
@@ -82,6 +84,15 @@ router.use(function (req, res, next) {
     next();
 });
 // routes
+
+router.post("/upload/test", upload.single('image'), async(req, res) =>{
+    try {
+        const result = await cloudinary.uploader.upload(req.file.path);
+        return res.json({result})
+    } catch (error) {
+        console.log(error);
+    }
+} )
 
 router.use(function(req, res, next) {
     res.locals.role = req.session.role;
@@ -388,12 +399,15 @@ router.post("/update-password", [AuthMiddleware.redirectLogin, AuthMiddleware.au
 router.post("/admin-update-password", [AuthMiddleware.redirectAdminLogin, AuthMiddleware.authVerirfication], AuthController.changeAdminPassword);
 router.get("/dashboard", AuthMiddleware.redirectAdminLogin, DashboardController.AdminHome);
 router.get("/agent/home", AuthMiddleware.redirectAdminLogin, DashboardController.agentHome);
+
+router.get("/coin/product", DashboardController.getCoinsWithProduct)
 // coinqvest routes
 router.post("/createcheckout", AuthMiddleware.redirectLogin, CoinqvestController.createCheckout);
 
 router.get('/history',AuthMiddleware.redirectLogin, TransactionController.transactionHistory )
 // users specific routes
 router.get("/fundwallet", AuthMiddleware.redirectLogin, WalletController.walletPage);
+router.get("/wallet-balance", AuthMiddleware.redirectLogin, WalletController.walletBalance);
 router.post("/fundwallet", AuthMiddleware.redirectLogin, WalletController.fundWallet);
 router.get("/buy", AuthMiddleware.redirectLogin, TransactionController.buyCoin);
 router.get("/sell", AuthMiddleware.redirectLogin, TransactionController.sellCoin);
@@ -403,6 +417,14 @@ router.get("/sell/external", AuthMiddleware.redirectLogin, TransactionController
 router.get("/sell/internal", AuthMiddleware.redirectLogin, TransactionController.sellFromInternalWallet)
 router.post("/sell-coin", AuthMiddleware.redirectLogin, TransactionController.sellCoinFromInternalWallet)
 router.get("/rates", AuthMiddleware.redirectLogin, TransactionController.getRates);
+router.post("/transaction/code", TransactionController.sendConfirmationCode);
+router.post("/withdraw/code", TransactionController.sendConfirmationCodeForWithdraw);
+router.get("/generate-receipt", TransactionController.generateReceiptForExternal);
+router.post("/external/create-receipt", TransactionController.createReceiptForExternalTransaction);
+router.get("/pending-external/transaction", TransactionController.getPendingExternalTransaction);
+router.get("/approved-external/transaction", TransactionController.getApprovedExternalTransaction);
+router.get("/view/pending-external/:id", TransactionController.viewPendingExternalTx);
+router.get("/get/exchange/:id", TransactionController.getExchange);
 
 // users
 router.get("/settings", AuthMiddleware.redirectLogin, ProfileController.settingsPage);
@@ -455,11 +477,15 @@ router.post("/disapprove-akyc", AuthMiddleware.redirectAdminLogin, KycController
 router.get("/unapproved-withdrawal", AuthMiddleware.redirectAdminLogin, TransactionController.unapprovedWithdrawals);
 router.get("/approved-withdrawal", AuthMiddleware.redirectAdminLogin, TransactionController.approvedWithdrawals);
 router.post("/unapprove-withdrawal", AuthMiddleware.redirectAdminLogin, TransactionController.postDisApproveWithdrawal);
-router.post("/approve-withdrawal", AuthMiddleware.redirectAdminLogin, TransactionController.postApproveWithdrawal);
+router.post("/approve-withdrawal", upload.single('reciept'), AuthMiddleware.redirectAdminLogin, TransactionController.postApproveWithdrawal);
+router.post("/approve/external-transaction", upload.single('image'), AuthMiddleware.redirectAdminLogin, TransactionController.approveExternalTransaction);
+
+router.get("/get/withdraw", DashboardController.getWithdrawal)
 
 router.get("/view-kycs/:id", AuthMiddleware.redirectAdminLogin, KycController.viewAKyc);
 router.get("/packages/:id", AuthMiddleware.redirectLogin, PackageController.eachPackage);
 router.get("/bankdeposit/:id", AuthMiddleware.redirectAdminLogin, BankDepositController.viewADeposit);
+router.get("/withdraw/details/:id", AuthMiddleware.redirectAdminLogin, BankDepositController.viewWithdrawalDetails);
 router.get("/chats/:id", AuthMiddleware.redirectAdminLogin, ChatController.chatPage);
 router.post("/delete/user", AuthMiddleware.redirectAdminLogin, UserController.deleteUser);
 router.post("/delete/admin", AuthMiddleware.redirectAdminLogin, UserController.deleteAdmin);
@@ -478,12 +504,13 @@ router.post("/add/coin", AuthMiddleware.redirectAdminLogin, PackageController.po
 router.post("/update/package", AuthMiddleware.redirectAdminLogin, PackageController.postUpdatePackage);
 router.post("/update/coin", AuthMiddleware.redirectAdminLogin, PackageController.postUpdateCoin);
 router.post("/delete/package", AuthMiddleware.redirectAdminLogin, PackageController.deletePackage);
-router.post("/delete/coin", AuthMiddleware.redirectAdminLogin, PackageController.deletePackage);
+// router.post("/delete/coin", AuthMiddleware.redirectAdminLogin, PackageController.deletePackage);
 
 // Wallets
 router.get("/add/wallet", AuthMiddleware.redirectAdminLogin, PackageController.addWalletAddress);
 router.post("/add/wallet", AuthMiddleware.redirectAdminLogin, PackageController.createWalletAddress);
 router.get("/view/wallet", AuthMiddleware.redirectAdminLogin, PackageController.viewAllWallets);
+router.get("/agent/wallet", AuthMiddleware.redirectAdminLogin, PackageController.viewAllTradersWallet);
 router.get("/delete/wallet/:id", AuthMiddleware.redirectAdminLogin, PackageController.deleteWalletAddress);
 router.get("/edit/wallet/:id", AuthMiddleware.redirectAdminLogin, PackageController.editWalletAddress);
 router.post("/update/wallet", AuthMiddleware.redirectAdminLogin, PackageController.updateWalletAddress);

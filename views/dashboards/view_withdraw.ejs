@@ -1,0 +1,81 @@
+<!-- header -->
+<%- include("../partials/header_admin") %>
+<%- include("../partials/sidebar") %>
+
+<!-- Main Content -->
+<div class="main-content">
+    <%- include("../partials/alerts") %>
+    <section class="section">
+        <div class="section-body">
+            <div class="row">
+                <div class="col-12">
+                   
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>WithDrawal Details</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped" id="table-1">
+                                    <tbody>
+                                        <tr>
+                                            <td>Name</td>
+                                            <td><%= withdraw.user.name %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Email</td>
+                                            <td><%= withdraw.user.email %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Transaction reference</td>
+                                            <td><%= withdraw.reference %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Amount</td>
+                                            <td><%= withdraw.amount %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Account Name</td>
+                                            <td><%= withdraw.acct_name %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Account Number</td>
+                                            <td><%= withdraw.acct_number %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Bank Name</td>
+                                            <td><%= withdraw.bank_name %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Transaction Status</td>
+                                            <td class="text-default"><%= withdraw.status %></td>
+                                            
+                                        </tr>
+                                        <tr>
+                                            <td>Date</td>
+                                            <td><%= moment(withdraw.createdAt).format("DD-MMM-YYYY") %></td>
+                                        </tr>
+                                        <% if(withdraw.status === "pending") { %> 
+                                        <tr>
+                                            <td>Approve</td>
+                                            <td>
+                                                <form action="/approve-withdrawal" enctype="multipart/form-data" method="POST">
+                                                    <input type="hidden" name="id" value="<%= withdraw.id  %> ">
+                                                    <input type="file" name="reciept" required>
+                                                    <input type="submit" class="btn btn-info" value="Approve">
+                                                </form>
+                                            </td>
+                                        </tr>
+
+                                        <% } %> 
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+<%- include("../partials/footer2") %>

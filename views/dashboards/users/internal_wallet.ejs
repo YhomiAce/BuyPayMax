@@ -18,7 +18,7 @@
                                     <h3 class="font-light mb-0">
                                         <i class="ti-arrow-up text-success"></i><%= coins[i].balance %> <%= coins[i].coinTypes.symbol %>
                                     </h3>
-                                    <span class="text-muted">PayBuyMax Amount: N<%= Number(coins[i].balance) * Number(coins[i].coinTypes.rate).toFixed(1)  %></span>
+                                    <span class="text-muted">PayBuyMax Amount: N<%= (Number(coins[i].balance) * Number(coins[i].coinTypes.rate)).toFixed(3)  %></span>
                                 </div>
                             </div>
                         </div>
@@ -32,17 +32,17 @@
         <div class="section-body">
             <div class="row">
                 <div class="col-12 col-md-12 col-lg-12">
-                    <form action="/sell-coin" method="POST" class="needs-validation" novalidate=""
+                    <form action="#" class="needs-validation" novalidate=""
                         id="withdarawForm">
                         <div class="card">
                             <div class="card-header">
                                 <h4>Sell From Wallet</h4>
                             </div>
                             <div class="card-body">
-                                
+                                <input type="hidden" id="userId" value="<%= user.id  %>">
                                 <div class="form-group">
                                     <label for="">Choose Wallet Address</label>
-                                    <select name="coinId" id="coinId" class="form-control" required>
+                                    <select name="coin" id="coin" class="form-control" required>
                                         <option value="" disabled selected>Select Coin</option>
                                         <% for(let i=0; i< products.length; i++) { %> 
                                         <option value="<%= products[i].id  %>"><%= products[i].name  %></option>
@@ -55,7 +55,7 @@
                                 
                                 <div class="form-group">
                                     <label for="name">Amount</label>
-                                    <input type="number" class="form-control" step="any" name="amount" tabindex="1" required
+                                    <input type="number" class="form-control" step="any" name="qty" id="qty" tabindex="1" required
                                         autofocus>
                                     <div class="invalid-feedback">
                                         Please fill in amount
@@ -65,7 +65,7 @@
                             </div>
                             <input type="hidden" class="form-control" name="userId" required>
                             <div class="card-footer text-right">
-                                <button class="btn btn-primary mr-1" type="submit">Sell Coin</button>
+                                <button class="btn btn-primary btn-block" type="button" data-toggle="modal" id = "sellCoinBtn" data-target="#sellNow">Sell Coin</button>
                             </div>
                         </div>
                     </form>
@@ -73,9 +73,69 @@
             </div>
         </div>
     </section>
+
+    <div class="modal fade" id="sellNow" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <!-- <h4 class="modal-title" id="myCenterModalLabel">Payment for: </h4> -->
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <center>
+                        
+                        <p class="text-muted font-16" id="statement"></p>
+                        <h3 class="mb-0">Enter Confirmation Code Sent to Your Email</h3>
+                        
+                        <p class="text-muted font-13 mt-1">
+                           
+                            <form action="/sell-coin" method="POST">
+                                <input type="text" id="code" class="form-control" name="code" required>
+                                <input type="hidden" name="user_id" value="<%= user.id  %> " >
+                                
+                                <input type="hidden" id="amount"  name="amount" value="" >
+                                <input type="hidden" id="coinId" name="coinId" value="" >
+                                <button class="btn btn-info mt-5" id="confirmPayment" type="submit">Confirm Sale</button></p>
+                        </form>
+                           
+                    </center>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div>
 </div>
 <%- include("../../partials/user_footer2") %>
-
+<script>
+    $(document).ready(()=>{
+        // var walletType = $('#coin').find(":selected").val();
+        $("#sellCoinBtn").click(()=>{
+            var amount = $("#qty").val();
+            console.log(amount);
+            $('#amount').val(amount);
+            var userId = $('#userId').val();
+            console.log(userId);
+            var coinType = $("#coin").val();
+            $.ajax({
+                url:"/transaction/code",
+                method: "post",
+                data:{userId, amount, coinId: coinType},
+                success:(res) =>{
+                    console.log(res);
+                }
+            })
+        })
+        $('#coin').change(()=>{
+                var walletType = $("#coin").val();
+                // var channel = $("#coin option:selected").text();
+                console.log(walletType);
+                $("#coinId").val(walletType)
+                console.log($("#coinId").val());
+                
+            })
+        
+        
+    })
+</script>
 </body>
 
 </html>

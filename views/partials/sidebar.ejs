@@ -98,7 +98,7 @@
                     <span style="padding-left: 10px; font-size: large; color: white;">Welcome Trader</span>
                 </li>
                 <li class="dropdown">
-                    <a href="/dashboard" class="nav-link"><i class="fas fa-university" data-feather="home"></i><span>Dashboard</span></a>
+                    <a href="/agent/home" class="nav-link"><i class="fas fa-university" data-feather="home"></i><span>Dashboard</span></a>
                 </li>
                 
                 
@@ -121,14 +121,26 @@
                     </ul>
                 </li>
                 <li class="dropdown">
-                    <a href="#" class="menu-toggle nav-link has-dropdown"><i
-                            class="fas fa-gift"></i><span>Packages</span></a>
+                    <a href="#" class="menu-toggle nav-link has-dropdown"><i class="fas fa-receipt"></i><span>Receipt</span></a>
                     <ul class="dropdown-menu">
-                        <li><a class="nav-link" href="/add/package">Add New</a></li>
-                        <li><a class="nav-link" href="/view/packages">View All</a></li>
+                        <li><a class="nav-link" href="/generate-receipt">Generate</a></li>
+                        <li><a class="nav-link" href="/pending-external/transaction">Pending</a></li>
+                        <li><a class="nav-link" href="/approved-external/transaction">Completed</a></li>
                     </ul>
                 </li>
-                
+                <li class="dropdown">
+                    <a href="#" class="menu-toggle nav-link has-dropdown"><i
+                            class="fas fa-gift"></i><span>Coins & Packages</span></a>
+                    <ul class="dropdown-menu">
+                        <li><a class="nav-link" href="/add/coin">Add New Coin</a></li>
+                        <li><a class="nav-link" href="/add/package">Add New Package</a></li>
+                        <li><a class="nav-link" href="/view/coins">View Coins</a></li>
+                        <li><a class="nav-link" href="/view/packages">View Packages</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="/agent/wallet" class="nav-link"><i class="fas fa-wallet"></i><span>Wallets</span></a>
+                </li>
                 <li class="dropdown">
                     <a href="#" class="menu-toggle nav-link has-dropdown"><i class="fas fa-user-cog"></i><span>Settings</span></a>
                     <ul class="dropdown-menu">

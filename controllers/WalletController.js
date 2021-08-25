@@ -12,6 +12,7 @@ const CryptBank = require("../models").CryptBank;
 const DollarValue = require("../models").DollarValue;
 const AdminMessages = require("../models").AdminMessage;
 const Product = require("../models").Product;
+const Coin = require("../models").Coin;
 const Wallet = require("../models").Wallet;
 const helpers = require("../helpers/cryptedge_helpers");
 const generateUniqueId = require("generate-unique-id");
@@ -94,15 +95,73 @@ exports.walletPage = (req, res, next) => {
                 })
                 .catch(error => {
                     req.flash('error', "Server error!");
-                    res.redirect("/");
+                    res.redirect("/home");
                 });
         })
         .catch(error => {
             req.flash('error', "Server error!");
-            res.redirect("/");
+            res.redirect("/home");
         });
 }
 
+exports.walletBalance = async (req, res) =>{
+  try {
+      const unansweredChats = await Chats.findAll({
+        where: {
+            [Op.and]: [{
+                    receiver_id: {
+                        [Op.eq]: req.session.userId
+                    }
+                },
+                {
+                    read_status: {
+                        [Op.eq]: 0
+                    }
+                }
+            ]
+        },
+        include: ["user"],
+    });
+    const user = await Users.findOne({where:{id: req.session.userId}, include:[
+        {
+            model: Coin,
+            as: "coins",
+            include: {
+                model: Product,
+                as: "coinTypes"
+            }
+        }
+    ] })
+    const referral = await Referrals.findAll({
+        where: {
+            referral_id: {
+                [Op.eq]: req.session.userId
+            }
+        }
+    });
+    
+    const bank = await CryptBank.findOne({});
+
+    const dollar = await DollarValue.findOne({})
+    const products = await Product.findAll();
+    const coins = user.coins;
+    res.render("dashboards/users/account_balance", {
+      user: user,
+      email: user.email,
+      phone: user.phone,
+      wallet: user.wallet,
+      referral: user.referral_count,
+      referral_amount: referral.length * 1000,
+      messages: unansweredChats,
+      moment,
+      products,
+      coins
+  });
+  } catch (error) {
+    req.flash('error', "Server error!");
+            res.redirect("/home");
+  }
+}
 
 
 exports.getResendLink = (req, res, next) => {

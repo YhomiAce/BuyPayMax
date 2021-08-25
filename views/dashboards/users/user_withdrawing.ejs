@@ -15,9 +15,9 @@
                         <div class="padding-20">
                             <div class="text-right">
                                 <h3 class="font-light mb-0">
-                                    <i class="ti-arrow-up text-success"></i> $<%= userTotal %>.00
+                                    <i class="ti-arrow-up text-success"></i> <%= Intl.NumberFormat('de-DE', { style: 'currency', currency: 'NGN' }).format(wallet.toFixed(3)) %>
                                 </h3>
-                                <span class="text-muted">Total Wallet ( Deposit + Revenue)</span>
+                                <span class="text-muted">Wallet Balance</span>
                             </div>
                         </div>
                     </div>
@@ -32,9 +32,9 @@
                         <div class="padding-20">
                             <div class="text-right">
                                 <h3 class="font-light mb-0">
-                                    <i class="ti-arrow-up text-success"></i> $<%= wallet %>.00
+                                    <i class="ti-arrow-up text-success"></i> N<%= user.revenue %>
                                 </h3>
-                                <span class="text-muted">Total Deposits</span>
+                                <span class="text-muted">Ledger Balance</span>
                             </div>
                         </div>
                     </div>
@@ -47,7 +47,7 @@
         <div class="section-body">
             <div class="row">
                 <div class="col-12 col-md-12 col-lg-12">
-                    <form action="/userwithdraw" method="POST" class="needs-validation" novalidate=""
+                    <form class="needs-validation" novalidate=""
                         id="withdarawForm">
                         <div class="card">
                             <div class="card-header">
@@ -56,16 +56,16 @@
                             <div class="card-body">
                                 
                                 <div class="form-group">
-                                    <label for="">Wallet Address</label>
-                                    <input type="text" class="form-control" id="wallet_address" name="wallet_address"
+                                    <label for="">Account Name</label>
+                                    <input type="text" class="form-control" id="act_name" name="act_name"
                                         tabindex="1" required autofocus>
                                     <div class="invalid-feedback">
                                         Please fill in your wallet address
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="">Wallet name</label>
-                                    <input type="text" class="form-control" name="wallet_name" tabindex="1" id="wallet_name"
+                                    <label for="">Account Number</label>
+                                    <input type="text" class="form-control" name="act_number" tabindex="1" id="act_number"
                                         required autofocus>
                                     <div class="invalid-feedback">
                                         Please fill in wallet name
@@ -73,17 +73,24 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="name">Amount</label>
-                                    <input type="text" class="form-control" name="amount" tabindex="1" required
+                                    <input type="number" step="any" class="form-control" id="user_amount" name="user_amount" tabindex="1" required
                                         autofocus>
                                     <div class="invalid-feedback">
                                         Please fill in amount
                                     </div>
                                 </div>
-                                 
+                                <div class="form-group">
+                                    <label for="name">Bank Name</label>
+                                    <input type="text" class="form-control" id="user_bank_name" name="user_bank_name" tabindex="1" required
+                                        autofocus>
+                                    <div class="invalid-feedback">
+                                        Please fill in amount
+                                    </div>
+                                </div>
                             </div>
-                            <input type="hidden" class="form-control" name="userId" required>
+                            <input type="hidden" id="user_id" value="<%= user.id  %> ">
                             <div class="card-footer text-right">
-                                <button class="btn btn-primary mr-1" type="submit">Withdraw</button>
+                                <button class="btn btn-primary btn-block" type="button" data-toggle="modal" id = "withdrawBtn" data-target="#withdawNow">Withdraw</button>
                             </div>
                         </div>
                     </form>
@@ -91,9 +98,68 @@
             </div>
         </div>
     </section>
+    <div class="modal fade" id="withdawNow" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <!-- <h4 class="modal-title" id="myCenterModalLabel">Payment for: </h4> -->
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <center>
+                        
+                        <p class="text-muted font-16" id="statement"></p>
+                        <h3 class="mb-0">Enter Confirmation Code Sent to Your Email</h3>
+                        
+                        <p class="text-muted font-13 mt-1">
+                           
+                            <form action="/userwithdraw" method="POST">
+                                <input type="text" id="code" class="form-control" name="code" required>
+                                <input type="hidden" name="userId" value="<%= user.id  %> ">
+                                
+                                <input type="hidden" id="amount"  name="amount" value="" >
+                                <input type="hidden" id="bank_name" name="bank_name" value="" >
+                                <input type="hidden" id="acct_name" name="acct_name" value="" >
+                                <input type="hidden" id="acct_number" name="acct_number" value="" >
+                                <button class="btn btn-info mt-5" id="confirmPayment" type="submit">Confirm Code</button></p>
+                        </form>
+                           
+                    </center>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div>
 </div>
 <%- include("../../partials/user_footer2") %>
-
+<script>
+    $(document).ready(()=>{
+        // var walletType = $('#coin').find(":selected").val();
+        $("#withdrawBtn").click(()=>{
+            var amount = $("#user_amount").val();
+            var act_name = $("#act_name").val();
+            var act_number = $("#act_number").val();
+            var user_bank_name = $("#user_bank_name").val();
+            console.log(amount);
+            $('#amount').val(amount);
+            $('#bank_name').val(user_bank_name);
+            $('#acct_name').val(act_name);
+            $('#acct_number').val(act_number);
+            var userId = $('#user_id').val();
+            
+            $.ajax({
+                url:"/withdraw/code",
+                method: "post",
+                data:{userId, amount},
+                success:(res) =>{
+                    console.log(res);
+                }
+            })
+        })
+        
+        
+        
+    })
+</script>
 </body>
 
 </html>

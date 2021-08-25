@@ -1,28 +1,58 @@
 'use strict';
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('internals', {
+    await queryInterface.createTable('externals', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV1,
         primaryKey: true
       },
+      traderId:{
+        type:Sequelize.UUID,
+        allowNull: false
+      },
       userId:{
         type:Sequelize.UUID,
+        allowNull: true
+      },
+      name:{
+        type:Sequelize.STRING,
+        allowNull: false
+      },
+      email:{
+        type:Sequelize.STRING,
         allowNull: false
       },
       coinId:{
         type:Sequelize.UUID,
         allowNull: false
       },
-      amount:{
+      quantity:{
         type:Sequelize.FLOAT,
         allowNull: false,
+        defaultValue: 0
+      }, 
+      amount:{
+        type:Sequelize.FLOAT,
+        allowNull: true,
+        defaultValue: 0
+      },
+      currentRate:{
+        type:Sequelize.FLOAT,
+        allowNull: true,
         defaultValue: 0
       },
       reference: {
         type:Sequelize.STRING,
         allowNull: false
+      },
+      status: {
+        type:Sequelize.ENUM("pending", "approved", "unapproved"),
+        defaultValue: "pending"
+      },
+      receipt: {
+        type: Sequelize.STRING,
+        allowNull: true
       },
       createdAt: {
         allowNull: false,
@@ -39,6 +69,6 @@ module.exports = {
     });
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('internals');
+    await queryInterface.dropTable('externals');
   }
 };

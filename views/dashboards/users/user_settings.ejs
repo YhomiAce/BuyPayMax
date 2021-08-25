@@ -28,7 +28,10 @@
                                     <a class="nav-link" id="contact-tab2" data-toggle="tab" href="#contact2" role="tab"
                                         aria-controls="contact" aria-selected="false">Change Password</a>
                                 </li>
-                              
+                                <li class="nav-item">
+                                    <a class="nav-link" id="contact-tab2" data-toggle="tab" href="#contact3" role="tab"
+                                        aria-controls="contact" aria-selected="false">Documents</a>
+                                </li>
                             </ul>
                             <div class="tab-content tab-bordered" id="myTab3Content">
                                 <div class="tab-pane fade show active" id="home2" role="tabpanel"
@@ -40,7 +43,7 @@
                                                 <div class="form-group">
                                                     <label for="name">Name</label>
                                                     <input type="text" class="form-control" name="name" tabindex="1"
-                                                        required autofocus value="<%= user.name %>" disabled>
+                                                        required autofocus value="<%= user.name %>">
                                                     <div class="invalid-feedback">
                                                         Please fill in name
                                                     </div>
@@ -57,7 +60,7 @@
                                                     <label for="">Phone</label>
                                                     <% if(!edit) { %>
                                                     <input type="text" class="form-control" name="phone" tabindex="1"
-                                                        required autofocus value="<%= user.phone %>" disabled>
+                                                        required autofocus value="<%= user.phone %>">
                                                     <% }  else { %>
                                                     <input type="text" class="form-control" name="phone" tabindex="1"
                                                         required autofocus value="<%= user.phone %>">
@@ -150,6 +153,7 @@
                                                         <div class="form-group">
                                                             <label for="oldPassword">Select Document</label>
                                                             <select class="form-control" name="document">
+                                                                <option disabled selected>Choose Document to Upload</option>
                                                                 <option>International Passport</option>
                                                                 <option>Identity Card</option>
                                                                 <option>Drivers License</option>
