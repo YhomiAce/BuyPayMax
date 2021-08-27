@@ -43,9 +43,17 @@
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label for="harsh_power">Exchange Rate</label>
-                                        <input id="harsh_power" type="number" step="0.0000001" class="form-control" name="rate" tabindex="1"
+                                        <label for="rate">Naira Exchange Rate </label>
+                                        <input id="rate" type="number" step="any" class="form-control" name="rate" tabindex="1"
                                         value="<%= edit ? coin.rate : '' %>" required autofocus>
+                                        <div class="invalid-feedback">
+                                            Please enter Exchange Rate
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="dollarRate">Dollar Exchange Rate </label>
+                                        <input id="dollarRate" type="number" step="any" class="form-control" name="dollarRate" tabindex="1"
+                                        value="<%= edit ? coin.dollarRate : '' %>" required autofocus>
                                         <div class="invalid-feedback">
                                             Please enter Exchange Rate
                                         </div>

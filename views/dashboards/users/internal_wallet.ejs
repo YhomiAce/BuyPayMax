@@ -18,7 +18,7 @@
                                     <h3 class="font-light mb-0">
                                         <i class="ti-arrow-up text-success"></i><%= coins[i].balance %> <%= coins[i].coinTypes.symbol %>
                                     </h3>
-                                    <span class="text-muted">PayBuyMax Amount: N<%= (Number(coins[i].balance) * Number(coins[i].coinTypes.rate)).toFixed(3)  %></span>
+                                    <span class="text-muted">PayBuyMax Amount: <%= Intl.NumberFormat('de-DE', { style: 'currency', currency: 'NGN' }).format((Number(coins[i].balance) * Number(coins[i].coinTypes.rate)).toFixed(3))   %></span>
                                 </div>
                             </div>
                         </div>
@@ -52,6 +52,18 @@
                                         Please select your wallet address
                                     </div>
                                 </div>
+                                <div class="form-group">
+                                    <label for="">Sell By</label>
+                                    <select name="medium" id="medium" class="form-control" required>
+                                        <option value="" disabled selected>Choose medium</option>
+                                        <option value="usd">USD</option>
+                                        <option value="naira">Naira</option>
+                                        <option value="qty">Quantity</option>
+                                    </select>
+                                    <div class="invalid-feedback">
+                                        Please select Medium of calculation
+                                    </div>
+                                </div>
                                 
                                 <div class="form-group">
                                     <label for="name">Amount</label>
@@ -60,10 +72,39 @@
                                     <div class="invalid-feedback">
                                         Please fill in amount
                                     </div>
+                                    <div class="invalid-feedback" id="rate-box" style="display: none;">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                Dollar Exchange Rate<input type="number" value="" name="rate" id="rate" class="form-control" readonly>
+                                            </div>
+                                            <div class="col-md-6">
+                                                Naira Exchange Rate<input type="number" value="" name="nairaRate" id="nairaRate" class="form-control" readonly>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                 
+                                <div class="form-group" id="amt" style="display: none;">
+                                    <div class="row">
+                                        <div class="col-md-4 form-group" style="display: none;" id="usdBox">
+                                            <label for="">USD Equivalent</label>
+                                            <input type="text" class="form-control" step="any" readonly value="" id="usdE">
+                                        </div>
+                                    
+                                        <div class="col-md-4 form-group" style="display: none;" id="nairaBox">
+                                            <label for="">Naira Equivalent</label>
+                                            <input type="text" class="form-control" step="any" readonly value="" id="nairaE">
+                                        </div>
+                                    
+                                        <div class="col-md-4 form-group" style="display: none;" id="qtyBox">
+                                            <label for="">Quantity Equivalent</label>
+                                            <input type="text" class="form-control" step="any" readonly value="" id="qtyE">
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <input type="hidden" class="form-control" name="userId" required>
+                            
+                            <input type="hidden" id="balance" name="balance">
+                            
                             <div class="card-footer text-right">
                                 <button class="btn btn-primary btn-block" type="button" data-toggle="modal" id = "sellCoinBtn" data-target="#sellNow">Sell Coin</button>
                             </div>
@@ -93,6 +134,7 @@
                                 <input type="text" id="code" class="form-control" name="code" required>
                                 <input type="hidden" name="user_id" value="<%= user.id  %> " >
                                 
+                                <input type="hidden" id="sellBy"  name="sellBy" value="" >
                                 <input type="hidden" id="amount"  name="amount" value="" >
                                 <input type="hidden" id="coinId" name="coinId" value="" >
                                 <button class="btn btn-info mt-5" id="confirmPayment" type="submit">Confirm Sale</button></p>
@@ -110,28 +152,102 @@
         // var walletType = $('#coin').find(":selected").val();
         $("#sellCoinBtn").click(()=>{
             var amount = $("#qty").val();
-            console.log(amount);
+            
             $('#amount').val(amount);
             var userId = $('#userId').val();
-            console.log(userId);
+            
             var coinType = $("#coin").val();
+            var medium = $('#medium').val();
             $.ajax({
                 url:"/transaction/code",
                 method: "post",
-                data:{userId, amount, coinId: coinType},
+                data:{userId, amount, coinId: coinType, medium},
                 success:(res) =>{
                     console.log(res);
+                    var balance = $("#balance").val(res.balance)
                 }
             })
         })
+       
         $('#coin').change(()=>{
-                var walletType = $("#coin").val();
-                // var channel = $("#coin option:selected").text();
-                console.log(walletType);
-                $("#coinId").val(walletType)
-                console.log($("#coinId").val());
-                
+            var walletType = $("#coin").val();
+            $("#qty").val('')
+            $("#qtyE").val('')
+            $("#usdE").val('')
+            $("#nairaE").val('')
+            // var channel = $("#coin option:selected").text();
+            console.log(walletType);
+            $("#coinId").val(walletType)
+            console.log($("#coinId").val());
+            $.ajax({
+                url:"/get/exchange/"+walletType,
+                method: "get",
+                success:(res) =>{
+                    console.log(res);
+                    $("#rate-box").show();
+                    $("#rate").val(res.dollarRate)
+                    $("#nairaRate").val(res.rate)
+                }
             })
+        })
+
+        $('#medium').change(()=>{
+            
+            $("#qty").val('')
+            $("#qtyE").val('')
+            $("#usdE").val('')
+            $("#nairaE").val('')
+            var medium = $('#medium').val();
+            console.log(medium);
+            if (medium === "usd") {
+                $("#nairaBox").hide();
+                $("#qtyBox").show();
+                $("#usdBox").hide();
+                $("#sellBy").val(medium)
+            }else if (medium === "naira") {
+                $("#usdBox").hide();
+                $("#qtyBox").show();
+                $("#nairaBox").hide();
+                $("#sellBy").val(medium)
+            }else if (medium === "qty") {
+                $("#nairaBox").show();
+                $("#qtyBox").hide();
+                $("#usdBox").show();
+                $("#sellBy").val(medium)
+            }else{
+                $("#amt").hide()
+            }
+                    
+                
+            $("#amt").show()
+            
+        })
+
+        $("#qty").keyup(()=>{
+            var dollarRate = $("#rate").val()
+            var nairaRate = $("#nairaRate").val()
+            var medium = $('#medium').val();
+            var amount =$('#qty').val();
+            if (medium === "usd") {
+                var x = (amount/dollarRate).toFixed(5)
+                $("#qtyE").val(x)
+                // $("#nairaE").val(y)
+            }else if (medium === "naira") {
+                var x = (amount/nairaRate).toFixed(5)
+                // var y = (amount/nairaRate)
+                $("#qtyE").val(x)
+            }else if (medium === "qty") {
+                var x = (amount*dollarRate).toFixed(5)
+                var y = (amount*nairaRate).toFixed(5)
+                x = Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(x)
+                
+                y = Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format(y)
+                $("#usdE").val(x)
+                $("#nairaE").val(y)
+            }else{
+                $("#amt").hide()
+            }
+        })
         
         
     })

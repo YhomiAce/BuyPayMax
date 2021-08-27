@@ -844,10 +844,15 @@ exports.sellFromExternalWallet = async(req, res) =>{
 
 exports.sellCoinFromInternalWallet = async(req, res) =>{
     try {
-        const {amount, coinId, code, user_id} = req.body;
+        const {amount, coinId, code, user_id, sellBy} = req.body;
+        let qty ;
+        let dollarAmount;
+        let nairaAmount;
+        console.log(req.body);
         
         const user = await Users.findOne({where:{id: user_id}});
         const wallet = await Coin.findOne({where:{userId: user_id, coinId}});
+        const product = await Product.findOne({where:{id:coinId}});
         const balance = Number(wallet.balance);
         console.log(user.oauth_token);
         console.log(user);
@@ -855,35 +860,58 @@ exports.sellCoinFromInternalWallet = async(req, res) =>{
             req.flash('warning', "Wrong Transaction Code");
             res.redirect("back");
         }
+
+        let dollarRate = Number(product.dollarRate);
+        let nairaRate = Number(product.rate);
+
+        if (sellBy === "usd") {
+            dollarAmount = amount;
+            qty = (amount/dollarRate);
+            nairaAmount = qty*nairaRate.toFixed(3)
+        }else if (sellBy === "naira") {
+            nairaAmount = Number(amount);
+            qty = (amount/nairaRate);
+            dollarAmount = (qty*dollarRate).toFixed(3)
+        }else if (sellBy === "qty") {
+            qty = amount;
+            nairaAmount = qty*nairaRate.toFixed(3)
+            dollarAmount = (qty*dollarRate).toFixed(3)
+        }
         // Todo 
+        console.log(qty, nairaAmount, dollarAmount);
         let reference = generateUniqueId({
             length: 15,
             useLetters: true,
           });
-        const newBalance = balance - amount;
-        await Internal.create({userId:user_id, coinId, amount, reference});
+        const newBalance = balance - qty;
+        await Internal.create({userId:user_id, coinId, qty, sellBy, dollarAmount, nairaAmount, reference});
         await Coin.update({balance:newBalance}, {where:{userId: user_id, coinId}});
         
-        const product = await Product.findOne({where:{id:coinId}});
-        const paybuymaxAmount = Number(product.rate) * amount;
+        
+        // const paybuymaxAmount = nairaAmount;
+        // nairaAmount = 10;
         const userAcctBal = Number(user.wallet);
-        const newWalletBalance = (paybuymaxAmount+ userAcctBal).toFixed(3);
+        const newWalletBalance = (nairaAmount+ userAcctBal).toFixed(3);
         await Users.update({wallet:newWalletBalance}, {where:{id: user_id}});
         const coinTypes = product.name;
         const symbol = product.symbol;
         const now = moment();
+        // nairaAmount = Intl.NumberFormat('de-DE', { style: 'currency', currency: 'NGN' }).format(nairaAmount);
+        // dollarAmount = Intl.NumberFormat('de-DE', { style: 'currency', currency: 'USD' }).format(dollarAmount);
         const output = `<html>
         <head>
           <title>TRANSACTION RECEIPT</title>
         </head>
         <body>
-        <p>Your Transaction was successful. You just sold ${amount} ${symbol} from Your PayBuyMax wallet</p>
+        <p>Your Transaction was successful. You just sold ${qty} ${symbol} from Your PayBuyMax wallet</p>
         <h2> Receipt </h2>
         <ul>
             <li>Coin Type:.....................${coinTypes}</li>
-            <li>Quantity:.....................${amount} ${symbol}</li>
+            <li>Quantity:.....................${qty} ${symbol}</li>
+            <li>USD Amount:.....................${ dollarAmount} </li> 
+            <li>Naira Amount:.....................${nairaAmount} </li>
             <li>Transaction Reference:.....................${reference}</li>
-            <li>Wallet Credit:.....................N${paybuymaxAmount.toFixed(3)}</li>
+            <li>Wallet Credit:.....................N${nairaAmount.toFixed(3)}</li>
             <li>Date:.....................${now}</li>
         </ul>
         </body>
@@ -910,16 +938,15 @@ exports.sellCoinFromInternalWallet = async(req, res) =>{
       const sendMail = await transporter.sendMail(mailOptions, async(err, info) => {
         if (err) {
             console.log(err);
-          return res.json({msg:"Error sending mail, please try again"});
           
         } else {
-            return res.json({success:"Done"});
-          
+            // return res.json({success:"Done"});
+            req.flash("success", "Transaction Successful");
+            res.redirect("back");
         }
       });
 
-        req.flash("success", "Done")
-        res.redirect("back");
+        
     } catch (error) {
         req.flash('error', "Server error");
         res.redirect("back");
@@ -928,57 +955,79 @@ exports.sellCoinFromInternalWallet = async(req, res) =>{
 
 exports.sendConfirmationCode = async(req, res) =>{
     try {
-        const {userId, coinId, amount} = req.body;
+        const {userId, coinId, amount, medium} = req.body;
+        // console.log(req.body);
         const user = await Users.findOne({where:{id: userId}});
-        const wallet = await Coin.findOne({where:{userId: userId, coinId}});
+        const wallet = await Coin.findOne({where:{userId: userId, coinId}, include:['coinTypes']});
         const code = Math.floor(100000 + Math.random() * 900000);
-        // Todo 
-        const balance = Number(wallet.balance);
-        console.log(userId, coinId, amount, balance);
-        if (balance < amount) {
-            return res.json({msg:"Your balance is Low. Can't Perform this transaction"});
-        }
-
-        const output = `<html>
-        <head>
-          <title>TRANSACTION CONFIRMATION</title>
-        </head>
-        <body>
-        <p>Use The Code Below to ComPlete Your Transaction. It will Expire in 3 minutes </p>
-        <h2> ${code} </h2>
-        </body>
-                </html>`;
-      let transporter = await nodemailer.createTransport({
-        host: parameters.EMAIL_HOST,
-        port: parameters.EMAIL_PORT,
-        secureConnection: true, // true for 465, false for other ports
-        auth: {
-          user: parameters.EMAIL_USERNAME, // generated ethereal user
-          pass: parameters.EMAIL_PASSWORD, // generated ethereal password
-        },
         
-      });
+        // get coin ballance
+        const balance = Number(wallet.balance);
+        // console.log(balance);
 
-      // send mail with defined transport object
-      let mailOptions = {
-        from: ` "PayBuyMax" <${parameters.EMAIL_USERNAME}>`, // sender address
-        to: `${user.email}`, // list of receivers
-        subject: "[PayBuyMax] Transaction Code", // Subject line
-        text: "PayBuyMax", // plain text body
-        html: output, // html body
-      };
-      const sendMail = await transporter.sendMail(mailOptions, async(err, info) => {
-        if (err) {
-            console.log(err);
-          return res.json({msg:"Error sending mail, please try again"});
-          
-        } else {
-            await Users.update({oauth_token: code}, {where:{id: userId}})
-            return res.json({success:"Code Sent"});
-          
+        // find coin
+        const product = await Product.findOne({where:{id:coinId}});
+
+        // find coin exchange rate
+        var dollarRate = Number(product.dollarRate);
+        var nairaRate = Number(product.rate);
+        // console.log(dollarRate,nairaRate );
+
+        // covert coin balance to respective exchange
+        let dollarAmount = (balance * dollarRate);
+        dollarAmount.toFixed(3)
+        let nairaAmount = (balance * nairaRate);
+        nairaAmount.toFixed(3)
+        // console.log(nairaAmount, dollarAmount);
+        
+        if (medium === "usd" && (amount > dollarAmount)) {
+            return res.json({msg:"Your balance is Low. Can't Perform this transaction"});
+        }else if (medium === "naira" && (amount > nairaAmount)) {
+            return res.json({msg:"Your balance is Low. Can't Perform this transaction"});
+        }else if (medium === "qty" && (amount > balance)) {
+            return res.json({msg:"Your balance is Low. Can't Perform this transaction"});
+        }else{
+
+            const output = `<html>
+            <head>
+            <title>TRANSACTION CONFIRMATION</title>
+            </head>
+            <body>
+            <p>Use The Code Below to ComPlete Your Transaction. It will Expire in 3 minutes </p>
+            <h2> ${code} </h2>
+            </body>
+                    </html>`;
+            let transporter = await nodemailer.createTransport({
+                host: parameters.EMAIL_HOST,
+                port: parameters.EMAIL_PORT,
+                secureConnection: true, // true for 465, false for other ports
+                auth: {
+                user: parameters.EMAIL_USERNAME, // generated ethereal user
+                pass: parameters.EMAIL_PASSWORD, // generated ethereal password
+                },
+                
+            });
+
+            // send mail with defined transport object
+            let mailOptions = {
+                from: ` "PayBuyMax" <${parameters.EMAIL_USERNAME}>`, // sender address
+                to: `${user.email}`, // list of receivers
+                subject: "[PayBuyMax] Transaction Code", // Subject line
+                text: "PayBuyMax", // plain text body
+                html: output, // html body
+            };
+            const sendMail = await transporter.sendMail(mailOptions, async(err, info) => {
+                if (err) {
+                    console.log(err);
+                return res.json({msg:"Error sending mail, please try again"});
+                
+                } else {
+                    await Users.update({oauth_token: code}, {where:{id: userId}})
+                    return res.json({success:"Code Sent"});
+                
+                }
+            });
         }
-      });
-
         // return res.json({user, wallet, code});
     } catch (error) {
         req.flash('error', "Server error");
@@ -991,6 +1040,16 @@ exports.getExchange = async(req,res)=>{
         const {id} = req.params
         const product = await Product.findOne({where:{id}})
         return res.json(product)
+    } catch (error) {
+        return res.send({msg:error.response})
+    }
+}
+
+exports.checkBalance = async(req,res)=>{
+    try {
+        const {userId,coinId} = req.params
+        const coin = await Coin.findOne({where:{userId, coinId}})
+        return res.json(coin)
     } catch (error) {
         return res.send({msg:error.response})
     }

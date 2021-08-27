@@ -27,10 +27,24 @@ module.exports = (sequelize, DataTypes) => {
       type:DataTypes.UUID,
       allowNull: false
     },
-    amount:{
+    qty:{
       type:DataTypes.FLOAT,
       allowNull: false,
       defaultValue: 0
+    },
+    dollarAmount:{
+      type:DataTypes.FLOAT,
+      allowNull: false,
+      defaultValue: 0
+    },
+    nairaAmount:{
+      type:DataTypes.FLOAT,
+      allowNull: false,
+      defaultValue: 0
+    },
+    sellBy: {
+      type: DataTypes.ENUM("usd", "naira", "qty"),
+      allowNull: true
     },
     reference: {
       type:DataTypes.STRING,
@@ -43,5 +57,6 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: true,
     paranoid: true
   });
+  // Internal.sync({force:true})
   return Internal;
 };

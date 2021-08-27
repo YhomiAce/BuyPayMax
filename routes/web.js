@@ -425,6 +425,7 @@ router.get("/pending-external/transaction", TransactionController.getPendingExte
 router.get("/approved-external/transaction", TransactionController.getApprovedExternalTransaction);
 router.get("/view/pending-external/:id", TransactionController.viewPendingExternalTx);
 router.get("/get/exchange/:id", TransactionController.getExchange);
+router.get("/check-coin/balance/:userId/:coinId", TransactionController.checkBalance);
 
 // users
 router.get("/settings", AuthMiddleware.redirectLogin, ProfileController.settingsPage);

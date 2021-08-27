@@ -15,10 +15,24 @@ module.exports = {
         type:Sequelize.UUID,
         allowNull: false
       },
-      amount:{
+      qty:{
         type:Sequelize.FLOAT,
         allowNull: false,
         defaultValue: 0
+      },
+      dollarAmount:{
+        type:Sequelize.FLOAT,
+        allowNull: false,
+        defaultValue: 0
+      },
+      nairaAmount:{
+        type:Sequelize.FLOAT,
+        allowNull: false,
+        defaultValue: 0
+      },
+      sellBy: {
+        type: Sequelize.ENUM("usd", "naira", "qty"),
+        allowNull: true
       },
       reference: {
         type:Sequelize.STRING,

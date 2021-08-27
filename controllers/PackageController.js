@@ -972,7 +972,8 @@ exports.postAddCoin =  async(req, res, next) => {
     const {
         name,
         symbol,
-        rate
+        rate,
+        dollarRate
     } = req.body;
     // check if any of them are empty
     if (!name || !symbol || !rate) {
@@ -999,7 +1000,8 @@ exports.postAddCoin =  async(req, res, next) => {
                     Product.create({
                         name,
                         rate,
-                        symbol
+                        symbol,
+                        dollarRate
                         })
                         .then( async products => {
                             const users=  await Users.findAll();
@@ -1097,10 +1099,11 @@ exports.postUpdateCoin = (req, res, next) => {
     const {
         name,
         symbol,
-        rate
+        rate, 
+        dollarRate
     } = req.body;
     // check if any of them are empty
-    if (!name || !symbol || !rate) {
+    if (!name || !symbol || !rate || !dollarRate) {
         req.flash('warning', "enter all fields");
         res.redirect("back");
     } else {
@@ -1119,7 +1122,8 @@ exports.postUpdateCoin = (req, res, next) => {
                     Product.update({
                         name,
                         symbol,
-                        rate
+                        rate,
+                        dollarRate
                         }, {
                             where: {
                                 id: {
