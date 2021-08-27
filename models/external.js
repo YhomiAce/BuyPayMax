@@ -73,7 +73,25 @@ module.exports = (sequelize, DataTypes) => {
     receipt: {
       type: DataTypes.STRING,
       allowNull: true
-    }
+    },
+    dollarAmount:{
+      type:DataTypes.FLOAT,
+      defaultValue: 0,
+      allowNull: true
+    },
+    currentDollarRate:{
+      type:DataTypes.FLOAT,
+      defaultValue: 0,
+      allowNull: true
+    },
+    sellBy: {
+      type:DataTypes.ENUM("usd","naira", "qty"),
+      allowNull: true
+    },
+    transaction: {
+      type:DataTypes.STRING,
+      allowNull: true
+    },
   }, {
     sequelize,
     modelName: 'External',

@@ -44,6 +44,19 @@
 
                                        
                                     </div>
+
+                                    <div class="form-group">
+                                        <label for="">Sell Transaction</label>
+                                        <select name="transaction" id="transaction" class="form-control" required>
+                                            <option value="" disabled selected>Choose Transaction Type</option>
+                                            <option value="SELL">SELL</option>
+                                            <option value="BUY">BUY</option>
+                                            <option value="FUND_WALLET">FUND WALLET</option>
+                                        </select>
+                                        <div class="invalid-feedback">
+                                            Please select Transaction Type
+                                        </div>
+                                    </div>
                                     
                                     <div class="form-group">
                                         <label for="">Sell By</label>
@@ -58,17 +71,11 @@
                                         </div>
                                     </div>
                                     
-                                    <!-- <div class="form-group">
-                                        <label for="quantity">Quantity</label>
-                                        <input id="quantity" type="number" step="any" class="form-control" name="quantity" tabindex="1" required autofocus>
-                                        <div class="invalid-feedback">
-                                            Please enter Quantity
-                                        </div>
-                                    </div> -->
+                                    
                                     
                                     <div class="form-group">
                                         <label for="name">Amount</label>
-                                        <input type="number" class="form-control" step="any" name="qty" id="qty" tabindex="1" required
+                                        <input type="number" class="form-control" step="any" name="quantity" id="qty" tabindex="1" required
                                             autofocus>
                                         <div class="invalid-feedback">
                                             Please fill in amount
@@ -76,7 +83,7 @@
                                         <div class="invalid-feedback" id="rate-box" style="display: none;">
                                             <div class="row">
                                                 <div class="col-md-6">
-                                                    Dollar Exchange Rate<input type="number" value="" name="rate" id="rate" class="form-control" readonly>
+                                                    Dollar Exchange Rate<input type="number" value="dollarRate" name="rate" id="rate" class="form-control" readonly>
                                                 </div>
                                                 <div class="col-md-6">
                                                     Naira Exchange Rate<input type="number" value="" name="nairaRate" id="nairaRate" class="form-control" readonly>
@@ -102,7 +109,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    
+                                    <input type="hidden" name="sellBy" id="sellBy">
                                 </div>
                                 <div class="card-footer text-right">
                                     <button class="btn btn-primary btn-block"

@@ -36,7 +36,7 @@
                                             <td><%= i + 1 %></td>
                                             <td><%= transactions[i].name %></td>
                                             <td><%= transactions[i].email %></td>
-                                            <td><%= Intl.NumberFormat('de-DE', { style: 'currency', currency: 'NGN' }).format(transactions[i].amount.toFixed(3))  %></td>
+                                            <td><%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format(transactions[i].amount.toFixed(3))  %></td>
                                             <td><%= transactions[i].coin.name %></td>
                                             <td><%= transactions[i].quantity %></td>
                                             <td><%= transactions[i].reference %></td>

@@ -32,7 +32,7 @@
                                         <tr>
                                             <td><%= i + 1 %></td>
                                             <td><%= withdrawals[i].user.email %></td>
-                                            <td><%= Intl.NumberFormat('de-DE', { style: 'currency', currency: 'NGN' }).format(withdrawals[i].amount.toFixed(3))  %></td>
+                                            <td><%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format(withdrawals[i].amount.toFixed(3))  %></td>
                                             <td><%= withdrawals[i].reference %></td>
                                            
 

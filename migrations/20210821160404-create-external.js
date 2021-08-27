@@ -54,6 +54,24 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true
       },
+      dollarAmount:{
+        type:Sequelize.FLOAT,
+        defaultValue: 0,
+        allowNull: true
+      },
+      currentDollarRate:{
+        type:Sequelize.FLOAT,
+        defaultValue: 0,
+        allowNull: true
+      },
+      sellBy: {
+        type:Sequelize.ENUM("usd","naira", "qty"),
+        allowNull: true
+      },
+      transaction: {
+        type:Sequelize.STRING,
+        allowNull: true
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

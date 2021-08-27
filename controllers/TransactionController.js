@@ -848,7 +848,7 @@ exports.sellCoinFromInternalWallet = async(req, res) =>{
         let qty ;
         let dollarAmount;
         let nairaAmount;
-        console.log(req.body);
+        // console.log(req.body);
         
         const user = await Users.findOne({where:{id: user_id}});
         const wallet = await Coin.findOne({where:{userId: user_id, coinId}});
@@ -1071,11 +1071,12 @@ exports.generateReceiptForExternal = async(req, res) =>{
 
 exports.getPendingExternalTransaction = async(req, res)=>{
     try {
-        const transactions = await External.findAll({where:{status:"pending"}, include:["coin","trader"]});
+        const transactions = await External.findAll({where:{status:"pending", traderId: req.session.adminId}, include:["coin","trader"]});
         res.render("dashboards/Trader/unapproved_external",{
             transactions,
             moment
         })
+        // return res.json({transactions})
     } catch (error) {
         req.flash('error', "Server error");
         res.redirect("/agent/home");
@@ -1084,7 +1085,7 @@ exports.getPendingExternalTransaction = async(req, res)=>{
 
 exports.getApprovedExternalTransaction = async(req, res)=>{
     try {
-        const transactions = await External.findAll({where:{status:"approved"}, include:["coin","trader"]});
+        const transactions = await External.findAll({where:{status:"approved", traderId: req.session.adminId}, include:["coin","trader"]});
         res.render("dashboards/Trader/approved_external",{
             transactions,
             moment
@@ -1110,27 +1111,55 @@ exports.viewPendingExternalTx = async(req, res)=>{
 
 exports.createReceiptForExternalTransaction = async(req, res)=>{
     try {
-        const {traderId, name, email, amount, quantity, coinId, rate} = req.body;
-        if (!amount || !name || !email || !quantity || !coinId) {
+        const {name, email, quantity, coinId, rate, medium, transaction} = req.body;
+        const trader = await Admins.findOne({where:{id:req.session.adminId}});
+        if (!name || !email || !quantity || !coinId) {
             req.flash("danger", "Please Fill all Fields!");
             res.redirect("back");
         }
+        const product = await Product.findOne({where:{id:coinId}});
+        let qty ;
+        let dollarAmount;
+        let nairaAmount;
+        let dollarRate = Number(product.dollarRate);
+        let nairaRate = Number(product.rate);
+        console.log(req.body);
         let reference = generateUniqueId({
             length: 15,
             useLetters: true,
           });
-        await External.create({
-            traderId,
+
+        if (medium === "usd") {
+            dollarAmount = Number(quantity);
+            qty = (quantity/dollarRate);
+            nairaAmount = qty*nairaRate.toFixed(3)
+        }else if (medium === "naira") {
+            nairaAmount = Number(quantity);
+            qty = (quantity/nairaRate);
+            dollarAmount = (qty*dollarRate).toFixed(3)
+        }else if (medium === "qty") {
+            qty = Number(quantity);
+            nairaAmount = qty*nairaRate.toFixed(3)
+            dollarAmount = (qty*dollarRate).toFixed(3)
+        }
+
+        const request = {
             name,
             email,
-            amount,
-            quantity,
-            currentRate: rate,
+            reference,
+            traderId: trader.id,
             coinId,
-            reference
-        });
+            currentRate: nairaRate,
+            currentDollarRate: dollarRate,
+            sellBy: medium,
+            dollarAmount,
+            quantity: qty,
+            amount: nairaAmount,
+            transaction
+        }
+        await External.create(request);
         req.flash("success", "Transaction generated successfully");
-            res.redirect("back");
+        res.redirect("back");
     } catch (error) {
         req.flash('error', "Server error");
         res.redirect("back");

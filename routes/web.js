@@ -419,11 +419,11 @@ router.post("/sell-coin", AuthMiddleware.redirectLogin, TransactionController.se
 router.get("/rates", AuthMiddleware.redirectLogin, TransactionController.getRates);
 router.post("/transaction/code", TransactionController.sendConfirmationCode);
 router.post("/withdraw/code", TransactionController.sendConfirmationCodeForWithdraw);
-router.get("/generate-receipt", TransactionController.generateReceiptForExternal);
-router.post("/external/create-receipt", TransactionController.createReceiptForExternalTransaction);
-router.get("/pending-external/transaction", TransactionController.getPendingExternalTransaction);
-router.get("/approved-external/transaction", TransactionController.getApprovedExternalTransaction);
-router.get("/view/pending-external/:id", TransactionController.viewPendingExternalTx);
+router.get("/generate-receipt", AuthMiddleware.redirectAdminLogin, TransactionController.generateReceiptForExternal);
+router.post("/external/create-receipt", AuthMiddleware.redirectAdminLogin, TransactionController.createReceiptForExternalTransaction);
+router.get("/pending-external/transaction", AuthMiddleware.redirectAdminLogin, TransactionController.getPendingExternalTransaction);
+router.get("/approved-external/transaction", AuthMiddleware.redirectAdminLogin, TransactionController.getApprovedExternalTransaction);
+router.get("/view/pending-external/:id", AuthMiddleware.redirectAdminLogin, TransactionController.viewPendingExternalTx);
 router.get("/get/exchange/:id", TransactionController.getExchange);
 router.get("/check-coin/balance/:userId/:coinId", TransactionController.checkBalance);
 

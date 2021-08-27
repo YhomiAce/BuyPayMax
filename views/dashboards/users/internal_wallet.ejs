@@ -18,7 +18,7 @@
                                     <h3 class="font-light mb-0">
                                         <i class="ti-arrow-up text-success"></i><%= coins[i].balance %> <%= coins[i].coinTypes.symbol %>
                                     </h3>
-                                    <span class="text-muted">PayBuyMax Amount: <%= Intl.NumberFormat('de-DE', { style: 'currency', currency: 'NGN' }).format((Number(coins[i].balance) * Number(coins[i].coinTypes.rate)).toFixed(3))   %></span>
+                                    <span class="text-muted">PayBuyMax Amount: <%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format((Number(coins[i].balance) * Number(coins[i].coinTypes.rate)).toFixed(3))   %></span>
                                 </div>
                             </div>
                         </div>
