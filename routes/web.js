@@ -406,7 +406,7 @@ router.post("/createcheckout", AuthMiddleware.redirectLogin, CoinqvestController
 
 router.get('/history',AuthMiddleware.redirectLogin, TransactionController.transactionHistory )
 // users specific routes
-router.get("/fundwallet", AuthMiddleware.redirectLogin, WalletController.walletPage);
+router.get("/buy/internal", AuthMiddleware.redirectLogin, WalletController.walletPage);
 router.get("/wallet-balance", AuthMiddleware.redirectLogin, WalletController.walletBalance);
 router.post("/fundwallet", AuthMiddleware.redirectLogin, WalletController.fundWallet);
 router.get("/buy", AuthMiddleware.redirectLogin, TransactionController.buyCoin);
@@ -415,21 +415,33 @@ router.get("/sell/coin", AuthMiddleware.redirectLogin, TransactionController.sel
 router.get("/method/coin", AuthMiddleware.redirectLogin, TransactionController.getMethodForSelling )
 router.get("/sell/external", AuthMiddleware.redirectLogin, TransactionController.sellFromExternalWallet)
 router.get("/sell/internal", AuthMiddleware.redirectLogin, TransactionController.sellFromInternalWallet)
-router.post("/sell-coin", AuthMiddleware.redirectLogin, TransactionController.sellCoinFromInternalWallet)
+router.post("/sell-coin", AuthMiddleware.redirectLogin, TransactionController.sellCoinFromInternalWallet);
+router.post("/buy-coin/internal", AuthMiddleware.redirectLogin, TransactionController.BuyCoinFromInternalWallet);
 router.get("/rates", AuthMiddleware.redirectLogin, TransactionController.getRates);
 router.post("/transaction/code", TransactionController.sendConfirmationCode);
 router.post("/withdraw/code", TransactionController.sendConfirmationCodeForWithdraw);
 router.get("/generate-receipt", AuthMiddleware.redirectAdminLogin, TransactionController.generateReceiptForExternal);
 router.post("/external/create-receipt", AuthMiddleware.redirectAdminLogin, TransactionController.createReceiptForExternalTransaction);
 router.get("/pending-external/transaction", AuthMiddleware.redirectAdminLogin, TransactionController.getPendingExternalTransaction);
+router.get("/pending-internal/transaction", AuthMiddleware.redirectAdminLogin, TransactionController.getPendingInternalTransaction);
 router.get("/approved-external/transaction", AuthMiddleware.redirectAdminLogin, TransactionController.getApprovedExternalTransaction);
+router.get("/approved-internal/transaction", AuthMiddleware.redirectAdminLogin, TransactionController.getApprovedInternalTransaction);
 router.get("/view/pending-external/:id", AuthMiddleware.redirectAdminLogin, TransactionController.viewPendingExternalTx);
+router.get("/view/pending-internal/:id", AuthMiddleware.redirectAdminLogin, TransactionController.viewPendingInternalTx);
 router.get("/get/exchange/:id", TransactionController.getExchange);
 router.get("/check-coin/balance/:userId/:coinId", TransactionController.checkBalance);
+router.post("/buy/transaction/code", TransactionController.sendConfirmationCodeForBuy);
+
+router.post("/test/quantity", TransactionController.testQuery)
 
 // users
 router.get("/settings", AuthMiddleware.redirectLogin, ProfileController.settingsPage);
 router.get("/users", AuthMiddleware.redirectAdminLogin, UserController.allUsers);
+router.get("/exchange-rate", AuthMiddleware.redirectAdminLogin, PackageController.ExchangeRate);
+router.get("/get/exchange-rate", PackageController.getAllExchangeRate);
+router.get("/exchange-rate/:id", PackageController.getExchangeRate);
+router.post("/exchange-rate", AuthMiddleware.redirectAdminLogin, PackageController.SaveExchangeRate);
+router.post("/update-exchange-rate", PackageController.UpdateExchangeRate);
 router.get("/admins", AuthMiddleware.redirectAdminLogin, UserController.allAdmins);
 router.get("/packages_ethereum", AuthMiddleware.redirectLogin, PackageController.usersPackagesEthereum);
 router.get("/packages", AuthMiddleware.redirectLogin, PackageController.usersPackages);
@@ -480,6 +492,7 @@ router.get("/approved-withdrawal", AuthMiddleware.redirectAdminLogin, Transactio
 router.post("/unapprove-withdrawal", AuthMiddleware.redirectAdminLogin, TransactionController.postDisApproveWithdrawal);
 router.post("/approve-withdrawal", upload.single('reciept'), AuthMiddleware.redirectAdminLogin, TransactionController.postApproveWithdrawal);
 router.post("/approve/external-transaction", upload.single('image'), AuthMiddleware.redirectAdminLogin, TransactionController.approveExternalTransaction);
+router.post("/approve/internal-transaction", upload.single('image'), AuthMiddleware.redirectAdminLogin, TransactionController.approveInternalTransaction);
 
 router.get("/get/withdraw", DashboardController.getWithdrawal)
 

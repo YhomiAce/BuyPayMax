@@ -8,21 +8,12 @@ module.exports = {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV1,
       },
-      productId: {
-        allowNull: false,
-        type: Sequelize.UUID
-    },
-    exchangeRate: {
-      allowNull: true,
-      type: Sequelize.FLOAT,
-      defaultValue:0
-    },
-    dollarRate: {
+    dollar: {
       allowNull: true,
       type: Sequelize.FLOAT,
       defaultValue: 0
     },
-    nairaRate: {
+    naira: {
       allowNull: true,
       type: Sequelize.FLOAT,
       defaultValue: 0

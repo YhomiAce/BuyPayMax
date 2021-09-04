@@ -51,7 +51,7 @@
                                             <option value="" disabled selected>Choose Transaction Type</option>
                                             <option value="SELL">SELL</option>
                                             <option value="BUY">BUY</option>
-                                            <option value="FUND_WALLET">FUND WALLET</option>
+                                            <option value="FUND_WALLET">FUND NAIRA WALLET</option>
                                         </select>
                                         <div class="invalid-feedback">
                                             Please select Transaction Type
@@ -126,6 +126,10 @@
 <script>
     $("#coin").change(()=>{
         const id = $("#coin").val();
+        $("#qty").val('')
+        $("#qtyE").val('')
+        $("#usdE").val('')
+        $("#nairaE").val('')
         console.log(id);
         $.ajax({
             url:`/get/exchange/${id}`,

@@ -19,28 +19,19 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV1,
     },
-    productId: {
-        allowNull: false,
-        type: DataTypes.UUID
-    },
-    exchangeRate: {
-      allowNull: true,
-      type: DataTypes.FLOAT,
-      defaultValue:0
-    },
-    dollarRate: {
+    dollar: {
       allowNull: true,
       type: DataTypes.FLOAT,
       defaultValue: 0
     },
-    nairaRate: {
+    naira: {
       allowNull: true,
       type: DataTypes.FLOAT,
       defaultValue: 0
     },
   }, {
     sequelize,
-    modelName: 'rate',
+    modelName: 'Rate',
     tableName: 'rates',
     timestamps: true,
     paranoid: true

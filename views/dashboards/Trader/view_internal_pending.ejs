@@ -1,0 +1,97 @@
+<!-- header -->
+<%- include("../../partials/header_admin") %>
+<%- include("../../partials/sidebar") %>
+
+<!-- Main Content -->
+<div class="main-content">
+    <%- include("../../partials/alerts") %>
+    <section class="section">
+        <div class="section-body">
+            <div class="row">
+                <div class="col-12">
+                   
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Buy Coin From Internal Wallet Fund Details</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped" id="table-1">
+                                    <tbody>
+                                        <tr>
+                                            <td>Name</td>
+                                            <td><%= transaction.customerName %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Email</td>
+                                            <td><%= transaction.customerEmail %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Coin Type</td>
+                                            <td><%= transaction.coin.name %></td>
+                                        </tr>
+                                        
+                                        <tr>
+                                            <td>Transaction reference</td>
+                                            <td><%= transaction.reference %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Current Exchange Rate</td>
+                                            <td><%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(transaction.coin.dollarRate.toFixed(3))  %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Dollar To Naira Exchange Rate</td>
+                                            <td><%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format(transaction.exchange)  %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Quantity</td>
+                                            <td><%= transaction.qty %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Equivalent Naira Amount</td>
+                                            <td><%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format(transaction.nairaAmount.toFixed(3))  %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Equivalent Dollar Amount</td>
+                                            <td><%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(transaction.dollarAmount.toFixed(3))  %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Payment Status</td>
+                                            <td class="text-default"><%= transaction.status %></td>
+                                            
+                                        </tr>
+                                        <tr>
+                                            <td>Date</td>
+                                            <td><%= moment(transaction.createdAt).format("DD-MM-YYYY") %></td>
+                                        </tr>
+                                        <% if(transaction.status === "pending") { %> 
+                                            <tr>
+                                                <td>Approve</td>
+                                                <td>
+                                                    <form action="/approve/internal-transaction" enctype="multipart/form-data" method="POST">
+                                                        <input type="hidden" name="id" value="<%= transaction.id  %> ">
+                                                        <input type="file" name="image" required>
+                                                        <input type="submit" class="btn btn-info" value="Approve">
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        <% } %>
+                                        <% if(transaction.status === "approved") { %> 
+                                            <tr>
+                                                <td>Document Proof</td>
+                                                <td>
+                                                    <a href="<%= transaction.receipt %> " target="_blank" class="btn btn-success">View Receipt</a>
+                                                </td>
+                                            </tr>
+                                        <% } %> 
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+<%- include("../../partials/footer2") %>

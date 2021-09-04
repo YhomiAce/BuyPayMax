@@ -14,6 +14,7 @@ const Product = require('../models').Product;
 const Wallet = require('../models').Wallet;
 const Coin = require('../models').Coin;
 const Admin = require('../models').Admin;
+const Rate = require('../models').Rate;
 
 // imports initialization
 const Op = Sequelize.Op;
@@ -32,6 +33,94 @@ exports.addPackage = (req, res, next) => {
             res.redirect("/");
         });
 }
+
+exports.ExchangeRate = (req, res, next) => {
+    AdminMessages.findAll()
+   .then(unansweredChats => {
+       Rate.findAll({
+           where: {
+                   deletedAt: {
+                       [Op.eq]: null
+                   }
+           }
+       })
+       .then(rates => {
+           res.render("dashboards/exchange_rate", {
+               rates,
+               messages: unansweredChats,
+               moment
+           });
+       })
+       .catch(error => {
+           res.redirect("/dashboard");
+       });
+   })
+   .catch(error => {
+       req.flash('error', "Server error!");
+       res.redirect("/");
+   });
+   
+}
+
+exports.getExchangeRate = async(req, res, next) => {
+   
+    try {
+        const {id} = req.params;
+        const rate = await Rate.findOne({where:{id}});
+        return res.send(rate)
+    } catch (error) {
+        return res.json({msg: error})
+    }
+    
+ }
+
+ exports.getAllExchangeRate = async(req, res) => {
+   
+    try {
+        Rate.findAll({
+            where: {
+                    deletedAt: {
+                        [Op.eq]: null
+                    }
+            }
+        })
+        .then(rates => {
+            
+            return res.json(rates)
+        })
+    } catch (error) {
+     return res.json({msg: error})
+    }
+    
+ }
+
+exports.SaveExchangeRate = async(req, res, next) => {
+   
+   try {
+       await Rate.create(req.body);
+       req.flash('success', "Rate Added successfully!");
+       res.redirect("back");
+   } catch (error) {
+    req.flash('error', "Server error!");
+    res.redirect("/dashboard");
+   }
+   
+}
+
+exports.UpdateExchangeRate = async(req, res, next) => {
+   
+    try {
+        const {rateId, nairaRate} = req.body
+        await Rate.update({naira:nairaRate},{where:{id:rateId}});
+        req.flash('success', "Rate Updated successfully!");
+         res.redirect("back");
+        re
+    } catch (error) {
+     req.flash('error', "Server error!");
+     res.redirect("/dashboard");
+    }
+    
+ }
 
 exports.addCoinPackage = (req, res, next) => {
     AdminMessages.findAll()

@@ -6,8 +6,22 @@
     <%- include("../../partials/alerts") %>
     <section class="section">
         <div class="row ">
-            <div class="col-lg-4 col-md-6 col-sm-6 col-12">
-               
+            <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+                <div class="card card-statistic-1">
+                    <div class="card-icon l-bg-cyan">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div class="card-wrap">
+                        <div class="padding-20">
+                            <div class="text-right">
+                                <h3 class="font-light mb-0">
+                                    <i class="ti-arrow-up text-success"></i> <%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format(wallet.toFixed(3)) %>
+                                </h3>
+                                <span class="text-muted">Wallet Balance</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             
            
@@ -19,14 +33,10 @@
         <div class="row container-fluid">
             <div class="col-lg-12 " style="padding: 2% 7%;">
                 <form action="" method="post">
-                    <h3 class="text-center">Sell Coin</h3>
-                    <div class="form-group">
-                        <label for="amount">Amount</label>
-                        <input type="number" step="any" placeholder="Enter Amount" value="" required class="form-control text-center" id="deposit"
-                        name="deposit">
-                    </div>
+                    <h3 class="text-center">Buy Coin Using Internal Funds</h3>
+                   
                     <input type="hidden" id="user_email" value="<%= email %>">
-                    <input type="hidden" id="user_phone" value="09000202020">
+                    <input type="hidden" id="userId"  value="<%= user.id %> ">
                     <div class="form-group">
                         <select name="coin" id="coin" class="form-control">
                             <option value="" disabled selected>Select Coin</option>
@@ -35,26 +45,68 @@
                             <% } %> 
                         </select>
                     </div>
+                    <div class="invalid-feedback" id="rate-box" style="display: none;">
+                        <div class="row">
+                            <div class="col-md-6">
+                                Dollar Exchange Rate<input type="number" value="dollarRate" name="rate" id="rate" class="form-control" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                Naira Exchange Rate<input type="number" value="" name="nairaRate" id="nairaRate" class="form-control" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="">Medium</label>
+                        <select name="medium" id="medium" class="form-control" required>
+                            <option value="" disabled selected>Choose medium</option>
+                            <option value="usd">USD</option>
+                            <option value="naira">Naira</option>
+                            <option value="qty">Quantity</option>
+                        </select>
+                        <div class="invalid-feedback">
+                            Please select Medium of calculation
+                        </div>
+                    </div>
+                    
+                    
+                    
+                    <div class="form-group">
+                        <label for="name">Amount</label>
+                        <input type="number" class="form-control" step="any" name="quantity" id="qty" tabindex="1" required
+                            autofocus>
+                        <div class="invalid-feedback">
+                            Please fill in amount
+                        </div>
+                        
+                    </div>
+                    <div class="form-group" id="amt" style="display: none;">
+                        <div class="row">
+                            <div class="col-md-4 form-group" style="display: none;" id="usdBox">
+                                <label for="">USD Equivalent</label>
+                                <input type="text" class="form-control" step="any" readonly value="" id="usdE">
+                            </div>
+                        
+                            <div class="col-md-4 form-group" style="display: none;" id="nairaBox">
+                                <label for="">Naira Equivalent</label>
+                                <input type="text" class="form-control" step="any" readonly value="" id="nairaE">
+                            </div>
+                        
+                            <div class="col-md-4 form-group" style="display: none;" id="qtyBox">
+                                <label for="">Quantity Equivalent</label>
+                                <input type="text" class="form-control" step="any" readonly value="" id="qtyE">
+                            </div>
+                        </div>
+                        <input type="hidden" id="exNairaRate" >
+                        <input type="hidden" id="exDollarRate" >
+                    </div>
+                    <button type="button" class="btn btn-dark btn-block btn-lg" id="BuyBtn" data-toggle="modal" data-target="#BuyCoin">Buy Coin</button>
                 </form>
             </div>
         </div>
 
-        <div class="text-center">
-            <div class="row">
-                <div class="col-lg-4 col-md-6">
-                    <label for="">Pay with Crypto</label>
-                    <button type="button" class="btn btn-dark btn-block btn-lg"
-                    data-toggle="modal" id = "payBtn" data-target="#payNow">Sell Coin</button>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    
-                </div>
-            </div>
-
-            <!-- arrange the payment platforms into sections
-        from paystack, crypto, and deposits -->
+        
     </section>
-    <div class="modal fade" id="payNow" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal fade" id="BuyCoin" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -63,19 +115,24 @@
                 </div>
                 <div class="modal-body">
                     <center>
-                        <img src="https://chart.googleapis.com/chart?chs=300x300&amp;cht=qr&amp;chl=1B2GbofYB6Y3D39f4Ag6aDCWJUcxgyRuwC" class="img-fluid">
-                        <p class="text-muted font-16" id="statement"></p>
-                        <h3 class="mb-0">Wallet Address</h3>
-                        <input id="walletAddress" name="walletAddress"  class="text-muted font-18 form-control text-center border-0 bg-white" value="" readonly="">
+                        
+                        
                         <p class="text-muted font-13 mt-1">
-                           
-                            <form action="/fundwallet" method="POST">
-                                <input type="hidden" name="email" value="<%= email  %> " >
-                                <input type="hidden" id="walletAddressId" name="walletAddressId" value="<%= email  %> " >
-                                <input type="text" id="amount" class="text-muted font-18 form-control text-center border-0 bg-white" name="amount" readonly value="" >
-                                <input type="text" id="channel" class="text-muted font-18 form-control text-center border-0 bg-white" readonly name="channel" value="" >
-                                <button class="btn btn-info" id="confirmPayment">Confirm Payment</button></p>
-                        </form>
+                           <h3 id="msgAlert" class="mb-o text-danger"></h3>
+                            <form action="/buy-coin/internal" method="POST" style="display: none;" id="confirmForm">
+                                <div class="form-group">
+                                    <h3 class="mb-0">Enter Confirmation Code Sent to Your Email</h3>
+                                    <input type="text" id="code" class="form-control" name="code" required >
+                                </div>
+                                <input type="hidden" name="user_id" value="<%= user.id  %> ">
+                                
+                                
+                                <input type="hidden" id="sellBy"  name="medium" value="" >
+                                <input type="hidden" id="amount"  name="amount" value="" >
+                                <input type="hidden" id="coinId" name="coinId" value="" >
+                                <input type="hidden" id="conRate" name="conRate" value="" >
+                                <button class="btn btn-info mt-5" id="confirmPayment" type="submit">Confirm Code</button></p>
+                            </form>
                            
                     </center>
                 </div>
@@ -85,40 +142,139 @@
 </div>
 <%- include("../../partials/user_footer2") %>
 
-<!-- bitmint scripts -->
-<script src="https://js.paystack.co/v1/inline.js"></script>
-<script src="https://js.paylot.co/v1/inline.min.js"></script>
-<script src="/js/payments.js"></script>
+
 <script>
     $(document).ready(()=>{
-        // var walletType = $('#coin').find(":selected").val();
-        $("#payBtn").click(()=>{
-            var amount = $("#deposit").val();
-            console.log(amount);
-            $('#amount').val(amount);
-            
-        })
-        $('#coin').change(()=>{
-                var walletType = $("#coin").val();
-                var channel = $("#coin option:selected").text();
-                console.log(channel);
-                console.log($("#coin").val());
-                $.ajax({
-                    method:'get',
-                    url:`/free/wallet/${walletType}`,
-                    success: (res =>{
-                        console.log(res);
-                        const add = JSON.stringify(res);
-                        // console.log(add);
-                        var address =res.wallet.walletAddress;
-                        console.log(address);
-                        $("#walletAddress").val(address);
-                        $('#channel').val(channel);
-                        var wallId = res.wallet.id
-                        $("#walletAddressId").val(wallId)
-                    })
+        function fetchRate() {
+            $.ajax({
+                url:"/get/exchange-rate",
+                method:"get",
+                success:((res)=>{
+                    // console.log("rate",res);
+                    const rate = res[0];
+                    console.log(rate);
+                    $("#exNairaRate").val(rate.naira)
+                    $("#conRate").val(rate.naira)
                 })
             })
+        }
+        fetchRate();
+        $("#BuyBtn").click(()=>{
+            var amount = $("#qty").val();
+            var userId = $("#userId").val();
+            var coinId = $("#coin").val();
+            var buyBy = $("#medium").val();
+            var exchange = $("#exNairaRate").val()
+            $('#amount').val(amount);
+            $.ajax({
+                url:"/buy/transaction/code",
+                method:"post",
+                data:{userId, amount, buyBy, coinId, exchange},
+                success: (res =>{
+                    console.log(res);
+                    if (res.success === false) {
+                        $("#msgAlert").text(res.msg)
+                    }
+                    if (res.success === true) {
+                        $("#msgAlert").hide()
+                        $("#confirmForm").show()
+                    }
+                })
+            })
+            
+        })
+        $("#coin").change(()=>{
+        const id = $("#coin").val();
+        $("#coinId").val(id)
+        $("#qty").val('')
+        $("#qtyE").val('')
+        $("#usdE").val('')
+        $("#nairaE").val('')
+        console.log(id);
+        $.ajax({
+            url:`/get/exchange/${id}`,
+            method:"get",
+            success:(res=>{
+                console.log(res);
+                $("#rate-box").show();
+                $("#rate").val(res.dollarRate)
+                $("#nairaRate").val(res.rate)
+                
+            })
+        })
+        
+    })
+    // $("#quantity").keyup(()=>{
+    //     var rate = $("#rate").val();
+    //     var qty = $("#quantity").val();
+    //     const cost = rate * qty;
+    //     console.log(rate, qty, cost);
+    //     $("#amount").val(cost)
+    // })
+
+    $('#medium').change(()=>{
+            
+            $("#qty").val('')
+            $("#qtyE").val('')
+            $("#usdE").val('')
+            $("#nairaE").val('')
+            var medium = $('#medium').val();
+            
+            console.log(medium);
+            if (medium === "usd") {
+                $("#nairaBox").show();
+                $("#qtyBox").show();
+                $("#usdBox").hide();
+                $("#sellBy").val(medium)
+            }else if (medium === "naira") {
+                $("#usdBox").show();
+                $("#qtyBox").show();
+                $("#nairaBox").hide();
+                $("#sellBy").val(medium)
+            }else if (medium === "qty") {
+                $("#nairaBox").show();
+                $("#qtyBox").hide();
+                $("#usdBox").show();
+                $("#sellBy").val(medium)
+            }else{
+                $("#amt").hide()
+            }
+                    
+                
+            $("#amt").show()
+            
+        })
+
+        $("#qty").keyup(()=>{
+            var dollarRate = $("#rate").val()
+            var nairaRate = $("#nairaRate").val()
+            var medium = $('#medium').val();
+            var amount =$('#qty').val();
+            var exNairaRate = $("#exNairaRate").val()
+            if (medium === "usd") {
+                var x = (amount/dollarRate).toFixed(5)
+                
+                $("#qtyE").val(x);
+                var y = (amount * exNairaRate).toFixed(3)
+                y = Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format(y)
+                $("#nairaE").val(y)
+            }else if (medium === "naira") {
+                var x = (amount/nairaRate).toFixed(5)
+                var y = (amount / exNairaRate).toFixed(3)
+                y = Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(y)
+                $("#qtyE").val(x);
+                $("#usdE").val(y)
+            }else if (medium === "qty") {
+                var x = (amount*dollarRate)
+                x = Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(x)
+                var y = (amount*nairaRate)
+                y = Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format(y)
+                $("#usdE").val(x)
+                $("#nairaE").val(y)
+            }else{
+                $("#amt").hide()
+            }
+        })
         
         
     })
