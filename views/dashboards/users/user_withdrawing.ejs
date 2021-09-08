@@ -149,7 +149,7 @@
             $.ajax({
                 url:"/withdraw/code",
                 method: "post",
-                data:{userId, amount},
+                data:{userId, type:"coin", amount},
                 success:(res) =>{
                     console.log(res);
                 }

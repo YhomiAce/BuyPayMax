@@ -1,0 +1,61 @@
+<!-- header -->
+<%- include("../partials/header_admin") %>
+<%- include("../partials/sidebar") %>
+
+<!-- Main Content -->
+<div class="main-content">
+    <%- include("../partials/alerts") %>
+    <section class="section">
+        <div class="section-body">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Unapproved Withdrawals</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped" id="table-1">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">#</th>
+                                            <th>Email</th>
+                                            <th>Quantity</th>
+                                            <th>Type</th>
+                                            <th>Transaction Reference</th>
+                                            <th>Status</th>
+                                            <th>Date</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <%  for (let i = 0; i < withdrawals.length; i++ ) { %>
+                                        <tr>
+                                            <td><%= i + 1 %></td>
+                                            <td><%= withdrawals[i].user.email %></td>
+                                            <td><%= withdrawals[i].amount  %></td>
+                                            <td><%= withdrawals[i].coin.name  %></td>
+                                            <td><%= withdrawals[i].reference %></td>
+                                           
+
+                                            <td><%= withdrawals[i].status %></td>
+                                            <td><%= moment(withdrawals[i].createdAt).format("DD-MMM-YYYY") %></td>
+                                            <td>
+                                                <a href="/coin-withdraw/details/<%= withdrawals[i].id  %> " class="btn btn-warning btn-pill" style="color: aliceblue;">
+                                                    View
+                                                </a>
+                                                
+                                            </td>
+                                        </tr>
+                                        <% } %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+<%- include("../partials/footer2") %>

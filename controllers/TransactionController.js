@@ -9,6 +9,7 @@ const Users = require("../models").User;
 const helpers = require("../helpers/cryptedge_helpers");
 const Deposits = require("../models").Deposit;
 const Withdrawals = require("../models").Withdrawal;
+const WithdrawalCoin = require("../models").WithdrawalCoin;
 const History = require("../models").History;
 const Chats = require("../models").Chat;
 const AdminMessages = require("../models").AdminMessage;
@@ -143,6 +144,87 @@ exports.withdrawWallet = (req, res, next) => {
         req.flash('error', "Server error!");
         res.redirect("back");
     });
+}
+
+exports.withdrawCoin = async (req, res, next) => {
+    try {
+        const unansweredChats = await AdminMessages.findAll();
+        const products = await Product.findAll();
+        const user = await Users.findOne({where:{id: req.session.userId}, include:[
+            {
+                model: Coin,
+                as: "coins",
+                include: {
+                    model: Product,
+                    as: "coinTypes"
+                }
+            }
+        ] });
+        const coins = user.coins
+        res.render("dashboards/users/withdraw_coin", {
+            user: user,
+            messages: unansweredChats,
+            moment,
+            coins,
+            products
+        });
+    } catch (error) {
+        req.flash('error', "Server error!");
+        res.redirect("back");
+    }    
+}
+
+exports.withdrawFromCoinWallet = async(req, res, next) => {
+    try {
+        let {
+            code,
+            coinType,
+            amount,
+            wallet_address,
+            userId
+        } = req.body;
+       
+        if (!code || !wallet_address || !amount) {
+            req.flash('warning', "Enter all fields");
+            res.redirect("back");
+        } else {
+            // get user details
+            const user = await Users.findOne({
+                    where: {
+                        id: {
+                            [Op.eq]: userId
+                        }
+                    }
+                });
+            const coin = await Coin.findOne({where:{userId, coinId:coinType}});
+            let reference = generateUniqueId({
+                length: 15,
+                useLetters: true,
+                });
+            const withdrawal = await WithdrawalCoin.create({
+                                    amount,
+                                    userId,
+                                    coinId: coinType,
+                                    coinType: coin.name,
+                                    walletAddress:wallet_address,
+                                    reference
+                                });
+            const desc = "Withdrawal request initiated";
+            const type = "Coin Withdrawal"
+            const history = await History.create({
+                                        type,
+                                        desc,
+                                        value:amount,
+                                        user_id:userId
+                                    });
+    
+            req.flash('success', "Withdrawal success, awaiting disbursement!");
+            res.redirect("back");
+        }
+    } catch (error) {
+        req.flash('error', "Server error");
+        res.redirect("back");
+    }
 }
 
 exports.withdrawFromWallet = (req, res, next) => {
@@ -305,6 +387,75 @@ exports.unapprovedWithdrawals = (req, res, next) => {
     
 }
 
+exports.unapprovedCoinWithdrawals = (req, res, next) => {
+    AdminMessages.findAll()
+    .then(unansweredChats => {
+        WithdrawalCoin.findAll({
+           
+            where: {
+                status: "pending"
+            },
+            include: ["user","coin"],
+            order: [
+                ['createdAt', 'DESC'],
+            ],
+        })
+        .then(withdrawals => {
+            console.log({withdrawals});
+            res.render("dashboards/unapproved_coin_withdrawals", {
+                withdrawals,
+                messages: unansweredChats,
+                moment
+            });
+        })
+        .catch(error => {
+            console.log(error)
+            req.flash('error', "Server error");
+            res.redirect("/");
+        });
+    })
+    .catch(error => {
+        console.log(error)
+        req.flash('error', "Server error!");
+        res.redirect("/");
+    });
+    
+}
+
+exports.ViewUnapprovedCoinWithdrawals = (req, res, next) => {
+    AdminMessages.findAll()
+    .then(unansweredChats => {
+        WithdrawalCoin.findOne({
+           
+            where: {
+                id: req.params.id
+            },
+            include: ["user","coin"],
+            order: [
+                ['createdAt', 'DESC'],
+            ],
+        })
+        .then(withdraw => {
+            res.render("dashboards/view_coin_withdraw", {
+                withdraw,
+                messages: unansweredChats,
+                moment
+            });
+        })
+        .catch(error => {
+            console.log(error)
+            req.flash('error', "Server error");
+            res.redirect("/");
+        });
+    })
+    .catch(error => {
+        console.log(error)
+        req.flash('error', "Server error!");
+        res.redirect("/");
+    });
+    
+}
+
 exports.unappWithdrawPaystack = (req, res, next) => {
     AdminMessages.findAll()
     .then(unansweredChats => {
@@ -422,12 +573,11 @@ exports.postApproveWithdrawal = async(req, res, next) => {
         <h2> Receipt </h2>
         <ul>
             
-            <li>Amount:.....................${withdrawal.amount} </li>
+            <li>Amount:.....................N${withdrawal.amount} </li>
             <li>Account Name:.....................${withdrawal.acct_name} </li>
             <li>Account Number:.....................${withdrawal.acct_number} </li>
             <li>Bank Name:.....................${withdrawal.bank_name} </li>
             <li>Transaction Reference:.....................${withdrawal.reference}</li>
-            <li>Transaction Receipt:.....................<a href="${docPath}">Reciept</a></li>
             <li>Date:.....................${now}</li>
         </ul>
         </body>
@@ -481,6 +631,120 @@ exports.postApproveWithdrawal = async(req, res, next) => {
             res.redirect("back");
         });
 }
+
+exports.postApproveCoinWithdrawal = async(req, res, next) => {
+   
+    const {id} = req.body;
+    const result = await cloudinary.uploader.upload(req.file.path);
+    const docPath = result.secure_url;
+   
+     WithdrawalCoin.findOne({
+             where: {
+                 id: {
+                     [Op.eq]: id
+                 }
+             },
+             include: ["user","coin"]
+         })
+         .then(withdrawal => {
+             console.log(withdrawal);
+             if(withdrawal) {
+                 let owner = withdrawal.userId
+                 
+                 WithdrawalCoin.update({
+                     status: "approved",
+                     fileDoc: docPath
+                 }, {
+                     where: {
+                         id: {
+                             [Op.eq]: id
+                         }
+                     }
+                 })
+                 .then(updatedWithdrawal => {
+                     
+                      let type = 'Coin Withdrawal'
+                     let desc = 'Coin Withdrawal request approved'
+                      History.create({
+                         type,
+                         desc,
+                         value:withdrawal.amount,
+                         user_id:owner
+                     }).then(history =>{
+                         Coin.findOne({where:{userId:withdrawal.userId, coinId:withdrawal.coinId}}).then(user =>{
+                             const coinBalance = Number(user.balance);
+                             const withdrawAmoount = Number(withdrawal.amount);
+                             const userBalance = coinBalance - withdrawAmoount;
+                            //  const email = user.email;
+                             Coin.update({balance: userBalance}, {where:{userId:withdrawal.userId, coinId:withdrawal.coinId}}).then(update =>{
+                                 const now  = moment();
+                                 const output = `<html>
+         <head>
+           <title>TRANSACTION RECEIPT</title>
+         </head>
+         <body>
+         <p>Your Withdrawal was successful. You just withdraw ${withdrawal.amount} ${withdrawal.coin.symbol} from Your PayBuyMax wallet</p>
+         <h2> Receipt </h2>
+         <ul>
+             
+             <li>Amount:.....................${withdrawal.amount} </li>
+             <li>Name:.....................${withdrawal.user.name} </li>
+             <li>Email:.....................${withdrawal.user.email} </li>
+             <li>Wallet Address:.....................${withdrawal.walletAddress} </li>
+             <li>Transaction Reference:.....................${withdrawal.reference}</li>
+             <li>Date:.....................${now}</li>
+         </ul>
+         </body>
+                 </html>`;
+       let transporter = nodemailer.createTransport({
+         host: parameters.EMAIL_HOST,
+         port: parameters.EMAIL_PORT,
+         secureConnection: true, // true for 465, false for other ports
+         auth: {
+           user: parameters.EMAIL_USERNAME, // generated ethereal user
+           pass: parameters.EMAIL_PASSWORD, // generated ethereal password
+         },
+         
+       });
+ 
+       // send mail with defined transport object
+       let mailOptions = {
+         from: ` "PayBuyMax" <${parameters.EMAIL_USERNAME}>`, // sender address
+         to: `${withdrawal.user.email}`, // list of receivers
+         subject: "[PayBuyMax] Withdrawal Receipt", // Subject line
+         text: "PayBuyMax", // plain text body
+         html: output, // html body
+       };
+       const sendMail = transporter.sendMail(mailOptions, async(err, info) => {
+         if (err) {
+             console.log(err);
+           return res.json({msg:"Error sending mail, please try again"});
+           
+         } else {
+             req.flash('success', "Transfer Approved successfully");
+             res.redirect("back");
+           
+         }
+       });
+                     
+                             })
+                         })
+                     })
+                 })
+                 .catch(error => {
+                     req.flash('error', "Server error");
+                     res.redirect("back");
+                 });
+             } else {
+                 req.flash('error', "Invalid withdrawal");
+                     res.redirect("back");
+             }
+         })
+         .catch(error => {
+             req.flash('error', "Server error");
+             res.redirect("back");
+         });
+ }
 
 exports.approveExternalTransaction = async(req, res, next) => {
    
@@ -609,8 +873,14 @@ exports.approveInternalTransaction = async(req, res, next) => {
                          const amount = Number(withdrawal.nairaAmount);
                          const balance = wallet - amount
                          Users.update({wallet:balance},{where:{id:user.id}})
-                         .then(updateUser =>{
+                         .then(async updateUser =>{
+                            const coin = await Coin.findOne({where:{userId: withdrawal.userId, coinId: withdrawal.coinId}});
+                            const coinBalance = Number(coin.balance);
+                            const qty = Number(withdrawal.qty);
+                            const newBal = coinBalance + qty;
 
+                            await Coin.update({balance: newBal}, {where:{userId: withdrawal.userId, coinId: withdrawal.coinId}})
+                            console.log("Coin Updated");
                              const now  = moment();
                              const output = `<html>
                   <head>
@@ -1513,16 +1783,28 @@ exports.createReceiptForExternalTransaction = async(req, res)=>{
 
 exports.sendConfirmationCodeForWithdraw = async(req, res) =>{
     try {
-        const {userId, amount } = req.body;
+        const {userId, amount,type } = req.body;
         const user = await Users.findOne({where:{id: userId}});
         
+        
         const code = Math.floor(100000 + Math.random() * 900000);
+        let balance;
         // Todo 
-        const balance = Number(user.wallet);
-       
-        if (balance < amount) {
-            return res.json({msg:"Your balance is Low. Can't Perform this transaction"});
+        if (type === "coin") {
+            const coin = await Coin.findOne({where:{userId, coinId:req.body.coinId}});
+            balance = Number(coin.balance);
+            if (balance < amount) {
+                return res.json({success: false,msg:"Your Coin balance is Low. Can't Perform this transaction"});
+            }
         }
+
+        if (type === "money") {
+            balance = Number(user.wallet);
+            if (balance < amount) {
+                return res.json({success: false,msg:"Your Account balance is Low. Can't Perform this transaction"});
+            }
+        }
+       
 
         const output = `<html>
         <head>
@@ -1533,7 +1815,7 @@ exports.sendConfirmationCodeForWithdraw = async(req, res) =>{
         <h2> ${code} </h2>
         </body>
                 </html>`;
-      let transporter = await nodemailer.createTransport({
+      let transporter = nodemailer.createTransport({
         host: parameters.EMAIL_HOST,
         port: parameters.EMAIL_PORT,
         secureConnection: true, // true for 465, false for other ports
@@ -1555,11 +1837,11 @@ exports.sendConfirmationCodeForWithdraw = async(req, res) =>{
       const sendMail = await transporter.sendMail(mailOptions, async(err, info) => {
         if (err) {
             console.log(err);
-          return res.json({msg:"Error sending mail, please try again"});
+          return res.json({success: false,msg:"Error sending mail, please try again"});
           
         } else {
             await Users.update({oauth_token: code}, {where:{id: userId}})
-            return res.json({success:"Code Sent"});
+            return res.json({success: true,msg:"Code Sent"});
           
         }
       });

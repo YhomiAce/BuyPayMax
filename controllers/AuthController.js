@@ -52,6 +52,11 @@ exports.faq = (req, res, next) => {
   res.render("faq");
 };
 
+exports.blog = (req, res, next) => {
+  //res.render("auths/login2");
+  res.render("blog");
+};
+
 exports.pricing = (req, res, next) => {
   //res.render("auths/login2");
   res.render("pricing");

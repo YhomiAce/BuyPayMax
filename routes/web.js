@@ -372,6 +372,7 @@ router.get("/login", AuthController.signInUser);
 router.get('/admin', AuthController.adminLogin)
 router.get("/about", AuthController.about);
 router.get("/faq", AuthController.faq);
+router.get("/blog", AuthController.blog);
 router.get("/pricing", AuthController.pricing);
 router.get("/contact", AuthController.contact);
 router.get("/privacy", AuthController.privacy);
@@ -400,7 +401,9 @@ router.post("/admin-update-password", [AuthMiddleware.redirectAdminLogin, AuthMi
 router.get("/dashboard", AuthMiddleware.redirectAdminLogin, DashboardController.AdminHome);
 router.get("/agent/home", AuthMiddleware.redirectAdminLogin, DashboardController.agentHome);
 
-router.get("/coin/product", DashboardController.getCoinsWithProduct)
+router.get("/coin/product", DashboardController.getCoinsWithProduct);
+router.get("/cryptos", AuthMiddleware.redirectLogin, DashboardController.cryptoProducts);
+router.get("/gift-card", AuthMiddleware.redirectLogin, DashboardController.giftCardProducts);
 // coinqvest routes
 router.post("/createcheckout", AuthMiddleware.redirectLogin, CoinqvestController.createCheckout);
 
@@ -462,7 +465,9 @@ router.post("/updatetwoway", AuthMiddleware.redirectLogin, ProfileController.upd
 router.post("/emailtwoway", AuthMiddleware.redirectLogin, ProfileController.updateEmailWay);
 router.post("/user_kyc", AuthMiddleware.redirectLogin, KycController.uploadKyc);
 router.get("/withdraw",  AuthMiddleware.authVerirfication, TransactionController.withdrawWallet);
+router.get("/withdraw-coin",  AuthMiddleware.authVerirfication, TransactionController.withdrawCoin);
 router.post("/userwithdraw",  AuthMiddleware.authVerirfication, TransactionController.withdrawFromWallet);
+router.post("/userwithdraw-coin",  AuthMiddleware.authVerirfication, TransactionController.withdrawFromCoinWallet);
 router.get("/mywithdraws", AuthMiddleware.redirectLogin, TransactionController.aUserWithdrawals);
 router.get("/investments", AuthMiddleware.redirectLogin, InvestmentController.userInvestments);
 router.get("/deposits", AuthMiddleware.redirectLogin, TransactionController.userDeposits);
@@ -488,9 +493,12 @@ router.get("/approved-kycs", AuthMiddleware.redirectAdminLogin, KycController.ap
 router.post("/approve-akyc", AuthMiddleware.redirectAdminLogin, KycController.approveAKYC);
 router.post("/disapprove-akyc", AuthMiddleware.redirectAdminLogin, KycController.disApproveAKYC);
 router.get("/unapproved-withdrawal", AuthMiddleware.redirectAdminLogin, TransactionController.unapprovedWithdrawals);
+router.get("/unapproved-coin-withdrawal", AuthMiddleware.redirectAdminLogin, TransactionController.unapprovedCoinWithdrawals);
+router.get("/coin-withdraw/details/:id", AuthMiddleware.redirectAdminLogin, TransactionController.ViewUnapprovedCoinWithdrawals);
 router.get("/approved-withdrawal", AuthMiddleware.redirectAdminLogin, TransactionController.approvedWithdrawals);
 router.post("/unapprove-withdrawal", AuthMiddleware.redirectAdminLogin, TransactionController.postDisApproveWithdrawal);
 router.post("/approve-withdrawal", upload.single('reciept'), AuthMiddleware.redirectAdminLogin, TransactionController.postApproveWithdrawal);
+router.post("/approve-coin-withdrawal", upload.single('reciept'), AuthMiddleware.redirectAdminLogin, TransactionController.postApproveCoinWithdrawal);
 router.post("/approve/external-transaction", upload.single('image'), AuthMiddleware.redirectAdminLogin, TransactionController.approveExternalTransaction);
 router.post("/approve/internal-transaction", upload.single('image'), AuthMiddleware.redirectAdminLogin, TransactionController.approveInternalTransaction);
 

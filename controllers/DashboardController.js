@@ -59,6 +59,7 @@ exports.home = async(req, res, next) => {
             }
         });
         const coins = user.coins;
+        const products = await Product.findAll();
         console.log(coins);
         if (kyc) {
             res.render("dashboards/users/user_home", {
@@ -71,7 +72,8 @@ exports.home = async(req, res, next) => {
                 active_investment: activeInvestments.length,
                 messages: unansweredChats,
                 moment,
-                coins
+                coins,
+                products
             });
         } else {
             res.render("dashboards/users/user_home", {
@@ -85,16 +87,101 @@ exports.home = async(req, res, next) => {
                 active_investment: activeInvestments.length,
                 messages: unansweredChats,
                 moment,
-                coins
+                coins,
+                products
             });
         }
     
     } catch (err) {
         console.log(err);
         req.flash('error', "Server error!");
-            res.redirect("/");
+        res.redirect("/");
     }
      
+}
+
+exports.cryptoProducts = async (req,res) =>{
+    try {
+        const unansweredChats = await Chats.findAll({
+            where: {
+                [Op.and]: [{
+                        receiver_id: {
+                            [Op.eq]: req.session.userId
+                        }
+                    },
+                    {
+                        read_status: {
+                            [Op.eq]: 0
+                        }
+                    }
+                ]
+            },
+            include: ["user"],
+        });
+        const user = await Users.findOne({
+            where: {
+                id: {
+                    [Op.eq]: req.session.userId
+                }
+            }
+        });
+        
+
+        res.render("dashboards/users/crypto", {
+            user: user,
+            email: user.email,
+            phone: user.phone,
+            wallet: user.wallet,
+            messages: unansweredChats,
+            moment
+        });
+    } catch (error) {
+        // console.log(err);
+        req.flash('error', "Server error!");
+        res.redirect("/dashboard");
+    }
+}
+
+exports.giftCardProducts = async (req,res) =>{
+    try {
+        const unansweredChats = await Chats.findAll({
+            where: {
+                [Op.and]: [{
+                        receiver_id: {
+                            [Op.eq]: req.session.userId
+                        }
+                    },
+                    {
+                        read_status: {
+                            [Op.eq]: 0
+                        }
+                    }
+                ]
+            },
+            include: ["user"],
+        });
+        const user = await Users.findOne({
+            where: {
+                id: {
+                    [Op.eq]: req.session.userId
+                }
+            }
+        });
+        
+
+        res.render("dashboards/users/gift_card", {
+            user: user,
+            email: user.email,
+            phone: user.phone,
+            wallet: user.wallet,
+            messages: unansweredChats,
+            moment
+        });
+    } catch (error) {
+        // console.log(err);
+        req.flash('error', "Server error!");
+        res.redirect("/dashboard");
+    }
 }
 
 exports.getCoinsWithProduct = async(req, res)=>{

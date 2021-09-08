@@ -111,26 +111,30 @@
                            </div> end card -->
                            <div class="card">
                                <div class="card-body">
-                                   <h4 class="header-title">Overrall Analysis</h4>
+                                   <h4 class="header-title">Exchange Rate</h4>
                                    <div class="row justify-content-center">
+                                    <% for(let i=0; i<products.length; i++) { %>  
                                        <div class="col-md-4">
                                            <div class="mb-4 mt-4">
-                                               <h3>63.2k</h3>
-                                               <span class="text-muted font-13">Active Investors</span>
+                                               <h5><%= products[i].name  %></h5>
+                                               
+                                               <span class="text-muted font-13">1 <%= products[i].symbol  %></span>
                                            </div>
                                        </div>
                                        <div class="col-md-4">
                                            <div class="mb-4 mt-4">
-                                               <h3>90k</h3>
-                                               <span class="text-muted font-13">Investments</span>
+                                               <h5>Dollar Rate</h5>
+                                               <p class="text-muted"><%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format((Number(products[i].dollarRate)).toFixed(3)) %> </p>
+                                               <!-- <span class="text-muted font-13">Investments</span> -->
                                            </div>
                                        </div>
                                        <div class="col-md-4">
                                            <div class="mb-4 mt-4">
-                                               <h3>$1.8m</h3>
-                                               <span class="text-muted font-13">Deposits</span>
+                                               <h5>Naira Rate</h5>
+                                               <p class="text-muted"><%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format((Number(products[i].rate)).toFixed(3)) %> </p>
                                            </div>
                                        </div>
+                                       <% } %> 
                                    </div>
                                </div> <!-- end card-body-->
                            </div> <!-- end card-->
