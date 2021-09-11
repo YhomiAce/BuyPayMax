@@ -1927,7 +1927,7 @@ exports.viewPendingInternalTx = async(req, res)=>{
 
 exports.createReceiptForExternalTransaction = async(req, res)=>{
     try {
-        const {name, email, quantity, coinId, rate, medium, transaction} = req.body;
+        const {name, email, quantity, coinId, rate, medium, transaction, acctName, acctNumber, bankName} = req.body;
         const trader = await Admins.findOne({where:{id:req.session.adminId}});
         if (!name || !email || !quantity || !coinId) {
             req.flash("danger", "Please Fill all Fields!");
@@ -1971,7 +1971,10 @@ exports.createReceiptForExternalTransaction = async(req, res)=>{
             dollarAmount,
             quantity: qty,
             amount: nairaAmount,
-            transaction
+            transaction,
+            acctName,
+            acctNumber,
+            bankName
         }
         await External.create(request);
         req.flash("success", "Transaction generated successfully");

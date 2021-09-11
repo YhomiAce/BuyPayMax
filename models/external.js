@@ -92,6 +92,18 @@ module.exports = (sequelize, DataTypes) => {
       type:DataTypes.STRING,
       allowNull: true
     },
+    bankName:{
+      type:DataTypes.STRING,
+      allowNull: true
+    },
+    acctName:{
+      type:DataTypes.STRING,
+      allowNull: true
+    },
+    acctNumber:{
+      type:DataTypes.STRING,
+      allowNull: true
+    },
   }, {
     sequelize,
     modelName: 'External',
