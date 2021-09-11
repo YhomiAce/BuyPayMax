@@ -424,12 +424,17 @@ router.get("/rates", AuthMiddleware.redirectLogin, TransactionController.getRate
 router.post("/transaction/code", TransactionController.sendConfirmationCode);
 router.post("/withdraw/code", TransactionController.sendConfirmationCodeForWithdraw);
 router.get("/generate-receipt", AuthMiddleware.redirectAdminLogin, TransactionController.generateReceiptForExternal);
+router.get("/giftcard-receipt", AuthMiddleware.redirectAdminLogin, TransactionController.generateReceiptForGiftCard);
+router.post("/giftcard/create-receipt", AuthMiddleware.redirectAdminLogin, TransactionController.createReceiptForGiftCard);
 router.post("/external/create-receipt", AuthMiddleware.redirectAdminLogin, TransactionController.createReceiptForExternalTransaction);
 router.get("/pending-external/transaction", AuthMiddleware.redirectAdminLogin, TransactionController.getPendingExternalTransaction);
+router.get("/pending-gift-card/transaction", AuthMiddleware.redirectAdminLogin, TransactionController.getPendingGiftCardTransaction);
 router.get("/pending-internal/transaction", AuthMiddleware.redirectAdminLogin, TransactionController.getPendingInternalTransaction);
 router.get("/approved-external/transaction", AuthMiddleware.redirectAdminLogin, TransactionController.getApprovedExternalTransaction);
+router.get("/approved-gift-card/transaction", AuthMiddleware.redirectAdminLogin, TransactionController.getApprovedGiftCardTransaction);
 router.get("/approved-internal/transaction", AuthMiddleware.redirectAdminLogin, TransactionController.getApprovedInternalTransaction);
 router.get("/view/pending-external/:id", AuthMiddleware.redirectAdminLogin, TransactionController.viewPendingExternalTx);
+router.get("/view/pending-gift-card/:id", AuthMiddleware.redirectAdminLogin, TransactionController.viewPendingGiftCardTx);
 router.get("/view/pending-internal/:id", AuthMiddleware.redirectAdminLogin, TransactionController.viewPendingInternalTx);
 router.get("/get/exchange/:id", TransactionController.getExchange);
 router.get("/check-coin/balance/:userId/:coinId", TransactionController.checkBalance);
@@ -494,12 +499,14 @@ router.post("/approve-akyc", AuthMiddleware.redirectAdminLogin, KycController.ap
 router.post("/disapprove-akyc", AuthMiddleware.redirectAdminLogin, KycController.disApproveAKYC);
 router.get("/unapproved-withdrawal", AuthMiddleware.redirectAdminLogin, TransactionController.unapprovedWithdrawals);
 router.get("/unapproved-coin-withdrawal", AuthMiddleware.redirectAdminLogin, TransactionController.unapprovedCoinWithdrawals);
+router.get("/approved-coin-withdrawal", AuthMiddleware.redirectAdminLogin, TransactionController.approvedCoinWithdrawals);
 router.get("/coin-withdraw/details/:id", AuthMiddleware.redirectAdminLogin, TransactionController.ViewUnapprovedCoinWithdrawals);
 router.get("/approved-withdrawal", AuthMiddleware.redirectAdminLogin, TransactionController.approvedWithdrawals);
 router.post("/unapprove-withdrawal", AuthMiddleware.redirectAdminLogin, TransactionController.postDisApproveWithdrawal);
+router.post("/approve-transfer", AuthMiddleware.redirectAdminLogin, TransactionController.postApproveCoinWithdrawal);
 router.post("/approve-withdrawal", upload.single('reciept'), AuthMiddleware.redirectAdminLogin, TransactionController.postApproveWithdrawal);
-router.post("/approve-coin-withdrawal", upload.single('reciept'), AuthMiddleware.redirectAdminLogin, TransactionController.postApproveCoinWithdrawal);
 router.post("/approve/external-transaction", upload.single('image'), AuthMiddleware.redirectAdminLogin, TransactionController.approveExternalTransaction);
+router.post("/approve/gift-card-transaction", upload.single('image'), AuthMiddleware.redirectAdminLogin, TransactionController.approveGiftCardTransaction);
 router.post("/approve/internal-transaction", upload.single('image'), AuthMiddleware.redirectAdminLogin, TransactionController.approveInternalTransaction);
 
 router.get("/get/withdraw", DashboardController.getWithdrawal)
@@ -542,6 +549,9 @@ router.get("/approve-deposit/:id", AuthMiddleware.redirectAdminLogin, BankDeposi
 router.get("/coin/get",BankDepositController.getCoins);
 
 // managers
+router.get("/gift-cards", AuthMiddleware.redirectAdminLogin, PackageController.addGiftCard);
+router.post("/create/gift-cards", AuthMiddleware.redirectAdminLogin, PackageController.createGiftCard);
+router.post("/delete/gift-card", AuthMiddleware.redirectAdminLogin, PackageController.deleteGiftCard);
 router.get("/add/manager", AuthMiddleware.redirectAdminLogin, ManagerController.addManager);
 router.post("/add/manager", AuthMiddleware.redirectAdminLogin, ManagerController.postAddManagers);
 router.get("/view/managers", AuthMiddleware.redirectAdminLogin, ManagerController.allAdmins);

@@ -27,6 +27,8 @@ const cloudinary = require("../helpers/cloudinary");
 const Admins = require('../models').Admin;
 const External = require('../models').External;
 const InternalBuy = require('../models').InternalBuy;
+const Card = require('../models').Card;
+const GiftCard = require('../models').GiftCard;
 const router = require("../routes/web");
 
 // imports initialization
@@ -197,6 +199,7 @@ exports.withdrawFromCoinWallet = async(req, res, next) => {
                     }
                 });
             const coin = await Coin.findOne({where:{userId, coinId:coinType}});
+            const product = await Product.findOne({where:{id: coinType}})
             let reference = generateUniqueId({
                 length: 15,
                 useLetters: true,
@@ -205,12 +208,12 @@ exports.withdrawFromCoinWallet = async(req, res, next) => {
                                     amount,
                                     userId,
                                     coinId: coinType,
-                                    coinType: coin.name,
+                                    coinType: product.name,
                                     walletAddress:wallet_address,
                                     reference
                                 });
-            const desc = "Withdrawal request initiated";
-            const type = "Coin Withdrawal"
+            const desc = "Transfer request initiated";
+            const type = "Coin Transfer"
             const history = await History.create({
                                         type,
                                         desc,
@@ -218,7 +221,7 @@ exports.withdrawFromCoinWallet = async(req, res, next) => {
                                         user_id:userId
                                     });
     
-            req.flash('success', "Withdrawal success, awaiting disbursement!");
+            req.flash('success', "Transfer success, awaiting disbursement!");
             res.redirect("back");
         }
     } catch (error) {
@@ -403,6 +406,41 @@ exports.unapprovedCoinWithdrawals = (req, res, next) => {
         .then(withdrawals => {
             console.log({withdrawals});
             res.render("dashboards/unapproved_coin_withdrawals", {
+                withdrawals,
+                messages: unansweredChats,
+                moment
+            });
+        })
+        .catch(error => {
+            console.log(error)
+            req.flash('error', "Server error");
+            res.redirect("/");
+        });
+    })
+    .catch(error => {
+        console.log(error)
+        req.flash('error', "Server error!");
+        res.redirect("/");
+    });
+    
+}
+
+exports.approvedCoinWithdrawals = (req, res, next) => {
+    AdminMessages.findAll()
+    .then(unansweredChats => {
+        WithdrawalCoin.findAll({
+           
+            where: {
+                status: "approved"
+            },
+            include: ["user","coin"],
+            order: [
+                ['createdAt', 'DESC'],
+            ],
+        })
+        .then(withdrawals => {
+            console.log({withdrawals});
+            res.render("dashboards/approved_coin_withdrawals", {
                 withdrawals,
                 messages: unansweredChats,
                 moment
@@ -633,65 +671,57 @@ exports.postApproveWithdrawal = async(req, res, next) => {
 }
 
 exports.postApproveCoinWithdrawal = async(req, res, next) => {
-   
-    const {id} = req.body;
-    const result = await cloudinary.uploader.upload(req.file.path);
-    const docPath = result.secure_url;
-   
-     WithdrawalCoin.findOne({
+   try {
+    const {id, hash} = req.body;
+    console.log(req.body);
+    const withdrawal = await WithdrawalCoin.findOne({
              where: {
                  id: {
                      [Op.eq]: id
                  }
              },
              include: ["user","coin"]
-         })
-         .then(withdrawal => {
-             console.log(withdrawal);
-             if(withdrawal) {
-                 let owner = withdrawal.userId
-                 
-                 WithdrawalCoin.update({
-                     status: "approved",
-                     fileDoc: docPath
-                 }, {
-                     where: {
-                         id: {
-                             [Op.eq]: id
-                         }
-                     }
-                 })
-                 .then(updatedWithdrawal => {
-                     
-                      let type = 'Coin Withdrawal'
-                     let desc = 'Coin Withdrawal request approved'
-                      History.create({
-                         type,
-                         desc,
-                         value:withdrawal.amount,
-                         user_id:owner
-                     }).then(history =>{
-                         Coin.findOne({where:{userId:withdrawal.userId, coinId:withdrawal.coinId}}).then(user =>{
-                             const coinBalance = Number(user.balance);
-                             const withdrawAmoount = Number(withdrawal.amount);
-                             const userBalance = coinBalance - withdrawAmoount;
-                            //  const email = user.email;
-                             Coin.update({balance: userBalance}, {where:{userId:withdrawal.userId, coinId:withdrawal.coinId}}).then(update =>{
-                                 const now  = moment();
-                                 const output = `<html>
+         });
+        // console.log(withdrawal);
+        let owner = withdrawal.userId
+        // console.log(owner);
+    const update = await WithdrawalCoin.update({status: "approved",fileDoc: hash}, {where: {id}})
+    console.log(update);     
+    let type = 'Coin Transfer'
+    let desc = 'Coin Transfer request approved'
+    const history = await History.create({
+            type,
+            desc,
+            value:withdrawal.amount,
+            user_id:owner
+        })
+    const user = await Coin.findOne({where:{userId:withdrawal.userId, coinId:withdrawal.coinId}})
+    console.log(user);
+    const coinBalance = Number(user.balance);
+    const withdrawAmoount = Number(withdrawal.amount);
+    const userBalance = coinBalance - withdrawAmoount;
+    await Coin.update({balance: userBalance}, {where:{userId:withdrawal.userId, coinId:withdrawal.coinId}})
+        const now  = moment();
+        const charge = Number(withdrawal.coin.charge);
+        const actualAmount = (charge/100) * withdrawAmoount;
+        const amountSent = (withdrawAmoount - actualAmount).toFixed(3)
+        const output = `<html>
          <head>
            <title>TRANSACTION RECEIPT</title>
          </head>
          <body>
-         <p>Your Withdrawal was successful. You just withdraw ${withdrawal.amount} ${withdrawal.coin.symbol} from Your PayBuyMax wallet</p>
+         <p>Your Transfer was successful. You just transfer ${withdrawal.amount} ${withdrawal.coin.symbol} from Your PayBuyMax wallet</p>
          <h2> Receipt </h2>
          <ul>
              
-             <li>Amount:.....................${withdrawal.amount} </li>
+             <li>Amount Transferred:.....................${withdrawal.amount} </li>
+             <li>Transferred Charge:.....................${charge}% </li>
+             <li>Amount Sent:.....................${amountSent} </li>
              <li>Name:.....................${withdrawal.user.name} </li>
              <li>Email:.....................${withdrawal.user.email} </li>
              <li>Wallet Address:.....................${withdrawal.walletAddress} </li>
              <li>Transaction Reference:.....................${withdrawal.reference}</li>
+             <li>Transaction Hash:.....................${hash}</li>
              <li>Date:.....................${now}</li>
          </ul>
          </body>
@@ -726,24 +756,10 @@ exports.postApproveCoinWithdrawal = async(req, res, next) => {
            
          }
        });
-                     
-                             })
-                         })
-                     })
-                 })
-                 .catch(error => {
-                     req.flash('error', "Server error");
-                     res.redirect("back");
-                 });
-             } else {
-                 req.flash('error', "Invalid withdrawal");
-                     res.redirect("back");
-             }
-         })
-         .catch(error => {
-             req.flash('error', "Server error");
-             res.redirect("back");
-         });
+   } catch (error) {
+        req.flash('error', "Server error");
+        res.redirect("back");
+   }
  }
 
 exports.approveExternalTransaction = async(req, res, next) => {
@@ -788,6 +804,102 @@ exports.approveExternalTransaction = async(req, res, next) => {
              <li>Sold:.....................${withdrawal.quantity} ${withdrawal.coin.symbol}</li>
              <li>Rate:.....................${ Intl.NumberFormat('de-DE', { style: 'currency', currency: 'NGN' }).format(withdrawal.currentRate.toFixed(3)) }</li>
              <li>Amount:.....................${ Intl.NumberFormat('de-DE', { style: 'currency', currency: 'NGN' }).format(withdrawal.amount.toFixed(3)) }</li>
+             <li>Transaction Reference:.....................${withdrawal.reference}</li>
+             <li>Transaction Receipt:.....................<a href="${docPath}">Reciept</a></li>
+             <li>Date:.....................${now}</li>
+         </ul>
+
+         <h5>Thank You for Trading with Us!</h5>
+         </body>
+                 </html>`;
+       let transporter = nodemailer.createTransport({
+         host: parameters.EMAIL_HOST,
+         port: parameters.EMAIL_PORT,
+         secureConnection: true, // true for 465, false for other ports
+         auth: {
+           user: parameters.EMAIL_USERNAME, // generated ethereal user
+           pass: parameters.EMAIL_PASSWORD, // generated ethereal password
+         },
+         
+       });
+ 
+       // send mail with defined transport object
+       let mailOptions = {
+         from: ` "PayBuyMax" <${parameters.EMAIL_USERNAME}>`, // sender address
+         to: `${withdrawal.email}`, // list of receivers
+         subject: "[PayBuyMax] Withdrawal Receipt", // Subject line
+         text: "PayBuyMax", // plain text body
+         html: output, // html body
+       };
+       const sendMail = transporter.sendMail(mailOptions, async(err, info) => {
+         if (err) {
+             console.log(err);
+           return res.json({msg:"Error sending mail, please try again"});
+           
+         } else {
+             req.flash('success', "Withdrawal updated successfully");
+             res.redirect("back");
+           
+         }
+       });
+                     
+                             })
+                 .catch(error => {
+                     req.flash('error', "Server error");
+                     res.redirect("back");
+                 });
+             
+         })
+         .catch(error => {
+             req.flash('error', "Server error");
+             res.redirect("back");
+         });
+}
+
+exports.approveGiftCardTransaction = async(req, res, next) => {
+   
+    const {id} = req.body;
+    const result = await cloudinary.uploader.upload(req.file.path);
+    const docPath = result.secure_url;
+   
+     GiftCard.findOne({
+             where: {
+                 id: {
+                     [Op.eq]: id
+                 }
+             },
+             include:["card"]
+         })
+         .then(withdrawal => {
+                     console.log(withdrawal);         
+                 GiftCard.update({
+                     status: "approved",
+                     receipt: docPath
+                 }, {
+                     where: {
+                         id: {
+                             [Op.eq]: id
+                         }
+                     }
+                 })
+                 .then(updatedWithdrawal => {
+                    const now  = moment();
+                    const output = `<html>
+         <head>
+           <title>TRANSACTION RECEIPT</title>
+         </head>
+         <body>
+         <p>Your Transaction was successful. You just sold ${withdrawal.quantity} ${withdrawal.card.name} to PayBuyMax</p>
+         <h2> Details Of Transaction </h2>
+         <ul>
+             
+             <li>Name:.....................${withdrawal.name} </li>
+             <li>Email:.....................${withdrawal.email} </li>
+             <li>Sold:.....................${withdrawal.quantity} ${withdrawal.card.name}</li>
+             <li>Amount Sent:.....................N${withdrawal.amountPaid} </li>
+             <li>Bank Name:.....................${withdrawal.bankName} </li>
+             <li>Account Name:.....................${withdrawal.acctName} </li>
+             <li>Account Number:.....................${withdrawal.acctNumber} </li>
              <li>Transaction Reference:.....................${withdrawal.reference}</li>
              <li>Transaction Receipt:.....................<a href="${docPath}">Reciept</a></li>
              <li>Date:.....................${now}</li>
@@ -1644,10 +1756,72 @@ exports.generateReceiptForExternal = async(req, res) =>{
     }
 }
 
+exports.generateReceiptForGiftCard = async(req, res) =>{
+    try {
+        const admin = await Admins.findOne({where:{id:req.session.adminId}});
+        const product = await Card.findAll();
+        res.render("dashboards/Trader/gift-card",{
+            admin,
+            products:product
+        })
+    } catch (error) {
+        req.flash('error', "Server error");
+        res.redirect("back");
+    }
+}
+
+exports.createReceiptForGiftCard = async(req, res) =>{
+    try {
+        const {name, email, acctName, acctNumber, bankName, cardId, quantity, amountPaid, traderId} = req.body;
+        console.log(req.body);
+        let reference = generateUniqueId({
+            length: 15,
+            useLetters: true,
+        });
+        const gift = await GiftCard.create({
+            name,
+            email,
+            traderId,
+            cardId,
+            acctName,
+            acctNumber,
+            bankName,
+            reference,
+            quantity,
+            amountPaid
+        });
+        req.flash('succes', "Receipt Generated");
+        res.redirect("/pending-gift-card/transaction");
+    } catch (error) {
+        req.flash('error', "Server error");
+        res.redirect("back");
+    }
+}
+
 exports.getPendingExternalTransaction = async(req, res)=>{
     try {
-        const transactions = await External.findAll({where:{status:"pending", traderId: req.session.adminId}, include:["coin","trader"]});
+        const transactions = await External.findAll({where:{status:"pending", traderId: req.session.adminId}, include:["coin","trader"],order: [
+            ['createdAt', 'DESC'],
+        ],});
         res.render("dashboards/Trader/unapproved_external",{
+            transactions,
+            moment
+        })
+        // return res.json({transactions})
+    } catch (error) {
+        req.flash('error', "Server error");
+        res.redirect("/agent/home");
+    }
+}
+
+exports.getPendingGiftCardTransaction = async(req, res)=>{
+    try {
+        
+        const transactions = await GiftCard.findAll({where:{status:"pending", traderId: req.session.adminId}, include:["card","trader"], order: [
+            ['createdAt', 'DESC'],
+        ],});
+        console.log(transactions);
+        res.render("dashboards/Trader/unapproved_external_gift_card",{
             transactions,
             moment
         })
@@ -1685,6 +1859,20 @@ exports.getApprovedExternalTransaction = async(req, res)=>{
     }
 }
 
+exports.getApprovedGiftCardTransaction = async(req, res)=>{
+    try {
+        const transactions = await GiftCard.findAll({where:{status:"approved", traderId: req.session.adminId}, include:["card","trader"]});
+        console.log(transactions);
+        res.render("dashboards/Trader/approved_gift_card",{
+            transactions,
+            moment
+        })
+    } catch (error) {
+        req.flash('error', "Server error");
+        res.redirect("/agent/home");
+    }
+}
+
 exports.getApprovedInternalTransaction = async(req, res)=>{
     try {
         const transactions = await InternalBuy.findAll({where:{status:"approved"}, include:["coin","user"]});
@@ -1702,6 +1890,19 @@ exports.viewPendingExternalTx = async(req, res)=>{
     try {
         const transaction = await External.findOne({where:{id:req.params.id}, include:["coin","trader"]});
         res.render("dashboards/Trader/view_pending",{
+            transaction,
+            moment
+        })
+    } catch (error) {
+        req.flash('error', "Server error");
+        res.redirect("/agent/home");
+    }
+}
+
+exports.viewPendingGiftCardTx = async(req, res)=>{
+    try {
+        const transaction = await GiftCard.findOne({where:{id:req.params.id}, include:["card","trader"]});
+        res.render("dashboards/Trader/view_pending_gift_card",{
             transaction,
             moment
         })

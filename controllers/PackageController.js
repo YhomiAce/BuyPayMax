@@ -15,6 +15,7 @@ const Wallet = require('../models').Wallet;
 const Coin = require('../models').Coin;
 const Admin = require('../models').Admin;
 const Rate = require('../models').Rate;
+const Card = require('../models').Card;
 
 // imports initialization
 const Op = Sequelize.Op;
@@ -135,6 +136,51 @@ exports.addCoinPackage = (req, res, next) => {
             req.flash('error', "Server error!");
             res.redirect("/");
         });
+}
+
+exports.addGiftCard = (req, res, next) => {
+    Card.findAll()
+        .then(cards => {
+            res.render("dashboards/all_giftcard", {
+                cards,
+                moment
+            });
+        })
+        .catch(error => {
+            req.flash('error', "Server error!");
+            res.redirect("/");
+        });
+}
+
+exports.createGiftCard = async(req, res, next) => {
+    try {
+        const {name} = req.body;
+        const card = await Card.findOne({where:{name}});
+        if (card) {
+            req.flash('error', "Gift Card already exist!");
+            res.redirect("back");
+        }else{
+            await Card.create({name});
+        }
+        req.flash('success', "Gift Card Created");
+        res.redirect("back");
+    } catch (error) {
+        req.flash('error', "Server error!");
+        res.redirect("back");
+    }
+}
+
+exports.deleteGiftCard = async(req, res, next) => {
+    try {
+        const {id} = req.body;
+        const card = await Card.destroy({where:{id}});
+        
+        req.flash('success', "Gift Card Deleted");
+        res.redirect("back");
+    } catch (error) {
+        req.flash('error', "Server error!");
+        res.redirect("back");
+    }
 }
 
 exports.usersPackages = (req, res, next) => {
@@ -1062,7 +1108,8 @@ exports.postAddCoin =  async(req, res, next) => {
         name,
         symbol,
         rate,
-        dollarRate
+        dollarRate,
+        charge
     } = req.body;
     // check if any of them are empty
     if (!name || !symbol || !rate) {
@@ -1086,24 +1133,31 @@ exports.postAddCoin =  async(req, res, next) => {
                     req.flash('warning', "name already exists");
                     res.redirect("back");
                 } else {
-                    Product.create({
-                        name,
-                        rate,
-                        symbol,
-                        dollarRate
-                        })
-                        .then( async products => {
-                            const users=  await Users.findAll();
-                            await Promise.all(users.map(async user=>{
-                                await Coin.create({userId: user.id, coinId: products.id})
-                            }))
-                            req.flash('success', "Package added successfully!");
-                            res.redirect("back");
-                        })
-                        .catch(error => {
-                            req.flash('error', "Something went wrong!");
-                            res.redirect("back");
-                        });
+                    if (charge > 100) {
+                        req.flash('warning', "Charges for withdrawal should not exceed 100");
+                        res.redirect("back");
+                    }else{
+
+                        Product.create({
+                            name,
+                            rate,
+                            symbol,
+                            dollarRate,
+                            charge
+                            })
+                            .then( async products => {
+                                const users=  await Users.findAll();
+                                await Promise.all(users.map(async user=>{
+                                    await Coin.create({userId: user.id, coinId: products.id})
+                                }))
+                                req.flash('success', "Package added successfully!");
+                                res.redirect("back");
+                            })
+                            .catch(error => {
+                                req.flash('error', "Something went wrong!");
+                                res.redirect("back");
+                            });
+                    }
                 }
             })
             .catch(error => {
@@ -1189,7 +1243,8 @@ exports.postUpdateCoin = (req, res, next) => {
         name,
         symbol,
         rate, 
-        dollarRate
+        dollarRate,
+        charge
     } = req.body;
     // check if any of them are empty
     if (!name || !symbol || !rate || !dollarRate) {
@@ -1207,12 +1262,18 @@ exports.postUpdateCoin = (req, res, next) => {
                 if (!product) {
                     req.flash('warning', "Invalid Coin Type");
                     res.redirect("back");
+                    
                 } else {
+                    if (charge >= 100) {
+                        req.flash('warning', "Charges for withdrawal should not exceed 100");
+                        res.redirect("back");
+                    }
                     Product.update({
                         name,
                         symbol,
                         rate,
-                        dollarRate
+                        dollarRate,
+                        charge
                         }, {
                             where: {
                                 id: {

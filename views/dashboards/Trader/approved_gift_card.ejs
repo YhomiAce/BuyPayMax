@@ -1,0 +1,59 @@
+<!-- header -->
+<%- include("../../partials/header_admin") %>
+<%- include("../../partials/sidebar") %>
+
+<!-- Main Content -->
+<div class="main-content">
+    <%- include("../../partials/alerts") %>
+    <section class="section">
+        <div class="section-body">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Approved GiftCard Transactions</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped" id="table-1">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">#</th>
+                                            <th>Name</th>
+                                            <th>Email</th>
+                                            <th>GiftCard Type</th>
+                                            <th>Quantity</th>
+                                            <th>Reference</th>
+                                            <th>Status</th>
+                                            <th>Date</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <%  for (let i = 0; i < transactions.length; i++ ) { %>
+                                        <tr>
+                                            <td><%= i + 1 %></td>
+                                            <td><%= transactions[i].name %></td>
+                                            <td><%= transactions[i].email %></td>
+                                            <td><%= transactions[i].card.name %></td>
+                                            <td><%= transactions[i].quantity %></td>
+                                            <td><%= transactions[i].reference %></td>
+                                            <td><%= transactions[i].status %></td>
+                                            <td><%= moment(transactions[i].createdAt).format("DD-MMM-YYYY") %></td>
+                                            <td>
+                                                <a href="/view/pending-gift-card/<%= transactions[i].id %>"
+                                                    class="btn btn-primary btn-pill">View</a>
+                                            </td>
+                                        </tr>
+                                        <% } %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+<%- include("../../partials/footer2") %>

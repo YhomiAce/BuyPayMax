@@ -2,9 +2,6 @@
 <%- include("../partials/header_admin") %>
 <%- include("../partials/sidebar") %>
 
-
-<!-- Main Content -->
-
 <!-- Main Content -->
 <div class="main-content">
     <%- include("../partials/alerts") %>
@@ -14,7 +11,7 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <h4>Coins Type</h4>
+                            <h4>Unapproved Withdrawals</h4>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
@@ -22,31 +19,32 @@
                                     <thead>
                                         <tr>
                                             <th class="text-center">#</th>
-                                            <th>Name</th>
-                                            <th>Symbol</th>
-                                            <th>Rate</th>
-                                            <th>Transfer Charge</th>
+                                            <th>Email</th>
+                                            <th>Quantity</th>
+                                            <th>Type</th>
+                                            <th>Transaction Reference</th>
+                                            <th>Status</th>
+                                            <th>Date</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <%  for (let i = 0; i < products.length; i++ ) { %>
+                                        <%  for (let i = 0; i < withdrawals.length; i++ ) { %>
                                         <tr>
                                             <td><%= i + 1 %></td>
-                                            <td><%= products[i].name %></td>
-                                            <td><%= products[i].symbol %></td>
-                                            <td><%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format(products[i].rate.toFixed(3))  %></td>
-                                            <td><%= products[i].charge %>%</td>
+                                            <td><%= withdrawals[i].user.email %></td>
+                                            <td><%= withdrawals[i].amount  %></td>
+                                            <td><%= withdrawals[i].coin.name  %></td>
+                                            <td><%= withdrawals[i].reference %></td>
+                                           
+
+                                            <td><%= withdrawals[i].status %></td>
+                                            <td><%= moment(withdrawals[i].createdAt).format("DD-MMM-YYYY") %></td>
                                             <td>
-                                                <a href="/edit/coin/<%= products[i].id %>"
-                                                    class="btn btn-primary btn-pill">Edit</a>
-                                                <a href="/delete/coin/<%= products[i].id %>" class="btn btn-danger btn-pill" style="color: aliceblue;">
-                                                    Delete
+                                                <a href="/coin-withdraw/details/<%= withdrawals[i].id  %> " class="btn btn-warning btn-pill" style="color: aliceblue;">
+                                                    View
                                                 </a>
-                                                <form id="delete-menu" action="/delete/coin" method="POST"
-                                                    style="display: none;">
-                                                    <input type="hidden" name="id" value="<%= products[i].id %>">
-                                                </form>
+                                                
                                             </td>
                                         </tr>
                                         <% } %>
@@ -60,5 +58,4 @@
         </div>
     </section>
 </div>
-
 <%- include("../partials/footer2") %>

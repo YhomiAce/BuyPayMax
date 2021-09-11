@@ -3,7 +3,7 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class product extends Model {
+  class card extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   };
-  product.init({
+  card.init({
     id: {
       primaryKey: true,
       type: DataTypes.UUID,
@@ -23,16 +23,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
         type: DataTypes.STRING
     },
-    symbol: {
-      allowNull: true,
-      type: DataTypes.STRING
-    },
     rate: {
-      allowNull: true,
-      type: DataTypes.FLOAT,
-      defaultValue: 0
-    },
-    dollarRate: {
       allowNull: true,
       type: DataTypes.FLOAT,
       defaultValue: 0
@@ -44,10 +35,10 @@ module.exports = (sequelize, DataTypes) => {
     },
   }, {
     sequelize,
-    modelName: 'Product',
-    tableName: 'products',
+    modelName: 'Card',
+    tableName: 'gift_cards',
     timestamps: true,
     paranoid: true
   });
-  return product;
+  return card;
 };

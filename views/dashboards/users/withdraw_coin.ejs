@@ -57,8 +57,9 @@
                                         <option value="<%= products[i].id  %>"><%= products[i].name  %></option>
                                         <% } %> 
                                     </select>
-
-                                   
+                                </div>
+                                <div class="invalid-feedback" id="chargeBox" style="display: none;">
+                                    Transfer Charge: <h3 id="charge"></h3>
                                 </div>
                                 <div class="form-group">
                                     <label for="name">Amount Quantity</label>
@@ -152,7 +153,21 @@
             })
         })
         
-        
+        $("#coin").change(()=>{
+            const walletType = $('#coin').val()
+            $.ajax({
+                url:"/get/exchange/"+walletType,
+                method: "get",
+                success:(res) =>{
+                    console.log(res);
+                    // $("#rate-box").show();
+                    // $("#rate").val(res.dollarRate)
+                    // $("#nairaRate").val(res.rate)
+                    $("#chargeBox").show()
+                    $("#charge").text(`${res.charge}%`)
+                }
+            })
+        })
         
     })
 </script>

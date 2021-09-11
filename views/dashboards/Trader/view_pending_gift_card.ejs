@@ -1,0 +1,100 @@
+<!-- header -->
+<%- include("../../partials/header_admin") %>
+<%- include("../../partials/sidebar") %>
+
+<!-- Main Content -->
+<div class="main-content">
+    <%- include("../../partials/alerts") %>
+    <section class="section">
+        <div class="section-body">
+            <div class="row">
+                <div class="col-12">
+                   
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>GiftCard Transaction Details</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped" id="table-1">
+                                    <tbody>
+                                        <tr>
+                                            <td>Name</td>
+                                            <td><%= transaction.name %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Email</td>
+                                            <td><%= transaction.email %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>GiftCard Name</td>
+                                            <td><%= transaction.card.name %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Quantity</td>
+                                            <td><%= transaction.quantity %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Amount Paid</td>
+                                            <td><%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format(transaction.amountPaid.toFixed(3)) %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Bank Name</td>
+                                            <td><%= transaction.bankName %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Account Name</td>
+                                            <td><%= transaction.acctName %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Account Number</td>
+                                            <td><%= transaction.acctNumber %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Transaction reference</td>
+                                            <td><%= transaction.reference %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Payment Status</td>
+                                            <td class="text-default"><%= transaction.status %></td>
+                                            
+                                        </tr>
+                                        <tr>
+                                            <td>Date</td>
+                                            <td><%= moment(transaction.createdAt).format("DD-MM-YYYY") %></td>
+                                        </tr>
+                                        <% if(transaction.status === "pending") { %> 
+                                            <tr>
+                                                <td>Approve</td>
+                                                <td>
+                                                    <form action="/approve/gift-card-transaction" enctype="multipart/form-data" method="POST">
+                                                        <input type="hidden" name="id" value="<%= transaction.id  %> ">
+                                                        <input type="file" name="image" required>
+                                                        <input type="submit" class="btn btn-info" value="Approve">
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        <% } %>
+                                        <% if(transaction.status === "approved") { %> 
+                                            <tr>
+                                                <td>Document Proof</td>
+                                                <td>
+                                                    <a href="<%= transaction.receipt %> " target="_blank" class="btn btn-success">View Receipt</a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Date Approved</td>
+                                                <td><%= moment(transaction.updatedAt).format("DD-MM-YYYY") %></td>
+                                            </tr>
+                                        <% } %> 
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+<%- include("../../partials/footer2") %>

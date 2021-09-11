@@ -34,7 +34,7 @@ module.exports = {
       },
       status: {
         allowNull: true,
-        type: Sequelize.ENUM("pending", "completed"),
+        type: Sequelize.ENUM("pending", "approved", "disapproved"),
         defaultValue: "pending",
       },
       fileDoc: {
