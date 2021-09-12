@@ -714,7 +714,8 @@ exports.postApproveCoinWithdrawal = async(req, res, next) => {
          <h2> Receipt </h2>
          <ul>
              
-             <li>Amount Transferred:.....................${withdrawal.amount} </li>
+             <li>Amount Transferred:.....................${withdrawal.amount} ${withdrawal.coin.symbol}</li>
+             <li>Type of Fund:.....................${withdrawal.coin.name}</li>
              <li>Transferred Charge:.....................${charge}% </li>
              <li>Amount Sent:.....................${amountSent} </li>
              <li>Name:.....................${withdrawal.user.name} </li>
