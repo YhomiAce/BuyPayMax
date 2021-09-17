@@ -23,12 +23,11 @@
                                         <tr>
                                             <th class="text-center">#</th>
                                             <th>Plan</th>
-                                            <th>Description</th>
-                                            <th>Price</th>
-                                            <th>Daily Earning</th>
-                                            <th>Harsh Power</th>
+                                            <th>From Price</th>
+                                            <th>To Price</th>
+                                            <th>Commission</th>
                                             <th>Duration</th>
-                                            <th>Withdrawal</th>
+                                            <th>Admin Charge</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
@@ -37,12 +36,11 @@
                                         <tr>
                                             <td><%= i + 1 %></td>
                                             <td><%= packages[i].name %></td>
-                                            <td><%= packages[i].description %></td>
-                                            <td>$<%= packages[i].price %></td>
-                                            <td>$<%= packages[i].dailyEarning%></td>
-                                            <td><%= packages[i].harsh_power%>Mh/S</td>
+                                            <td><%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format(packages[i].fromPrice) %></td>
+                                            <td><%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format(packages[i].toPrice) %></td>
+                                            <td><%= packages[i].commission%>%</td>
                                             <td><%= packages[i].duration %>months</td>
-                                            <td><%= packages[i].withdrawal %></td>
+                                            <td><%= packages[i].charge %>%</td>
 
                                             <td>
                                                 <a href="/edit/package/<%= packages[i].id %>"
