@@ -132,18 +132,19 @@ io.on("connection", socket => {
 });
 
 // scheduler task and all
-cron.schedule("0 0 * * 6", () => {
+cron.schedule("* * * * 6", () => {
    
     // if(shell.exec("node cronjob.js").code !== 0) {
     //     console.log("something went wrong");
     Investments.findAll({
             where: {
                 expiredAt: {
-                    [Op.lte]: moment().format('YYYY-MM-DD HH:mm:ss')
+                    [Op.gte]: moment().format('YYYY-MM-DD HH:mm:ss')
                 }
             }
         })
         .then(inactiveInvestments => {
+            console.log(inactiveInvestments);
             const records = inactiveInvestments.map(function (expiredInvestment) {
                 Users.findOne({
                         where: {
@@ -156,6 +157,8 @@ cron.schedule("0 0 * * 6", () => {
                         let userRevenue = Math.abs(Number(user.revenue));
                         
                         let interest = Math.abs(Number(expiredInvestment.earning));
+                        let current = Math.abs(Number(expiredInvestment.weeklyEarning));
+                        let balance = current + interest
                         let currentRevenue = userRevenue + interest;
                         Users.update({
                                 revenue: currentRevenue
@@ -175,6 +178,11 @@ cron.schedule("0 0 * * 6", () => {
                                     desc,
                                     value,
                                     user_id: expiredInvestment.user_id
+                                }).then(hist =>{
+                                    Investments.update({weeklyEarning: balance}, {where:{id:expiredInvestment.id}})
+                                    .then(result =>{
+                                        console.log('Investment Updated');
+                                    })
                                 })
                                
                             })
