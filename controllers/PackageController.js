@@ -16,6 +16,7 @@ const Coin = require('../models').Coin;
 const Admin = require('../models').Admin;
 const Rate = require('../models').Rate;
 const Card = require('../models').Card;
+const {numFormatter} = require("../helpers/helpers")
 
 // imports initialization
 const Op = Sequelize.Op;
@@ -190,9 +191,6 @@ exports.usersPackages = (req, res, next) => {
                     where: {
                         deletedAt: {
                             [Op.eq]: null
-                        },
-                        description: {
-                            [Op.eq]: "Bitcoin"
                         }
                     },
                     order: [
@@ -211,20 +209,21 @@ exports.usersPackages = (req, res, next) => {
                             packages: packages,
                             user:user,
                             messages: unansweredChats,
-                            moment
+                            moment,
+                            numFormatter
                         });
                     }).catch(error=>{
-                        res.redirect('/')
+                        res.redirect('/home')
                     })
                     
                 })
                 .catch(error => {
-                    res.redirect("/");
+                    res.redirect("/home");
                 });
         })
         .catch(error => {
             req.flash('error', "Server error!");
-            res.redirect("/");
+            res.redirect("/home");
         });
 }
 
@@ -1039,22 +1038,25 @@ exports.deletePackage = (req, res, next) => {
 exports.postAddPackage = (req, res, next) => {
     const {
         name,
-        price,
-        harsh_power,
-        dailyEarning,
-        withdrawal,
+        fromPrice,
+        toPrice,
+        commission,
+        charge,
         duration,
-        description
+        bonus
     } = req.body;
     // check if any of them are empty
-    if (!name || !price || !harsh_power || !dailyEarning || !withdrawal || !duration || !description) {
+    if (!name || !fromPrice || !commission || !toPrice || !charge || !duration || !bonus) {
         req.flash('warning', "enter all fields");
         res.redirect("back");
-    } else if (!helpers.isNumeric(price)) {
+    } else if (!helpers.isNumeric(fromPrice)) {
         req.flash('warning', "enter valid minimum investment(digits only)");
         res.redirect("back");
-    } else if (!helpers.isNumeric(dailyEarning)) {
+    } else if (!helpers.isNumeric(toPrice)) {
         req.flash('warning', "enter valid maximum investment(digits only)");
+        res.redirect("back");
+    } else if (!helpers.isNumeric(commission)) {
+        req.flash('warning', "enter valid investment commission(digits only)");
         res.redirect("back");
     }  
     // else if (Math.abs(Number(interest)) > 100) {
@@ -1066,25 +1068,22 @@ exports.postAddPackage = (req, res, next) => {
                 where: {
                     name: {
                         [Op.eq]: req.body.name
-                    },
-                    description: {
-                        [Op.eq]: req.body.description
                     }
                 }
             })
             .then(package => {
                 if (package) {
-                    req.flash('warning', "name already exists");
+                    req.flash('warning', "Investment already exists");
                     res.redirect("back");
                 } else {
                     Packages.create({
                         name,
-                        price,
-                        harsh_power,
-                        dailyEarning,
-                        withdrawal,
+                        toPrice,
+                        fromPrice,
+                        commission,
+                        charge,
                         duration,
-                        description
+                        bonus
                         })
                         .then(packages => {
                             req.flash('success', "Package added successfully!");

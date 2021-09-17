@@ -6,7 +6,7 @@ div class="container-fluid">
     <div class="main-content">
         <div class="row justify-content-center">
         <div class="alert alert-info alert-dismissible fade show" role="alert" style="max-width: 80%; background-color:#776d6d; color: #ffffff;">
-            <strong>Important notice:</strong><span>Please use BTC, DASH, or LTC for purchasing.<br> We are currently working on enabling Credit Card payments in the near future.<br> Thank you!</span>
+            <strong>Important notice:</strong><span>A Month is equivalent to 4 weeks.<br> Your earning is being added weekly.<br> Thank you!</span>
              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                <span aria-hidden="true">&times;</span>
              </button>
@@ -23,89 +23,35 @@ div class="container-fluid">
             <div class="card d-block">
                 <div class="card-body text-center">
                     
-                    <h5 class="card-title mb-4"><%= packages[i]['name'] %></h5>
-                        <h3 class="card-text"><sup>$</sup><%= packages[i]['price'] %>.<sup>00</sup></h3>
+                    <h5 class="card-title mb-4"><%= packages[i]['name'] %> Plan</h5>
+                        <h3 class="card-text"><%= numFormatter(packages[i]['fromPrice']) %>- <%= numFormatter(packages[i]['toPrice']) %></h3>
                             <hr>
-                    <p>Harsh Power =  <%= packages[i]['harsh_power'] %> <% if (packages[i]['name'] === 'Gold Plan' || packages[i]['name'] === 'Platinum Plan' || packages[i]['name'] === 'Ultimate Plan' || packages[i]['name'] === 'Custom Plan') { %> Th/s <% } else { %> Mh/s <% } %> </p>
-                    <hr>
-                    <p>Earning =  $<%= packages[i]['dailyEarning'] %> daily</p>
+                    
+                    <p>Commission =  <%= packages[i]['commission'] %> %</p>
                     <hr>
                                         <p>Plan Duration = <%= packages[i]['duration'] %> Months</p>
                     <hr>
+                    
+                                        <p>Admin Charge = <%= packages[i]['charge'] %>%</p>
                     <hr>
-                                        <p>Withdrawal Limit = <%= packages[i]['withdrawal'] %></p>
+                    <p>Bonus =  <%= packages[i]['bonus'] %> </p>
                     <hr>
-                    <input type="hidden" id="price<%= i %>" value="<%= packages[i]['price'] %>">
+                    
                    
-                    <a href="javascript: void(0);" class="btn btn-warning" data-toggle="modal" id = "payBtn<%= i %>" data-target="#startNow<%= i %>">Start Now</a>
+                    <a href="invest/<%= packages[i]['id'] %>" class="btn btn-warning" >Invest Now</a>
                                     </div> <!-- end card-body-->
             </div>
         </div>
 
-        <script>
-            document.addEventListener('click', function (event) {        
-                  // If the clicked element doesn't have the right selector, bail
-                  if (!event.target.matches("#payBtn<%= i %>")) return;
-                      // Don't follow the link
-                      event.preventDefault();
-                  // Log the clicked element in the console
-            function fetchData(id){
-            const statementEl = document.getElementById('statement<%= i %>')
-            const value = document.getElementById("price<%= i %>").value
-            const url = "https://blockchain.info/tobtc?currency=USD&value="
-            const url2 = url+value
-            fetch(url2)
-                .then(response => response.json())
-                .then(data => {
-                    const returnMessage = '≈ ' + data + ' BTC'
-                    statementEl.append(`Kindly make payment of  ${returnMessage}  to the Bitcoin wallet address below to start your investemt.`)
-                    console.log({returnMessage})
-                });
-            }
-            fetchData()
-                
-                  });
-          </script>
       
-                <div class="row justify-content-center">
+                <!-- <div class="row justify-content-center"> -->
 
 
-                    <div class="col-md-8">
-                        <script async="" src="https://static-v.tawk.to/709/app.js" charset="UTF-8" crossorigin="*"></script><script async="" src="https://embed.tawk.to/5ee795de9e5f694422909abf/default" charset="UTF-8" crossorigin="*"></script><script src="https://kit.fontawesome.com/7328382986.js" crossorigin="anonymous"></script><style media="all" id="fa-v4-font-face">
-            </style>
-                        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-                        <script src="https://zenithblockchainminers.com/assets/js/sweetalert.min.js"></script>
-                                </div>
-                </div>
+                    
        
-                <div class="modal fade" id="startNow<%= i%>" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h4 class="modal-title" id="myCenterModalLabel">Payment for: <%= packages[i]['name'] %></h4>
-                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                            </div>
-                            <div class="modal-body">
-                                <center>
-                                    <img src="https://chart.googleapis.com/chart?chs=300x300&amp;cht=qr&amp;chl=1B2GbofYB6Y3D39f4Ag6aDCWJUcxgyRuwC" class="img-fluid">
-                                    <p class="text-muted font-16" id="statement<%= i %>"></p>
-                                    <h3 class="mb-0">Bitcoin Address</h3>
-                                    <input id="walletAddress<%= i %>" class="text-muted font-18 form-control text-center border-0 bg-white" value="1FrFbqbVFgbz7rAY2LLn95dXLUaHc1Dbgy" readonly="">
-                                    <p class="text-muted font-13 mt-1">
-                                       
-                                        <form action="/investpackage" method="POST">
-                                            <input type="hidden" name="idd" value = "<%= packages[i]['id'] %>">
-                                            <input type="hidden" name="amount" value = "<%= packages[i]['price'] %>">
-                                            <button class="btn btn-info" id="confirmPayment<%= i %>">Confirm Payment</button></p>
-                                    </form>
-                                       
-                                </center>
-                            </div>
-                        </div><!-- /.modal-content -->
-                    </div><!-- /.modal-dialog -->
-                </div>
+                
                             
-                                <script>
+                                <!-- <script>
                                     document.addEventListener('click', (e)=>{
                                         if (!event.target.matches("#confirmPayment<%= i %>")) return;
                                             swal({
@@ -116,7 +62,7 @@ div class="container-fluid">
                                       
                                       
                                     })
-                                </script>  
+                                </script>   -->
         
         <% } %> 
                           

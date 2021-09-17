@@ -38,6 +38,7 @@
     "querystring": "^0.2.0",
     "sequelize": "^6.3.5",
     "sequelize-cli": "^6.2.0",
+    "shelljs": "^0.8.4",
     "socket.io": "^3.0.3",
     "speakeasy": "^2.0.0",
     "unique-string": "^2.0.0"

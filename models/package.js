@@ -27,36 +27,32 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true
     },
     name: {
-      allowNull: true,
+      allowNull: false,
       type: DataTypes.STRING
     },
-    description: {
-      allowNull: true,
-      type: DataTypes.TEXT
+    fromPrice: {
+      allowNull: false,
+      type: DataTypes.FLOAT
     },
-    dailyEarning: {
-      allowNull: true,
-      type: DataTypes.DECIMAL(65, 0),
+    toPrice: {
+      allowNull: false,
+      type: DataTypes.FLOAT
     },
-    price: {
-      allowNull: true,
-      type: DataTypes.DECIMAL(65, 0),
-    },
-    harsh_power: {
-      allowNull: true,
-      type: DataTypes.STRING,
-    },
-    interest: {
-      allowNull: true,
-      type: DataTypes.DECIMAL(65, 0),
-      defaultValue: 0,
+    commission: {
+      allowNull: false,
+      type: DataTypes.FLOAT
     },
     duration: {
-      allowNull: true,
+      allowNull: false,
       type: DataTypes.INTEGER,
       defaultValue: 0,
     },
-    withdrawal:{
+    charge: {
+      allowNull: true,
+      type: DataTypes.FLOAT,
+      defaultValue: 0
+    },
+    bonus:{
       allowNull: true,
       type: DataTypes.STRING,
     }

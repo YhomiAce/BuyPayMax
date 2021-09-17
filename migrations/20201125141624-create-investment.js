@@ -18,17 +18,22 @@ module.exports = {
       },
       status: {
         allowNull: true,
-        type: Sequelize.INTEGER,
+        type: Sequelize.ENUM("active","inactive"),
+        defaultValue: "active"
       },
       amount: {
         allowNull: true,
-        type: Sequelize.DECIMAL(65, 0),
+        type: Sequelize.FLOAT,
         defaultValue: 0,
       },
-      interest: {
+      earning: {
         allowNull: true,
-        type: Sequelize.DECIMAL(65, 0),
+        type: Sequelize.FLOAT,
         defaultValue: 0,
+      },
+      duration: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
       },
       expiredAt: {
         allowNull: false,
@@ -43,7 +48,8 @@ module.exports = {
         type: Sequelize.DATE
       },
       deletedAt: {
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        allowNull: true
       }
     });
   },

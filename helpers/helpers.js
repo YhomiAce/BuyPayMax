@@ -9,6 +9,16 @@ const Chats = require("../models").Chat;
 // imports initialization
 const Op = Sequelize.Op;
 
+const numFormatter = (num) => {
+    if(num > 999 && num < 1000000){
+        return (num/1000).toFixed(1) + 'K'; // convert to K for number from > 1000 < 1 million 
+    }else if(num >= 1000000){
+        return (num/1000000).toFixed(1) + 'M'; // convert to M for number from > 1 million 
+    }else if(num < 900){
+        return num; // if value < 1000, nothing to do
+    }
+}
+
 function addChatAndFormatMessage(id, userId, message) {
     let data;
     return new Promise((resolve, reject) => {
@@ -103,5 +113,6 @@ function addChatAndFormatMessage2(id, userId, message) {
 module.exports = {
     formatMessage,
     addChatAndFormatMessage,
-    addChatAndFormatMessage2
+    addChatAndFormatMessage2,
+    numFormatter
 }

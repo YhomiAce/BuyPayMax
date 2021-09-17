@@ -9,36 +9,32 @@ module.exports = {
         defaultValue: Sequelize.UUIDV1,
       },
       name: {
-        allowNull: true,
+        allowNull: false,
         type: Sequelize.STRING
       },
-      description: {
-        allowNull: true,
-        type: Sequelize.TEXT
+      fromPrice: {
+        allowNull: false,
+        type: Sequelize.FLOAT
       },
-      dailyEarning: {
-        allowNull: true,
-        type: Sequelize.DECIMAL(65, 0),
+      toPrice: {
+        allowNull: false,
+        type: Sequelize.FLOAT
       },
-      price: {
-        allowNull: true,
-        type: Sequelize.DECIMAL(65, 0),
-      },
-      harsh_power: {
-        allowNull: true,
-        type: Sequelize.STRING,
-      },
-      interest: {
-        allowNull: true,
-        type: Sequelize.DECIMAL(65, 0),
-        defaultValue: 0,
+      commission: {
+        allowNull: false,
+        type: Sequelize.FLOAT
       },
       duration: {
-        allowNull: true,
+        allowNull: false,
         type: Sequelize.INTEGER,
         defaultValue: 0,
       },
-      withdrawal:{
+      charge: {
+        allowNull: true,
+        type: Sequelize.FLOAT,
+        defaultValue: 0
+      },
+      bonus:{
         allowNull: true,
         type: Sequelize.STRING,
       },

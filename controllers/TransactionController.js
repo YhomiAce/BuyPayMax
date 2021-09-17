@@ -29,6 +29,8 @@ const External = require('../models').External;
 const InternalBuy = require('../models').InternalBuy;
 const Card = require('../models').Card;
 const GiftCard = require('../models').GiftCard;
+const Package = require('../models').Package;
+const Investment = require('../models').Investment;
 const router = require("../routes/web");
 
 // imports initialization
@@ -146,6 +148,147 @@ exports.withdrawWallet = (req, res, next) => {
         req.flash('error', "Server error!");
         res.redirect("back");
     });
+}
+
+exports.getDays = async(req, res)=>{
+    const now = moment();
+    var new_date = moment(now, "DD-MM-YYYY").add(12*7, 'days');
+    
+    return res.send({now, new_date})
+}
+
+exports.makeInvestment = (req, res) => {
+    AdminMessages.findAll()
+    .then(unansweredChats => {
+        Users.findOne({
+            where: {
+                id: {
+                    [Op.eq]: req.session.userId
+                }
+            }
+        })
+        .then(user => {
+            if (user) {
+                Package.findOne({where:{id:req.params.id}})
+                .then(package =>{
+
+                    let wallet = Math.abs(Number(user.wallet));
+                    let revenue = Math.abs(Number(user.revenue));
+                    let userTotal = wallet + revenue
+                    res.render("dashboards/users/investment", {
+                        user: user,
+                        userTotal,
+                        wallet,
+                        messages: unansweredChats,
+                        moment,
+                        package
+                    });
+                })
+            } else {
+                res.redirect("back");
+            }
+        })
+        .catch(error => {
+            res.redirect("back");
+        });
+    })
+    .catch(error => {
+        req.flash('error', "Server error!");
+        res.redirect("back");
+    });
+}
+
+exports.InvestNow = async (req, res) =>{
+    try {
+        const {duration, amount, earning, package_id, user_id, code} = req.body;
+        console.log(req.body);
+        const user = await Users.findOne({where:{id:req.session.userId}});
+        const package = await Package.findOne({where:{id:package_id}});
+        if (user.oauth_token !== code) {
+            req.flash('warning', "Invalid Token!");
+            res.redirect("back");
+            return
+        }else{
+            const dur = Number(package.duration);
+            const week = dur * 4
+            const days = week * 7
+            const now = moment();
+            var new_date = moment(now, "DD-MM-YYYY").add(days, 'days');
+            const amtUsed = Number(amount);
+            const request = {
+                package_id,
+                user_id,
+                amount:amtUsed,
+                earning,
+                duration: week,
+                expiredAt: new_date
+            };
+            await Investment.create(request);
+            const wallet = Number(user.wallet);
+            const balance = wallet - amtUsed
+            await Users.update({wallet:balance}, {where:{id: user_id}});
+            const type = "Investment"
+            const desc = `Made Investment for ${package.name} plan`;
+            await History.create({type, value: amtUsed, desc, user_id});
+            await Transactions.create({type: "INVESTMENT", user_id, amount});
+            const output = `<head>
+           <title>TRANSACTION RECEIPT</title>
+         </head>
+         <body>
+         <p>Your Transaction was successful. You just made an Investment with PayBuyMax</p>
+         <h2> Details Of Transaction </h2>
+         <ul>
+             
+             <li>Name:.....................${user.name} </li>
+             <li>Email:.....................${user.email} </li>
+             <li>Investment Package:.....................${package.name} Plan</li>
+             <li>Amount:.....................N${amount }</li>
+             <li>Investment Commission:.....................${package.commission}% </li>
+             <li>Admin charge:.....................${package.charge}% </li>
+             <li>Date of Investment:.....................${now}</li>
+             <li>Date of Expiration:.....................${new_date}</li>
+         </ul>
+
+         <h5>Thank You for Investing with Us!</h5>
+         </body>
+                 </html>`;
+       let transporter = nodemailer.createTransport({
+         host: parameters.EMAIL_HOST,
+         port: parameters.EMAIL_PORT,
+         secureConnection: true, // true for 465, false for other ports
+         auth: {
+           user: parameters.EMAIL_USERNAME, // generated ethereal user
+           pass: parameters.EMAIL_PASSWORD, // generated ethereal password
+         },
+         
+       });
+ 
+       // send mail with defined transport object
+       let mailOptions = {
+         from: ` "PayBuyMax" <${parameters.EMAIL_USERNAME}>`, // sender address
+         to: `${user.email}`, // list of receivers
+         subject: "[PayBuyMax] Withdrawal Receipt", // Subject line
+         text: "PayBuyMax", // plain text body
+         html: output, // html body
+       };
+       const sendMail = transporter.sendMail(mailOptions, async(err, info) => {
+         if (err) {
+             console.log(err);
+           return res.json({msg:"Error sending mail, please try again"});
+           
+         } else {
+            req.flash('success', "Investment Made Successfully");
+            res.redirect("back");
+           
+         }
+       });
+
+            
+        }
+    } catch (error) {
+        req.flash('error', "Server error!");
+        res.redirect("back");
+    }
 }
 
 exports.withdrawCoin = async (req, res, next) => {

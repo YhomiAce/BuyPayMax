@@ -24,6 +24,7 @@
                                             <th>Investment Date</th>
                                             <th>Due Date</th>
                                             <th>Status</th>
+                                            <th>View</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -31,14 +32,14 @@
                                         <tr>
                                             <td><%= i + 1 %></td>
                                             <td><%= investments[i].package.name %></td>
-                                            <td>$<%= investments[i].amount %>.00</td>
-                                            <td><%= investments[i].createdAt %></td>
-                                            <td><%= investments[i].expiredAt %></td>
-                                            <% if(investments[i].status === 0){ %>
-                                                <td class="badge badge-danger p-1 mt-2">Unapproved</td>
-                                           <% }else{ %>
-                                                <td class='badge badge-secondary p-1 mt-2'>Approved</td>
-                                           <% } %>
+                                            <td><%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format(investments[i].amount.toFixed(3)) %></td>
+                                            <td><%= moment(investments[i].createdAt).format("DD-MMM-YYYY") %></td>
+                                            <td><%= moment(investments[i].expiredAt).format("DD-MMM-YYYY") %></td>
+                                            <td><%= investments[i].status %></td>
+                                            <td>
+                                                <a href="/user-investment/<%= investments[i].id %> " class="btn btn-primary">View</a>
+                                            </td>
+                                            
                                           
                                         </tr>
                                         <% } %>

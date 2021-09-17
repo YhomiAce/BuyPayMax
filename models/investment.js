@@ -42,32 +42,33 @@ module.exports = (sequelize, DataTypes) => {
     },
     status: {
       allowNull: true,
-      type: DataTypes.INTEGER,
+      type: DataTypes.ENUM("active","inactive"),
+      defaultValue: "active"
     },
     amount: {
       allowNull: true,
-      type: DataTypes.DECIMAL(65, 0),
+      type: DataTypes.FLOAT,
       defaultValue: 0,
     },
-    interest: {
+    earning: {
       allowNull: true,
-      type: DataTypes.DECIMAL(65, 0),
+      type: DataTypes.FLOAT,
+      defaultValue: 0,
+    },
+    duration: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    weeklyEarning: {
+      allowNull: true,
+      type: DataTypes.FLOAT,
       defaultValue: 0,
     },
     expiredAt: {
       allowNull: false,
-      type: DataTypes.DATE,
-      get() {
-        return dayjs(this.getDataValue('expiredAt')).format('ddd, MMM D, YYYY, h:mm A');
-      }
-    },
-    createdAt: {
-      allowNull: false,
-      type: DataTypes.DATE,
-      get() {
-        return dayjs(this.getDataValue('createdAt')).format('ddd, MMM D, YYYY, h:mm A');
-      }
+      type: DataTypes.DATE
     }
+    
   }, {
     sequelize,
     modelName: 'Investment',
@@ -75,5 +76,6 @@ module.exports = (sequelize, DataTypes) => {
     paranoid: true,
     tableName: 'Investments',
   });
+  // Investment.sync({force: true})
   return Investment;
 };

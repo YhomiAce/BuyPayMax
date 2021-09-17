@@ -132,7 +132,7 @@ io.on("connection", socket => {
 });
 
 // scheduler task and all
-cron.schedule("* 6 * * *", () => {
+cron.schedule("0 0 * * 6", () => {
    
     // if(shell.exec("node cronjob.js").code !== 0) {
     //     console.log("something went wrong");
@@ -154,10 +154,10 @@ cron.schedule("* 6 * * *", () => {
                     })
                     .then(user => {
                         let userRevenue = Math.abs(Number(user.revenue));
-                        let investmentAmount = Math.abs(Number(expiredInvestment.amount));
-                        let interest = Math.abs(Number(expiredInvestment.interest));
+                        
+                        let interest = Math.abs(Number(expiredInvestment.earning));
                         let currentRevenue = userRevenue + interest;
-                        Users.increment({
+                        Users.update({
                                 revenue: currentRevenue
                             }, {
                                 where: {
@@ -190,6 +190,32 @@ cron.schedule("* 6 * * *", () => {
         .catch(error => {
             return null;
         });
+    // }
+});
+
+cron.schedule("00 6 * * *", () => {
+   
+    // if(shell.exec("node cronjob.js").code !== 0) {
+    //     console.log("something went wrong");
+    
+                                let type = 'Testing Cron'
+                                let desc = 'Cron Job Testing'
+                                let value = 123;
+                                let user_id = "d4ea57b0-ffa0-11eb-b779-49a06245dff8";
+                                History.create({
+                                    type,
+                                    desc,
+                                    value,
+                                    user_id
+                                })
+                                .then(msg =>{
+                                    console.log("Cron Job Added");
+                                })
+                                .catch(err =>{
+                                    return err;
+                                })
+                               
+                            
     // }
 });
 

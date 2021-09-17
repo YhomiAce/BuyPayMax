@@ -474,7 +474,6 @@ router.get("/withdraw-coin",  AuthMiddleware.authVerirfication, TransactionContr
 router.post("/userwithdraw",  AuthMiddleware.authVerirfication, TransactionController.withdrawFromWallet);
 router.post("/userwithdraw-coin",  AuthMiddleware.authVerirfication, TransactionController.withdrawFromCoinWallet);
 router.get("/mywithdraws", AuthMiddleware.redirectLogin, TransactionController.aUserWithdrawals);
-router.get("/investments", AuthMiddleware.redirectLogin, InvestmentController.userInvestments);
 router.get("/deposits", AuthMiddleware.redirectLogin, TransactionController.userDeposits);
 router.get("/bankdeposits", AuthMiddleware.redirectLogin, BankDepositController.usersUploads);
 router.get("/btc-unapproved", AuthMiddleware.redirectAdminLogin, BankDepositController.unApprovedDeposit);
@@ -562,5 +561,12 @@ router.get("/edit/package/:id", AuthMiddleware.redirectAdminLogin, PackageContro
 router.get("/edit/coin/:id", AuthMiddleware.redirectAdminLogin, PackageController.editCoin);
 router.get("/delete/coin/:id", AuthMiddleware.redirectAdminLogin, PackageController.deleteCoin);
 router.get("/edit/manager/:id", AuthMiddleware.redirectAdminLogin, ManagerController.editManager);
+
+// Investment Route
+router.get("/invest/:id", AuthMiddleware.redirectLogin, TransactionController.makeInvestment);
+router.post("/invest-now", AuthMiddleware.redirectLogin, TransactionController.InvestNow);
+router.get("/investments", AuthMiddleware.redirectLogin, InvestmentController.userInvestments);
+router.get("/user-investment/:id", AuthMiddleware.redirectLogin, InvestmentController.viewInvestment);
+router.post("/now", TransactionController.getDays);
 
 module.exports = router;

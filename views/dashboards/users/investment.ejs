@@ -1,0 +1,206 @@
+<!-- header -->
+<%- include("../../partials/header") %>
+<%- include("../../partials/user_sidebar") %>
+<!-- Main Content -->
+<div class="main-content">
+    <%- include("../../partials/alerts") %>
+    <section class="section">
+        <div class="row ">
+            <div class="col-lg-12 col-md-12 col-sm-6 col-12">
+                <div class="card card-statistic-1">
+                    <div class="card-icon l-bg-cyan">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div class="card-wrap">
+                        <div class="padding-20">
+                            <div class="text-right">
+                                <h3 class="font-light mb-0">
+                                    <i class="ti-arrow-up text-success"></i> <%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format(wallet.toFixed(3)) %>
+                                </h3>
+                                <span class="text-muted">Wallet Balance</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="section-body">
+            <div class="row">
+                <div class="col-12 col-md-12 col-lg-12">
+                    <form class="needs-validation" novalidate=""
+                        id="withdarawForm">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>Make Investment</h4>
+                            </div>
+                            <div class="card-body">
+                                <input type="hidden" id="packageId" name="packageId" value="<%= package.id %> ">
+                                <input type="hidden" id="fromPrice" name="fromPrice" value="<%= package.fromPrice %> ">
+                                <input type="hidden" id="toPrice" name="toPrice" value="<%= package.toPrice %> ">
+                                <input type="hidden" id="wallet" name="wallet" value="<%= wallet %> ">
+                                <input type="hidden" id="duration" value="<%= package.duration %> ">
+                                <input type="hidden" id="charge" name="charge" value="<%= package.charge %> ">
+                                <input type="hidden" id="commission" name="commission" value="<%= package.commission %> ">
+                                <div class="form-group">
+                                    <label for="">Investment Package Name</label>
+                                    <input type="text" class="form-control" readonly value="<%= package.name %> Plan" id="name" name="name"
+                                        tabindex="1" required autofocus>
+                                    
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Package Amount</label>
+                                    <input type="text" class="form-control" readonly value="<%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format(package.fromPrice) %> - <%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format(package.toPrice) %>" name="price" tabindex="1" id="price"
+                                        required autofocus>
+                                    
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Duration</label>
+                                    <input type="text" class="form-control" readonly value="<%= package.duration %> Months " tabindex="1"
+                                        required autofocus>
+                                    
+                                </div>
+                                <div class="form-group">
+                                    <label for="name">Amount</label>
+                                    <input type="number" step="any" class="form-control" id="user_amount" name="user_amount" tabindex="1" required
+                                        autofocus>
+                                    <div class="invalid-feedback">
+                                        Please fill in amount
+                                    </div>
+                                </div>
+                                <div class="form-group" id="earnBox" style="display: none;">
+                                    <label for="">Weekly Earning</label>
+                                    <input type="text" class="form-control" readonly id="earnings" tabindex="1"
+                                        required autofocus>
+                                    
+                                </div>
+                                <h3 id="msg" class="invalid-feedback" style="display: none;">
+                                    
+                                </h3>
+                                <!-- <div class="form-group">
+                                    <label for="name">Bank Name</label>
+                                    <input type="text" class="form-control" id="user_bank_name" name="user_bank_name" tabindex="1" required
+                                        autofocus>
+                                    <div class="invalid-feedback">
+                                        Please fill in amount
+                                    </div>
+                                </div> -->
+                            </div>
+                            <input type="hidden" id="user_id" value="<%= user.id  %> ">
+                            <div class="card-footer text-right">
+                                <button class="btn btn-primary btn-block" disabled type="button" data-toggle="modal" id = "withdrawBtn" data-target="#withdawNow">Pay Now</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div class="modal fade" id="withdawNow" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <!-- <h4 class="modal-title" id="myCenterModalLabel">Payment for: </h4> -->
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <center>
+                        
+                        <p class="text-muted font-16" id="statement"></p>
+                        <h3 class="mb-0">Enter Confirmation Code Sent to Your Email</h3>
+                        
+                        <p class="text-muted font-13 mt-1">
+                           
+                            <form action="/invest-now" method="POST">
+                                <input type="text" id="code" class="form-control" name="code" required>
+                                <input type="hidden" name="user_id" value="<%= user.id  %> ">
+                                <input type="hidden" name="package_id" value="<%= package.id  %> ">
+                                
+                                <input type="hidden" id="amount"  name="amount" value="" >
+                                <input type="hidden" id="earning"  name="earning" value="" >
+                                <input type="hidden" id="durationId"  name="duration" value="" >
+                                <button class="btn btn-info mt-5" id="confirmPayment" type="submit">Confirm Code</button></p>
+                        </form>
+                           
+                    </center>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div>
+</div>
+<%- include("../../partials/user_footer2") %>
+<script>
+    $(document).ready(()=>{
+        // var walletType = $('#coin').find(":selected").val();
+        
+        $("#withdrawBtn").click(()=>{
+            var amount = $("#user_amount").val();
+            var wallet = $("#wallet").val();
+            amount = Number(amount);
+            wallet = Number(wallet);
+            if (wallet < amount) {
+                $("#withdawNow").hide()
+                alert("Account Balance too Low Please check other Investment Plans")
+                
+            }
+            console.log(amount);
+            $('#amount').val(amount);
+            
+            var userId = $('#user_id').val();
+            
+            $.ajax({
+                url:"/withdraw/code",
+                method: "post",
+                data:{userId, type:"money", amount},
+                success:(res) =>{
+                    console.log(res);
+                }
+            })
+        })
+        
+        $("#user_amount").keyup(()=>{
+            var amt = $("#user_amount").val()
+            var fromPrice = $("#fromPrice").val()
+            var toPrice = $("#toPrice").val()
+            var charge = $("#charge").val()
+            var commission = $("#commission").val()
+            var duration = $("#duration").val()
+            var wallet = $("#wallet").val();
+            amount = Number(amount);
+            fromPrice = Number(fromPrice)
+            toPrice = Number(toPrice)
+            charge = Number(charge)
+            commission = Number(commission)
+            duration = Number(duration)
+            amt = Number(amt);
+            var money = amt + (amt * commission/100);
+            var week = duration * 4
+            var earning = money/week
+            var earnings = Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format(earning.toFixed(3))
+            
+            $("#durationId").val(duration);
+            $("#earning").val(earning);
+            
+            if ((amt < fromPrice )|| (amt > toPrice) ) {
+                $("#msg").show();
+                $("#earnBox").hide();
+                $(":button").attr("disabled", true);
+                $("#msg").text("Please use the amount range for this investment plan or visit our investment page for other plans");
+            }else if (wallet < amt) {
+                $("#withdawNow").hide()
+                alert("Account Balance too Low Please check other Investment Plans")
+                $(":button").attr("disabled", true);
+            }else{
+                $("#msg").text("");
+                $("#msg").hide();
+                $("#earnBox").show();
+                $("#earnings").val(earnings)
+                $(":button").removeAttr("disabled");
+            }
+        })
+        
+    })
+</script>

@@ -28,61 +28,58 @@
                                             Please fill in plan name
                                         </div>
                                     </div>
-                                    <div class="form-group">
-                                        <label for="duration">Package Type</label>
-                                        <select id="description" type="text" class="form-control" name="description" tabindex="1"
-                                        value="<%= edit ? package.description : '' %>"required autofocus>
-                                        <option disabled selected>Select Package Type</option>
-                                        <option value="Bitcoin">Bitcoin</option>
-                                        <option value="Ethereum">Ethereum</option>
-                                        </select>
-                                        <div class="invalid-feedback">
-                                            Please enter package description
-                                        </div>
-                                    </div>
+                                    
                                     <% if(edit) { %>
                                         <input type="hidden" name="id" value="<%=package.id %>">
                                     <% } %>
                                 
-                                    
                                     <div class="form-group">
-                                        <label for="price">Price</label>
-                                        <input id="interest" type="text" class="form-control" name="price" tabindex="1"
-                                        value="<%= edit ? package.price : '' %>" required autofocus>
+                                        <label for="price">From Price</label>
+                                        <input id="interest" type="text" class="form-control" name="fromPrice" tabindex="1"
+                                        value="<%= edit ? package.fromPrice : '' %>" required autofocus>
                                         <div class="invalid-feedback">
                                             Please enter price
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label for="harsh_power">Harsh Power</label>
-                                        <input id="harsh_power" type="text" class="form-control" name="harsh_power" tabindex="1"
-                                        value="<%= edit ? package.harsh_power : '' %>" required autofocus>
+                                        <label for="price">To Price</label>
+                                        <input id="interest" type="text" class="form-control" name="toPrice" tabindex="1"
+                                        value="<%= edit ? package.toPrice : '' %>" required autofocus>
+                                        <div class="invalid-feedback">
+                                            Please enter price
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="harsh_power">Commission</label>
+                                        <input id="harsh_power" type="number" step="any" class="form-control" name="commission" tabindex="1"
+                                        value="<%= edit ? package.commission : '' %>" required autofocus>
                                         <div class="invalid-feedback">
                                             Please enter harsh power
                                         </div>
                                     </div>
+                                    
                                     <div class="form-group">
-                                        <label for="dailyEarning">Daily Earning</label>
-                                        <input id="dailyEarning" type="text" class="form-control" name="dailyEarning" tabindex="1"
-                                        value="<%= edit ? package.dailyEarning : '' %>" required autofocus>
-                                        <div class="invalid-feedback">
-                                            Please enter package daily earning
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="duration">Duration(Days)</label>
-                                        <input id="duration" type="text" class="form-control" name="duration" tabindex="1"
+                                        <label for="duration">Duration(Months)</label>
+                                        <input id="duration" type="number" class="form-control" name="duration" tabindex="1"
                                         value="<%= edit ? package.duration : '' %>"required autofocus>
                                         <div class="invalid-feedback">
                                             Please enter package duration
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label for="duration">Withdrawal</label>
-                                        <input id="withdrawal" type="text" class="form-control" name="withdrawal" tabindex="1"
-                                        value="<%= edit ? package.withdrawal : '' %>"required autofocus>
+                                        <label for="harsh_power">Admin Charge</label>
+                                        <input id="harsh_power" type="number" step="any" class="form-control" name="charge" tabindex="1"
+                                        value="<%= edit ? package.charge : '' %>" required autofocus>
                                         <div class="invalid-feedback">
-                                            Please enter package withdrawal rate
+                                            Please enter harsh power
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="duration">Bonus</label>
+                                        <input id="duration" type="text" class="form-control" name="bonus" tabindex="1"
+                                        value="<%= edit ? package.bonus : '' %>"required autofocus>
+                                        <div class="invalid-feedback">
+                                            Please enter package Bonuses
                                         </div>
                                     </div>
                                 </div>

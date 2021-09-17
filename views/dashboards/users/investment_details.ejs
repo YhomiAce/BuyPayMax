@@ -1,0 +1,80 @@
+<!-- header -->
+<%- include("../../partials/header_admin") %>
+<%- include("../../partials/sidebar") %>
+
+<!-- Main Content -->
+<div class="main-content">
+    <%- include("../../partials/alerts") %>
+    <section class="section">
+        <div class="section-body">
+            <div class="row">
+                <div class="col-12">
+                   
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Buy Coin From Internal Wallet Fund Details</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped" id="table-1">
+                                    <tbody>
+                                        <tr>
+                                            <td>Investment Plan</td>
+                                            <td><%= investments.package.name %> Plan</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Investment Duration</td>
+                                            <td><%= investments.duration %> Weeks</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Invested Amount</td>
+                                            <td><%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format(investments.amount.toFixed(3))  %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Investment Status</td>
+                                            <td class="text-default"><%= investments.status %></td>
+                                            
+                                        </tr>
+                                        <tr>
+                                            <td>Weekly Earning</td>
+                                            <td><%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format(investments.earning.toFixed(3))  %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Total Earning</td>
+                                            <td><%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format(investments.weeklyEarning.toFixed(3))  %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Bonuses</td>
+                                            <td><%= investments.package.bonus %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Date Invested</td>
+                                            <td><%= moment(investments.createdAt).format("DD-MM-YYYY") %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Withdrawal Date</td>
+                                            <td><%= moment(investments.expiredAt).format("DD-MM-YYYY") %></td>
+                                        </tr>
+                                        <% if(moment() >= investments.expiredAt) { %> 
+                                            <tr>
+                                                <td>Approve</td>
+                                                <td>
+                                                    <form action="/withdraw-investment" enctype="multipart/form-data" method="POST">
+                                                        <input type="hidden" name="id" value="<%= investments.id  %> ">
+                                                        
+                                                        <input type="submit" class="btn btn-info" value="Withdraw">
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        <% } %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+<%- include("../../partials/footer2") %>
