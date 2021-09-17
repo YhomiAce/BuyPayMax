@@ -12,7 +12,7 @@
                    
                     <div class="card">
                         <div class="card-header">
-                            <h4>Buy Coin From Internal Wallet Fund Details</h4>
+                            <h4>Investment Details</h4>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
@@ -29,6 +29,11 @@
                                         <tr>
                                             <td>Invested Amount</td>
                                             <td><%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format(investments.amount.toFixed(3))  %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Investment Commission</td>
+                                            <td class="text-default"><%= investments.package.commission %></td>
+                                            
                                         </tr>
                                         <tr>
                                             <td>Investment Status</td>
