@@ -52,7 +52,7 @@
                                             
                                         </tr>
                                         <tr>
-                                            <td>Date</td>
+                                            <td>Date Requested</td>
                                             <td><%= moment(withdraw.createdAt).format("DD-MMM-YYYY") %></td>
                                         </tr>
                                         <% if(withdraw.status === "pending") { %> 
@@ -66,8 +66,39 @@
                                                 </form>
                                             </td>
                                         </tr>
+                                        <tr>
+                                            <td>Disapprove</td>
+                                            <td>
+                                                <form action="/unapprove-withdrawal" method="POST">
+                                                    <input type="hidden" name="id" value="<%= withdraw.id  %> ">
+                                                    <input type="submit" class="btn btn-primary" value="Disapprove">
+                                                </form>
+                                            </td>
+                                        </tr>
 
                                         <% } %> 
+                                        <% if(withdraw.status === "approved") { %>
+                                            <tr>
+                                                <td>Date Approved</td>
+                                                <td><%= moment(withdraw.updatedAt).format("DD-MMM-YYYY") %></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Transaction Receipt</td>
+                                                <td class="text-default">
+                                                    <a href="<%= withdraw.fileDoc %>" target="_blank" class="btn btn-primary">View Receipt</a>
+                                                </td>
+                                            </tr>
+                                            
+    
+                                        <% } %>
+                                        <% if(withdraw.status === "disapproved") { %> 
+                                            
+                                            <tr>
+                                                <td>Date Disapproved</td>
+                                                <td><%= moment(withdraw.updatedAt).format("DD-MMM-YYYY") %></td>
+                                            </tr>
+    
+                                        <% } %>
                                     </tbody>
                                 </table>
                             </div>

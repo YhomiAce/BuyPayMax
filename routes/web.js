@@ -470,10 +470,13 @@ router.post("/updatetwoway", AuthMiddleware.redirectLogin, ProfileController.upd
 router.post("/emailtwoway", AuthMiddleware.redirectLogin, ProfileController.updateEmailWay);
 router.post("/user_kyc", AuthMiddleware.redirectLogin, KycController.uploadKyc);
 router.get("/withdraw",  AuthMiddleware.authVerirfication, TransactionController.withdrawWallet);
-router.get("/withdraw-coin",  AuthMiddleware.authVerirfication, TransactionController.withdrawCoin);
+router.get("/withdraw-coin",  AuthMiddleware.redirectLogin, TransactionController.withdrawCoin);
+router.get("/transfer-history",  AuthMiddleware.redirectLogin, TransactionController.transferHistory);
+router.get("/view-transfer/:id",  AuthMiddleware.redirectLogin, TransactionController.transferDetail);
 router.post("/userwithdraw",  AuthMiddleware.authVerirfication, TransactionController.withdrawFromWallet);
 router.post("/userwithdraw-coin",  AuthMiddleware.authVerirfication, TransactionController.withdrawFromCoinWallet);
 router.get("/mywithdraws", AuthMiddleware.redirectLogin, TransactionController.aUserWithdrawals);
+router.get("/view-withdrawal/:id", AuthMiddleware.redirectLogin, TransactionController.viewUserWithdrawalDetail);
 router.get("/deposits", AuthMiddleware.redirectLogin, TransactionController.userDeposits);
 router.get("/bankdeposits", AuthMiddleware.redirectLogin, BankDepositController.usersUploads);
 router.get("/btc-unapproved", AuthMiddleware.redirectAdminLogin, BankDepositController.unApprovedDeposit);
@@ -497,6 +500,7 @@ router.get("/approved-kycs", AuthMiddleware.redirectAdminLogin, KycController.ap
 router.post("/approve-akyc", AuthMiddleware.redirectAdminLogin, KycController.approveAKYC);
 router.post("/disapprove-akyc", AuthMiddleware.redirectAdminLogin, KycController.disApproveAKYC);
 router.get("/unapproved-withdrawal", AuthMiddleware.redirectAdminLogin, TransactionController.unapprovedWithdrawals);
+router.get("/disapproved-withdrawal", AuthMiddleware.redirectAdminLogin, TransactionController.disapprovedWithdrawals);
 router.get("/unapproved-coin-withdrawal", AuthMiddleware.redirectAdminLogin, TransactionController.unapprovedCoinWithdrawals);
 router.get("/approved-coin-withdrawal", AuthMiddleware.redirectAdminLogin, TransactionController.approvedCoinWithdrawals);
 router.get("/coin-withdraw/details/:id", AuthMiddleware.redirectAdminLogin, TransactionController.ViewUnapprovedCoinWithdrawals);

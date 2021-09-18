@@ -96,18 +96,61 @@ exports.aUserWithdrawals = (req, res, next) => {
                 moment
             });
         }).catch(err=>{
-             res.redirect("/");
+             res.redirect("back");
         })
             
            
         })
         .catch(error => {
-            res.redirect("/");
+            res.redirect("back");
         });
     })
     .catch(error => {
         req.flash('error', "Server error!");
-        res.redirect("/");
+        res.redirect("back");
+    });
+    
+}
+
+exports.viewUserWithdrawalDetail = (req, res, next) => {
+    AdminMessages.findAll()
+    .then(unansweredChats => {
+        Withdrawals.findOne({
+          
+            where: {
+                id: {
+                    [Op.eq]: req.params.id
+                }
+            }
+        })
+        .then(withdrawals => {
+             Users.findOne({
+            where: {
+                id: {
+                    [Op.eq]: req.session.userId
+                }
+            }
+        }).then(user=>{
+             
+            res.render("dashboards/users/view_user_withdrawals", {
+                withdrawals,
+                messages: unansweredChats,
+                user,
+                moment
+            });
+        }).catch(err=>{
+             res.redirect("back");
+        })
+            
+           
+        })
+        .catch(error => {
+            res.redirect("back");
+        });
+    })
+    .catch(error => {
+        req.flash('error', "Server error!");
+        res.redirect("back");
     });
     
 }
@@ -347,6 +390,42 @@ exports.withdrawCoin = async (req, res, next) => {
     }    
 }
 
+exports.transferHistory = async (req, res, next) => {
+    try {
+        const user = await Users.findOne({where:{id:req.session.userId}});
+        const history = await WithdrawalCoin.findAll({where:{userId:req.session.userId}, include:["user", "coin"], order: [
+            ['createdAt', 'DESC'],
+        ],});
+        const unansweredChats = await AdminMessages.findAll();
+        res.render("dashboards/users/transfer_history", {
+            user: user,
+            messages: unansweredChats,
+            moment,
+            history
+        });
+    } catch (error) {
+        req.flash('error', "Server error!");
+        res.redirect("back");
+    }    
+}
+
+exports.transferDetail = async (req, res, next) => {
+    try {
+        const user = await Users.findOne({where:{id:req.session.userId}});
+        const history = await WithdrawalCoin.findOne({where:{id:req.params.id}, include:["user", "coin"]});
+        const unansweredChats = await AdminMessages.findAll();
+        res.render("dashboards/users/transfer_detail", {
+            user: user,
+            messages: unansweredChats,
+            moment,
+            history
+        });
+    } catch (error) {
+        req.flash('error', "Server error!");
+        res.redirect("back");
+    }    
+}
+
 exports.withdrawFromCoinWallet = async(req, res, next) => {
     try {
         let {
@@ -381,7 +460,8 @@ exports.withdrawFromCoinWallet = async(req, res, next) => {
                                     coinId: coinType,
                                     coinType: product.name,
                                     walletAddress:wallet_address,
-                                    reference
+                                    reference,
+                                    charge:product.charge
                                 });
             const desc = "Transfer request initiated";
             const type = "Coin Transfer"
@@ -561,6 +641,41 @@ exports.unapprovedWithdrawals = (req, res, next) => {
     
 }
 
+exports.disapprovedWithdrawals = (req, res, next) => {
+    AdminMessages.findAll()
+    .then(unansweredChats => {
+        Withdrawals.findAll({
+           
+            where: {
+                status: "disapproved"
+            },
+            include: ["user"],
+            order: [
+                ['createdAt', 'DESC'],
+            ],
+        })
+        .then(withdrawals => {
+            console.log({withdrawals});
+            res.render("dashboards/disapproved_withdrawals", {
+                withdrawals,
+                messages: unansweredChats,
+                moment
+            });
+        })
+        .catch(error => {
+            console.log(error)
+            req.flash('error', "Server error");
+            res.redirect("/");
+        });
+    })
+    .catch(error => {
+        console.log(error)
+        req.flash('error', "Server error!");
+        res.redirect("/");
+    });
+    
+}
+
 exports.unapprovedCoinWithdrawals = (req, res, next) => {
     AdminMessages.findAll()
     .then(unansweredChats => {
@@ -706,7 +821,7 @@ exports.approvedWithdrawals = (req, res, next) => {
     .then(unansweredChats => {
         Withdrawals.findAll({
             where: {
-                status: "completed"
+                status: "approved"
             },
             include: ["user"],
             order: [
@@ -749,7 +864,7 @@ exports.postApproveWithdrawal = async(req, res, next) => {
                 let owner = withdrawal.user_id
                 
                 Withdrawals.update({
-                    status: "completed",
+                    status: "approved",
                     fileDoc: docPath
                 }, {
                     where: {
@@ -843,7 +958,7 @@ exports.postApproveWithdrawal = async(req, res, next) => {
 
 exports.postApproveCoinWithdrawal = async(req, res, next) => {
    try {
-    const {id, hash} = req.body;
+    const {id } = req.body;
     console.log(req.body);
     const withdrawal = await WithdrawalCoin.findOne({
              where: {
@@ -856,7 +971,7 @@ exports.postApproveCoinWithdrawal = async(req, res, next) => {
         // console.log(withdrawal);
         let owner = withdrawal.userId
         // console.log(owner);
-    const update = await WithdrawalCoin.update({status: "approved",fileDoc: hash}, {where: {id}})
+    const update = await WithdrawalCoin.update({status: "approved" }, {where: {id}})
     console.log(update);     
     let type = 'Coin Transfer'
     let desc = 'Coin Transfer request approved'
@@ -873,7 +988,7 @@ exports.postApproveCoinWithdrawal = async(req, res, next) => {
     const userBalance = coinBalance - withdrawAmoount;
     await Coin.update({balance: userBalance}, {where:{userId:withdrawal.userId, coinId:withdrawal.coinId}})
         const now  = moment();
-        const charge = Number(withdrawal.coin.charge);
+        const charge = Number(withdrawal.charge);
         const actualAmount = (charge/100) * withdrawAmoount;
         const amountSent = (withdrawAmoount - actualAmount).toFixed(3)
         const output = `<html>
@@ -888,12 +1003,11 @@ exports.postApproveCoinWithdrawal = async(req, res, next) => {
              <li>Amount Transferred:.....................${withdrawal.amount} ${withdrawal.coin.symbol}</li>
              <li>Type of Fund:.....................${withdrawal.coin.name}</li>
              <li>Transferred Charge:.....................${charge}% </li>
-             <li>Amount Sent:.....................${amountSent} </li>
+             <li>Amount Sent:.....................${amountSent}${withdrawal.coin.symbol}  </li>
              <li>Name:.....................${withdrawal.user.name} </li>
              <li>Email:.....................${withdrawal.user.email} </li>
              <li>Wallet Address:.....................${withdrawal.walletAddress} </li>
              <li>Transaction Reference:.....................${withdrawal.reference}</li>
-             <li>Transaction Hash:.....................${hash}</li>
              <li>Date:.....................${now}</li>
          </ul>
          </body>
@@ -1247,7 +1361,7 @@ exports.postDisApproveWithdrawal = (req, res, next) => {
         .then(withdrawal => {
             if(withdrawal) {
                 Withdrawals.update({
-                    status: 0
+                    status: "disapproved"
                 }, {
                     where: {
                         id: {
@@ -1256,6 +1370,7 @@ exports.postDisApproveWithdrawal = (req, res, next) => {
                     }
                 })
                 .then(updatedWithdrawal => {
+                    // Todo: Send mail
                     req.flash('success', "Withdrawal updated successfully");
                     res.redirect("back");
                 })
@@ -1265,7 +1380,7 @@ exports.postDisApproveWithdrawal = (req, res, next) => {
                 });
             } else {
                 req.flash('error', "Invalid withdrawal");
-                    res.redirect("/");
+                    res.redirect("back");
             }
         })
         .catch(error => {

@@ -21,28 +21,36 @@
                                             <th class="text-center">#</th>
                                             <th>Amount</th>
                                            
-                                            <th>Wallet Name</th>
-                                            <th>Wallet Address</th>
+                                            <th>Bank Name</th>
+                                            <th>Account Number</th>
                                             <th>Status</th>
                                             <th>Date</th>
+                                            <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <%  for (let i = 0; i < withdrawals.length; i++ ) { %>
                                         <tr>
                                             <td><%= i+1 %></td>
-                                            <td><%= withdrawals[i].amount %></td>
+                                            <td><%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format((withdrawals[i].amount).toFixed(3)) %></td>
                                             
-                                            <td><%= withdrawals[i].wallet_name%></td>
-                                            <td><%= withdrawals[i].wallet_address %></td>
-                                            <% if(withdrawals[i].status === 0){ %>
+                                            <td><%= withdrawals[i].acct_name%></td>
+                                            <td><%= withdrawals[i].acct_number %></td>
+                                            <% if(withdrawals[i].status === "pending"){ %>
                                                 <td class="badge badge-danger p-1 mt-2">Unprocessed</td>
-                                            <% }else{ %>
+                                            <% }else if(withdrawals[i].status === "approved"){ %>
                                                 <td class='badge badge-secondary p-1 mt-2'>Processed</td>
+                                            <% }else if(withdrawals[i].status === "disapproved"){ %>
+                                                <td class='badge badge-secondary p-1 mt-2'>Rejected</td>
+                                                <% }else { %>
+                                                <td class='badge badge-secondary p-1 mt-2'>Status Error</td>
                                             <% } %>
                                            
                                           
-                                            <td><%= withdrawals[i].createdAt %></td>
+                                            <td><%= moment(withdrawals[i].createdAt).format("DD-MMM-YYYY")  %></td>
+                                            <td>
+                                                <a href="/view-withdrawal/<%= withdrawals[i].id %> " class="btn btn-primary">View</a>
+                                            </td>
                                         </tr>
                                         
                                         

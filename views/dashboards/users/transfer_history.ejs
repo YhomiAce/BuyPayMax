@@ -12,7 +12,7 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <h4>Investments History</h4>
+                            <h4>My Transfer History</h4>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
@@ -20,25 +20,27 @@
                                     <thead>
                                         <tr>
                                             <th class="text-center">#</th>
-                                            <th>Package</th>
-                                            <th>Amount</th>
-                                            <th>Investment Date</th>
-                                            <th>Due Date</th>
+                                            <th>Product Type</th>
+                                            <th>Quantity</th>
+                                            <th>Wallet Address</th>
                                             <th>Status</th>
+                                            <th>Referrence</th>
+                                            <th>Date</th>
                                             <th>View</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <%  for (let i = 0; i < investments.length; i++ ) { %>
+                                        <%  for (let i = 0; i < history.length; i++ ) { %>
                                         <tr>
                                             <td><%= i + 1 %></td>
-                                            <td><%= investments[i].package.name %> Plan</td>
-                                            <td><%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format(investments[i].amount.toFixed(3)) %></td>
-                                            <td><%= moment(investments[i].createdAt).format("DD-MMM-YYYY") %></td>
-                                            <td><%= moment(investments[i].expiredAt).format("DD-MMM-YYYY") %></td>
-                                            <td><%= investments[i].status %></td>
+                                            <td><%= history[i].coin.name %></td>
+                                            <td><%= history[i].amount %></td>
+                                            <td><%= history[i].walletAddress %></td>
+                                            <td><%= history[i].status %></td>
+                                            <td><%= history[i].reference %></td>
+                                            <td><%= moment(history[i].createdAt).format("DD-MMM-YYYY") %></td>
                                             <td>
-                                                <a href="/view-user-investment/<%= investments[i].id %> " class="btn btn-primary">View</a>
+                                                <a href="/view-transfer/<%= history[i].id %> " class="btn btn-primary">View</a>
                                             </td>
                                             
                                           

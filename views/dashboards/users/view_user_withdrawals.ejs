@@ -1,0 +1,108 @@
+<!-- header -->
+<%- include("../../partials/header") %>
+<%- include("../../partials/user_sidebar") %>
+
+<!-- Main Content -->
+<div class="main-content">
+    <%- include("../../partials/alerts") %>
+    <section class="section">
+        <div class="section-body">
+            <div class="row">
+                <div class="col-12">
+                   
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Withdrawal Details</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped" id="table-1">
+                                    <tbody>
+                                        <tr>
+                                            <td>Bank Name</td>
+                                            <td><%= withdrawals.bank_name %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Account Name</td>
+                                            <td><%= withdrawals.acct_name %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Account Number</td>
+                                            <td><%= withdrawals.acct_number %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Amount</td>
+                                            <td><%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format((withdrawals.amount).toFixed(3)) %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Transaction Status</td>
+                                            <td class="text-default"><%= withdrawals.status %></td>
+                                            
+                                        </tr>
+                                        <tr>
+                                            <td>Transaction Referrence</td>
+                                            <td class="text-default"><%= withdrawals.reference %></td>
+                                            
+                                        </tr>
+                                        <tr>
+                                            <td>Date Requested</td>
+                                            <td><%= moment(withdrawals.createdAt).format("DD-MM-YYYY") %></td>
+                                        </tr>
+                                        
+                                        
+                                        <% if(withdrawals.status === "approved") { %> 
+                                            <tr>
+                                                <td>Approved Date</td>
+                                                <td><%= moment(withdrawals.updatedAt).format("DD-MM-YYYY") %></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Transaction Receipt</td>
+                                                <td class="text-default">
+                                                    <a href="<%= withdrawals.fileDoc %>" target="_blank" class="btn btn-primary">View Receipt</a>
+                                                </td>
+                                                
+                                            </tr>
+                                        <% } %>
+
+                                        <% if(withdrawals.status === "disapproved") { %> 
+                                            <tr>
+                                                <td>Approved Date</td>
+                                                <td><%= moment(withdrawals.updatedAt).format("DD-MM-YYYY") %></td>
+                                            </tr>
+                                        <% } %>
+                                        
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div class="modal fade" id="cancelInvestmentUser" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <!-- <h4 class="modal-title" id="myCenterModalLabel">Payment for: </h4> -->
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <center>
+                        
+                        <p class="text-muted font-16" id="statement"></p>
+                        
+                        <h3 class="text-muted font-17 mt-1">
+                            To Cancel Your Investment Please use the 
+                            internal chat system to communicate with the Admin
+                        </h3>
+                           
+                            
+                           
+                    </center>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div>
+</div>
+<%- include("../../partials/user_footer") %>

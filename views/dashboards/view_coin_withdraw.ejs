@@ -36,7 +36,7 @@
                                         </tr>
                                         <tr>
                                             <td>Transfer Charge</td>
-                                            <td><%= withdraw.coin.charge %> %</td>
+                                            <td><%= withdraw.charge %> %</td>
                                         </tr>
                                         <tr>
                                             <td>Coin Type</td>
@@ -58,7 +58,7 @@
                                             <td>
                                                 <form action="/approve-transfer" class="form-inline ml-4" method="POST">
                                                     <input type="hidden" name="id" value="<%= withdraw.id  %> ">
-                                                    <input type="text" name="hash" class="form-control mr-4" required placeholder="Transaction Hash">
+                                                    <!-- <input type="text" name="hash" class="form-control mr-4" required placeholder="Transaction Hash"> -->
                                                     <input type="submit" class="btn btn-info" value="Approve">
                                                 </form>
                                             </td>
