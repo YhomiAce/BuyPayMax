@@ -132,7 +132,7 @@ io.on("connection", socket => {
 });
 
 // scheduler task and all
-cron.schedule("* 6 * * 6", () => {
+cron.schedule("*/2 * * * *", () => {
    
     // if(shell.exec("node cronjob.js").code !== 0) {
     //     console.log("something went wrong");
@@ -155,7 +155,7 @@ cron.schedule("* 6 * * 6", () => {
                     })
                     .then(user => {
                         let userRevenue = Math.abs(Number(user.revenue));
-                        
+                        console.log(userRevenue);
                         let interest = Math.abs(Number(expiredInvestment.earning));
                         let current = Math.abs(Number(expiredInvestment.weeklyEarning));
                         let balance = current + interest
