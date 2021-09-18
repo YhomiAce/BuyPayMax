@@ -22,33 +22,47 @@
                                 <div class="card-body">
                                     <div class="form-group">
                                         <label for="name"> Name</label>
-                                        <input id="name" type="text" class="form-control" name="name" tabindex="1"
-                                        value="<%= user.name %>" required autofocus disabled>
+                                        <input type="text" class="form-control" tabindex="1"
+                                        value="<%= user.name %>" readonly required autofocus disabled>
                                         
                                     </div>
                 
                                     
                                     <div class="form-group">
-                                        <label for="price">Total Balance (Available + Ledger)</label>
-                                        <input id="interest" type="text" class="form-control" name="price" tabindex="1"
-                                        value="<%= user.revenue %>" required autofocus disabled>
+                                        <label for="price">Wallet Balance</label>
+                                        <input type="text" class="form-control" tabindex="1"
+                                        value="<%= user.wallet %>" required autofocus disabled>
                                     </div>
-                                    
+                                    <% for(let i=0; i<coins.length; i++) { %>    
                                     <div class="form-group">
-                                        <label for="duration">Available Balance (Daily Earning)</label>
-                                        <input id="available_balance" type="text" class="form-control" name="available_balance" tabindex="1"
-                                        value="<%= user.revenue %>" required autofocus disabled>
+                                        <label for="duration"> <%= coins[i].coinTypes.symbol %> Balance</label>
+                                        <input type="text" class="form-control" tabindex="1"
+                                        value="<%= coins[i].balance %>" required autofocus disabled>
                                         
                                     </div>
+                                    <% } %>
                                     <div class="form-group">
-                                        <label for="ledger_balance">***Ledger Balance (Referral, raffle draw etc)</label>
-                                        <input id="ledger_balance" type="text" class="form-control" name="ledger_balance" tabindex="1"
-                                        value="<%= user.wallet %>"required autofocus>
+                                        <label for="duration">Package Type</label>
+                                        <select name="account" id="coin" class="form-control" required>
+                                            <option value="" disabled selected>Select Account Fund</option>
+                                            <% for(let i=0; i< products.length; i++) { %> 
+                                            <option value="<%= products[i].id  %>"><%= products[i].name  %></option>
+                                            <% } %>
+                                            <option value="wallet">Wallet</option>
+                                        </select>
                                         <div class="invalid-feedback">
-                                            Please enter new ledger_balance
+                                            Please choose account to fund
                                         </div>
                                     </div>
-                                    <input type="hidden" name="id" value="<%= user.id %>">
+                                    <div class="form-group">
+                                        <label for="ledger_balance">Add New Amount</label>
+                                        <input id="ledger_balance" type="number" step="any" class="form-control" name="amount" tabindex="1"
+                                        required autofocus>
+                                        <div class="invalid-feedback">
+                                            Please enter amount to add
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="userId" value="<%= user.id %>">
                                 </div>
                                 <div class="card-footer text-right">
                                     <button class="btn btn-primary mr-1"

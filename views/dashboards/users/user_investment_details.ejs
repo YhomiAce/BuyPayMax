@@ -12,7 +12,7 @@
                    
                     <div class="card">
                         <div class="card-header">
-                            <h4>Investment Details</h4>
+                            <h4>User Investment Details</h4>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
@@ -72,6 +72,15 @@
                                                 </td>
                                             </tr>
                                         <% } %>
+                                        <% if(investments.status === "active" && investments.createdAt > new_date) { %> 
+                                            <tr>
+                                                <td>Cancel Investment</td>
+                                                <td>
+                                                    <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#cancelInvestmentUser">Cancel Investment</button>
+                                                </td>
+                                            </tr>
+                                        <% } %>
+                                        
                                     </tbody>
                                 </table>
                             </div>
@@ -81,5 +90,29 @@
             </div>
         </div>
     </section>
+    <div class="modal fade" id="cancelInvestmentUser" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <!-- <h4 class="modal-title" id="myCenterModalLabel">Payment for: </h4> -->
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <center>
+                        
+                        <p class="text-muted font-16" id="statement"></p>
+                        
+                        <h3 class="text-muted font-17 mt-1">
+                            To Cancel Your Investment Please use the 
+                            internal chat system to communicate with the Admin
+                        </h3>
+                           
+                            
+                           
+                    </center>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div>
 </div>
 <%- include("../../partials/user_footer") %>

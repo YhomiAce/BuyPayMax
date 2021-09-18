@@ -132,15 +132,22 @@ io.on("connection", socket => {
 });
 
 // scheduler task and all
-cron.schedule("0 * * * mon", () => {
+cron.schedule("00 17 * * sat", () => {
    
     // if(shell.exec("node cronjob.js").code !== 0) {
     //     console.log("something went wrong");
     Investments.findAll({
             where: {
-                expiredAt: {
-                    [Op.gte]: moment().format('YYYY-MM-DD HH:mm:ss')
-                }
+                [Op.and]: [
+                    {
+                        expiredAt: {
+                            [Op.gte]: moment().format('YYYY-MM-DD HH:mm:ss')
+                        }
+                    },
+                    {
+                        status: "active"
+                    }
+                ]
             }
         })
         .then(inactiveInvestments => {
@@ -170,8 +177,8 @@ cron.schedule("0 * * * mon", () => {
                                 }
                             })
                             .then(updatedWallet => {
-                                let type = 'Daily Earnings'
-                                let desc = 'Daily earning added'
+                                let type = 'Weekly Earnings'
+                                let desc = 'Weekly earning added'
                                 let value = interest
                                 History.create({
                                     type,

@@ -1,41 +1,17 @@
 <!-- header -->
-<%- include("../../partials/header") %>
-<%- include("../../partials/user_sidebar") %>
+<%- include("../partials/header_admin") %>
+<%- include("../partials/sidebar") %>
 
 <!-- Main Content -->
 <div class="main-content">
-    <%- include("../../partials/alerts") %>
-
-    <section class="section">
-        <div class="row ">
-            
-            <div class="col-lg-12 col-md-12 col-sm-12 col-12">
-                <div class="card card-statistic-1">
-                    <div class="card-icon bg-info">
-                        <i class="fas fa-ticket-alt"></i>
-                    </div>
-                    <div class="card-wrap">
-                        <div class="padding-20">
-                            <div class="text-right">
-                                <h3 class="font-light mb-0">
-                                    <i class="ti-arrow-up text-success"></i> <%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format(totalEarned.toFixed(3)) %>
-                                </h3>
-                                <span class="text-muted">Total Earned</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
+    <%- include("../partials/alerts") %>
     <section class="section">
         <div class="section-body">
             <div class="row">
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <h4>Investments</h4>
+                            <h4> <%= active ? "Active" : "Inactive" %> Investment</h4>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
@@ -43,28 +19,29 @@
                                     <thead>
                                         <tr>
                                             <th class="text-center">#</th>
-                                            <th>Package</th>
+                                            <th>Email</th>
+                                            <th>Plan</th>
                                             <th>Amount</th>
-                                            <th>Investment Date</th>
-                                            <th>Due Date</th>
+                                            <th>Date Invested</th>
+                                            <th>Expiration Date</th>
                                             <th>Status</th>
-                                            <th>View</th>
+                                            <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <%  for (let i = 0; i < investments.length; i++ ) { %>
                                         <tr>
                                             <td><%= i + 1 %></td>
+                                            <td><%= investments[i].user.email %></td>
                                             <td><%= investments[i].package.name %> Plan</td>
                                             <td><%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format(investments[i].amount.toFixed(3)) %></td>
                                             <td><%= moment(investments[i].createdAt).format("DD-MMM-YYYY") %></td>
                                             <td><%= moment(investments[i].expiredAt).format("DD-MMM-YYYY") %></td>
                                             <td><%= investments[i].status %></td>
                                             <td>
-                                                <a href="/view-user-investment/<%= investments[i].id %> " class="btn btn-primary">View</a>
+                                                <a href="/view-investment/<%= investments[i].id %>"
+                                                    class="btn btn-primary btn-pill">View</a>
                                             </td>
-                                            
-                                          
                                         </tr>
                                         <% } %>
                                     </tbody>
@@ -77,4 +54,4 @@
         </div>
     </section>
 </div>
-<%- include("../../partials/user_footer") %>
+<%- include("../partials/footer2") %>

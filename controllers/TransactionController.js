@@ -151,10 +151,38 @@ exports.withdrawWallet = (req, res, next) => {
 }
 
 exports.getDays = async(req, res)=>{
-    const now = moment();
+    try {
+       const users = await Users.findAll({
+            where: {
+                    deletedAt: {
+                        [Op.eq]: null
+                    }
+            },
+            order: [
+                ['name', 'ASC'],
+                ['createdAt', 'DESC'],
+            ],
+            include:[
+                {
+                    model: Coin,
+                    as: "userCoins",
+                    include: [
+                        {
+                            model: Product,
+                            as: "coinTypes"
+                        }
+                    ]
+                }
+            ]
+        })
+        const now = moment();
     var new_date = moment(now, "DD-MM-YYYY").add(12*7, 'days');
     
-    return res.send({now, new_date})
+    return res.send({users})
+    } catch (error) {
+        return res.send({error})
+    }
+    
 }
 
 exports.makeInvestment = (req, res) => {

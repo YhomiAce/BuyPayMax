@@ -7,6 +7,8 @@ const Users = require("../models").User;
 const Chats = require("../models").Chat;
 const AdminMessages = require("../models").AdminMessage;
 const Admins = require('../models').Admin
+const Coin = require('../models').Coin
+const Product = require('../models').Product
 
 // imports initialization
 const Op = Sequelize.Op;
@@ -26,8 +28,21 @@ exports.allUsers = (req, res, next) => {
                 ['name', 'ASC'],
                 ['createdAt', 'DESC'],
             ],
+            include:[
+                {
+                    model: Coin,
+                    as: "userCoins",
+                    include: [
+                        {
+                            model: Product,
+                            as: "coinTypes"
+                        }
+                    ]
+                }
+            ]
         })
         .then(users => {
+            console.log(users.userCoins);
             res.render("dashboards/all_users", {
                 users: users,
                 messages: unansweredChats,

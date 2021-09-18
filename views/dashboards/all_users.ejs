@@ -21,8 +21,9 @@
                       <th>Name</th>
                       <th>Email</th>
                       <th>Total Balance</th>
-                      <th>Available Balance</th>
-                      <th>Ledger Balance</th>
+                      <th>Ethereum Balance</th>
+                      <th>Bitcoin Balance</th>
+                      <th>USDT Balance</th>
                       <th>Date Registered</th>
                       <th>Action</th>
                     </tr>
@@ -33,9 +34,13 @@
                       <td><%= i + 1 %></td>
                       <td><%= users[i].name %></td>
                       <td><%= users[i].email %></td>
-                      <td>$<%= users[i].wallet%>.00</td>
-                      <td>$<%= users[i].revenue %>.00</td>
-                      <td>$<%= users[i].referral_amount %>.00</td>
+                      <td><%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format(users[i].wallet) %></td>
+                  
+                      <td><%= users[i].userCoins[0].balance %></td>
+                      <td><%= users[i].userCoins[1].balance %></td>
+                      <td><%= users[i].userCoins[2].balance %></td>
+                        
+                        
                       <td><%= moment(users[i].createdAt).format('DD-MM-YYYY') %></td>
                       <td>
                         <a

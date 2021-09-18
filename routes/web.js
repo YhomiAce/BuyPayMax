@@ -566,7 +566,14 @@ router.get("/edit/manager/:id", AuthMiddleware.redirectAdminLogin, ManagerContro
 router.get("/invest/:id", AuthMiddleware.redirectLogin, TransactionController.makeInvestment);
 router.post("/invest-now", AuthMiddleware.redirectLogin, TransactionController.InvestNow);
 router.get("/investments", AuthMiddleware.redirectLogin, InvestmentController.userInvestments);
-router.get("/user-investment/:id", AuthMiddleware.redirectLogin, InvestmentController.viewInvestment);
+
+router.get("/my-investment-history", AuthMiddleware.redirectLogin, InvestmentController.myInvestmentHistory);
+router.get("/active-investment", AuthMiddleware.redirectAdminLogin, InvestmentController.activeInvestment);
+router.get("/inactive-investment", AuthMiddleware.redirectAdminLogin, InvestmentController.inActiveInvestment);
+router.get("/view-investment/:id", AuthMiddleware.redirectAdminLogin, InvestmentController.viewUserInvestment);
+router.post("/cancel-investment", AuthMiddleware.redirectAdminLogin, InvestmentController.cancelInvestment);
 router.post("/now", TransactionController.getDays);
+
+router.get("/view-user-investment/:id", AuthMiddleware.redirectLogin, InvestmentController.viewMyInvestment);
 
 module.exports = router;

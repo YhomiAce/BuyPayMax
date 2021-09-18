@@ -246,9 +246,20 @@ exports.editWallet = (req, res, next) => {
   })
     .then((user) => {
       if (user) {
-        res.render("dashboards/editUser", {
-          user: user,
-        });
+        Coin.findAll({where:{userId: id}, include:["coinTypes"]})
+        .then(coins =>{
+          // console.log(coins);
+          Product.findAll()
+          .then(products =>{
+            res.render("dashboards/editUser", {
+              user: user,
+              coins,
+              products
+            });
+
+          })
+
+        })
       } else {
         res.redirect("back");
       }
@@ -264,53 +275,56 @@ exports.editWallet = (req, res, next) => {
 
 
 
-exports.postEditUser = (req, res, next) => {
-  const { ledger_balance, id } = req.body;
+exports.postEditUser = async (req, res, next) => {
+  try {
+    const { amount, userId, account } = req.body;
 
-  if (!ledger_balance || !id) {
+  if (!amount || !account) {
     req.flash("warning", "enter required field");
     res.redirect("back");
-  } else if (!helpers.isNumeric(ledger_balance)) {
+  } else if (!helpers.isNumeric(amount)) {
     req.flash("warning", "enter valid ledger amount(digits only)");
     res.redirect("back");
   } else {
-    Users.findOne({
-      where: {
-        id: {
-          [Op.eq]: req.body.id,
-        },
-      },
-    }).then((user) => {
-      if (!user) {
-        req.flash("warning", "No user found");
-        res.redirect("back");
-      } else {
-        Users.update(
-          {
-            wallet: ledger_balance,
+      const user = await Users.findOne({
+        where: {
+          id: {
+            [Op.eq]: userId,
           },
-          {
-            where: {
-              id: {
-                [Op.eq]: req.body.id,
-              },
+        },
+      });
+        if (account === "wallet") {
+          const wallet = Number(user.wallet);
+          const newAmt = Number(amount);
+          const newBal = wallet + newAmt
+
+          
+          await Users.update(
+            {
+              wallet: newBal,
             },
-          }
-        )
-          .then((updated) => {
-            req.flash("success", "Ledger balanced updated!");
-            res.redirect("/users");
-          })
-          .catch((error) => {
-            req.flash("error", "Something went wrong!");
-            res.redirect("back");
-          })
-          .catch((error) => {
-            req.flash("error", "Something went wrong!");
-            res.redirect("back");
-          });
-      }
-    });
+            {
+              where: {
+                id: {
+                  [Op.eq]: userId,
+                },
+              },
+            }
+          )
+          
+        }else{
+          const coinAmt = Number(amount);
+          const coin = await Coin.findOne({where:{userId, coinId: account}});
+          const balance = Number(coin.balance);
+          const newBalance = balance + coinAmt
+          await Coin.update({balance: newBalance},{where:{userId, coinId: account}})
+        }
+    }
+    req.flash("success", "Deposit Successful");
+    res.redirect("back");
+  } catch (error) {
+    req.flash("error", "Server error!");
+    res.redirect("back");
   }
 };
 
