@@ -13,7 +13,11 @@ const Data = require('../libs/Data')
 const uniqueString = require('unique-string');
 const generateUniqueId = require('generate-unique-id');
 const upload = require("../helpers/mult_helper");
+const postUpload = require("../helpers/upload");
 const cloudinary = require("../helpers/cloudinary");
+const multer = require("multer");
+const path = require("path");
+// const generateUniqueId = require("generate-unique-id");
 
 // imports initialization
 const Op = Sequelize.Op;
@@ -40,7 +44,35 @@ const ProfileController = require("../controllers/ProfileController");
 const PaystackController = require("../controllers/PaystackController");
 const AuthMiddleware = require("../middlewares/auth_middleware");
 const CryptBankController = require('../controllers/CryptBankController');
+const PostsController = require('../controllers/PostsController');
 const SEVEN_DAYS = 1000 * 60 * 60 * 24 * 7;
+
+const storage = multer.diskStorage({
+    destination:function(req,file,cb){
+      cb(null,'uploads/')
+    },
+    filename:function(req,file,cb){
+        let reference = generateUniqueId({
+            length: 15,
+            useLetters: true,
+            });
+      cb(null,reference+file.originalname)
+    }
+  })
+  
+  const filter = (req,file,cb)=>{
+    if(file.mimetype === 'image/jpeg' || file.mimetype ===  'image/jpg' || file.mimetype ===  'image/png'){
+      cb(null,true)
+    }else{
+      cb({error:'You can not upload this type of image'},false)
+    }
+  }
+  
+  const uploader = multer({storage:storage,limits:{
+        fileSize:1024*1024*5
+      },
+      fileFilter:filter
+  })
 
 // middlewares
 
@@ -85,9 +117,11 @@ router.use(function (req, res, next) {
 });
 // routes
 
-router.post("/upload/test", upload.single('image'), async(req, res) =>{
+router.post("/upload/test", uploader.single('image'), async(req, res) =>{
     try {
-        const result = await cloudinary.uploader.upload(req.file.path);
+        // const result = await cloudinary.uploader.upload(req.file.path);
+        const result = req.file.path
+        console.log(req.file);
         return res.json({result})
     } catch (error) {
         console.log(error);
@@ -468,7 +502,7 @@ router.get("/profilesettings", AuthMiddleware.redirectLogin, ProfileController.e
 router.post("/editprofile", AuthMiddleware.redirectLogin, ProfileController.updateProfile);
 router.post("/updatetwoway", AuthMiddleware.redirectLogin, ProfileController.updateTwoWay);
 router.post("/emailtwoway", AuthMiddleware.redirectLogin, ProfileController.updateEmailWay);
-router.post("/user_kyc", AuthMiddleware.redirectLogin, KycController.uploadKyc);
+router.post("/user_kyc", AuthMiddleware.redirectLogin,upload.single('image'), KycController.uploadKyc);
 router.get("/withdraw",  AuthMiddleware.authVerirfication, TransactionController.withdrawWallet);
 router.get("/withdraw-coin",  AuthMiddleware.redirectLogin, TransactionController.withdrawCoin);
 router.get("/transfer-history",  AuthMiddleware.redirectLogin, TransactionController.transferHistory);
@@ -577,7 +611,18 @@ router.get("/inactive-investment", AuthMiddleware.redirectAdminLogin, Investment
 router.get("/view-investment/:id", AuthMiddleware.redirectAdminLogin, InvestmentController.viewUserInvestment);
 router.post("/cancel-investment", AuthMiddleware.redirectAdminLogin, InvestmentController.cancelInvestment);
 router.post("/now", TransactionController.getDays);
-
 router.get("/view-user-investment/:id", AuthMiddleware.redirectLogin, InvestmentController.viewMyInvestment);
+
+
+// Post
+router.get("/add/post", AuthMiddleware.redirectAdminLogin, PostsController.createPost);
+router.get("/view/post", AuthMiddleware.redirectAdminLogin, PostsController.viewPost);
+router.get("/view/post/:id", AuthMiddleware.redirectAdminLogin, PostsController.findPost);
+router.post("/publish-post", AuthMiddleware.redirectAdminLogin, PostsController.publishPost);
+router.post("/delete-post", AuthMiddleware.redirectAdminLogin, PostsController.deletePost);
+router.post("/create-post", AuthMiddleware.redirectAdminLogin, uploader.single('image'), PostsController.createNewPost);
+
+// Test Route
+router.get("/get-kycs", KycController.unApprovedKyc)
 
 module.exports = router;

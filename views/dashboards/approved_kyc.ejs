@@ -11,7 +11,7 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <h4>UnApproved KYCS</h4>
+                            <h4>Approved KYCS</h4>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
@@ -19,7 +19,6 @@
                                     <thead>
                                         <tr>
                                             <th class="text-center">#</th>
-                                            <th>Image</th>
                                             <th>Name</th>
                                             <th>Email</th>
                                             <th>Type</th>
@@ -31,11 +30,10 @@
                                         <%  for (let i = 0; i < kycs.length; i++ ) { %>
                                         <tr>
                                             <td><%= i + 1 %></td>
-                                            <td><img alt="image" src="/uploads/<%= kycs[i].image %>" width="35"></td>
                                             <td><%= kycs[i].user.name %></td>
                                             <td><%= kycs[i].user.email %></td>
                                             <td><%= kycs[i].type %></td>
-                                            <td><%= kycs[i].createdAt %></td>
+                                            <td><%= moment(kycs[i].createdAt).format("DD/MM/YYYY") %></td>
                                             <td>
                                                 <a href="/view-kycs/<%= kycs[i].id %>" class="btn btn-success btn-pill text-light">View</a>
                                                 <a href="javascript:void(0);" class="btn btn-warning btn-pill"

@@ -4,7 +4,10 @@ const Sequelize = require("sequelize");
 const uniqueString = require("unique-string");
 const nodemailer = require("nodemailer");
 const speakeasy = require("speakeasy");
+const moment = require("moment");
 const generateUniqueId = require("generate-unique-id");
+
+const { stripHtml} = require("../helpers/helpers")
 
 // local imports
 const parameters = require("../config/params");
@@ -20,6 +23,8 @@ const countries = require("../libs/Data");
 const mailService = require("../config/mailService");
 const Coin = require("../models").Coin;
 const Product = require("../models").Product;
+const Blog = require("../models").Blog;
+const { error } = require("shelljs");
 // imports initialization
 const Op = Sequelize.Op;
 
@@ -53,8 +58,21 @@ exports.faq = (req, res, next) => {
 };
 
 exports.blog = (req, res, next) => {
-  //res.render("auths/login2");
-  res.render("blog");
+
+  Blog.findAll({where:{publish: true}, order: [
+    ['createdAt', 'DESC'],
+]}).then(blogs =>{
+  console.log(blogs);
+    res.render("blog", {
+      blogs,
+      moment,
+      stripHtml
+    });
+  }).catch(error =>{
+    req.flash("error", "Server Error!");
+    res.redirect("/");
+  })
+  
 };
 
 exports.pricing = (req, res, next) => {

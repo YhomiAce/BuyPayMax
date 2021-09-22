@@ -4,50 +4,50 @@ const {
 } = require('sequelize');
 const dayjs = require("dayjs");
 module.exports = (sequelize, DataTypes) => {
-  class Kyc extends Model {
+  class Blog extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
-      Kyc.belongsTo(models.User, {
-        foreignKey: "user_id",
-        as: "user",
-      });
+      
     }
   };
-  Kyc.init({
+  Blog.init({
     id: {
-      allowNull: false,
       primaryKey: true,
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV1,
     },
-    user_id: {
-      allowNull: true,
-      type: DataTypes.UUID,
-    },
-    type: {
+    author: {
       allowNull: true,
       type: DataTypes.STRING
     },
-    image: {
+    title: {
       allowNull: true,
       type: DataTypes.TEXT,
     },
-    status: {
+    body: {
+      allowNull: true,
+      type: DataTypes.TEXT
+    },
+    image: {
+      allowNull: true,
+      type: DataTypes.TEXT
+    },
+    publish: {
       allowNull: true,
       type: DataTypes.BOOLEAN,
-      defaultValue: false,
-    }
+      defaultValue: false
+    },
   }, {
     sequelize,
-    modelName: 'Kyc',
+    modelName: 'Blog',
     timestamps: true,
     paranoid: true,
-    tableName: 'Kycs',
+    tableName: 'blogs',
   });
-  return Kyc;
+  // Blog.sync({force: true})
+  return Blog;
 };

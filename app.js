@@ -58,11 +58,13 @@ app.use(bodyParser.urlencoded({
 app.use(morgan('dev'))
 // set up public folder
 app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname + 'uploads')));
 // Static Files
 // dashboard 
 app.use('/css', express.static(__dirname + 'public/css'));
 app.use('/js', express.static(__dirname + 'public/js'));
 app.use('/images', express.static(__dirname + 'public/images'));
+
 
 // routes
 

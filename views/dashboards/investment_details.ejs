@@ -130,15 +130,19 @@
                             </div>
                             <div class="form-group">
                                 <label for=""> Cancellation Charge </label>
-                                <input type="text" readonly class="form-control" id="fee" value="20%">
+                                <input type="text" readonly class="form-control" id="fee" value="20% of Capital">
                             </div>
-                            <!-- <div class="form-group">
-                                <label for="">Commission</label>
+                            <div class="form-group">
+                                <label for=""> Amount </label>
+                                <input type="text" readonly class="form-control" id="takeBack" value="">
+                            </div>
+                            <div class="form-group">
+                                <label for="">Total Commission Earned</label>
                                 <input type="text" readonly class="form-control" id="commissionUsed" value="">
-                            </div> -->
+                            </div>
                             <div class="form-group">
                                 <label for="">Take Back Amount</label>
-                                <input type="text" readonly class="form-control" id="takeBack" value="">
+                                <input type="text" readonly class="form-control" id="resultAmt" value="">
                             </div>
                             
                             
@@ -160,8 +164,15 @@
         var fee = Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format(capital)
         $("#capital").val(fee)
         var cancelFee = Number(capital) - (Number(capital) * 0.2);
-        $("#amount").val(cancelFee);
+        
         var feeSt = Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format(cancelFee)
-        $("#takeBack").val(feeSt)
+        $("#takeBack").val(feeSt);
+        var totalEarned = $("#totalEarned").val();
+        var weekly = Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format(totalEarned)
+        $("#commissionUsed").val(weekly)
+        var resultAmt = Number(totalEarned) + Number(cancelFee)
+        $("#amount").val(resultAmt);
+        var takeBackAmt = Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format(resultAmt)
+        $("#resultAmt").val(takeBackAmt)
     })
 </script>

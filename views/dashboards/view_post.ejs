@@ -11,40 +11,37 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <h4>UnApproved KYCS</h4>
+                            
+                            <h4 class="float-left">Blog Posts</h4>
+                            <a href="/add/post" class="btn btn-info pull-right">Create Post</a>
                         </div>
                         <div class="card-body">
+                            
                             <div class="table-responsive">
                                 <table class="table table-striped" id="table-1">
                                     <thead>
                                         <tr>
                                             <th class="text-center">#</th>
-                                            <th>Name</th>
-                                            <th>Email</th>
-                                            <th>Type</th>
+                                            <th>Title</th>
+                                            <th>Author</th>
+                                            <th>Published</th>
                                             <th>Date</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <%  for (let i = 0; i < kycs.length; i++ ) { %>
+                                        <%  for (let i = 0; i < posts.length; i++ ) { %>
                                         <tr>
                                             <td><%= i + 1 %></td>
-                                            <td><%= kycs[i].user.name %></td>
-                                            <td><%= kycs[i].user.email %></td>
-                                            <td><%= kycs[i].type %></td>
-                                            <td><%= moment(kycs[i].createdAt).format("DD/MM/YYYY")%></td>
+                                            <td><%= posts[i].title %></td>
+                                            <td><%= posts[i].author %></td>
+                                            <td><%= posts[i].publish %></td>
+                                            <td><%= moment(posts[i].createdAt).format("DD-MMM-YYYY") %></td>
                                             <td>
-                                                <a href="/view-kycs/<%= kycs[i].id %>" class="btn btn-success btn-pill text-light">View</a>
-                                                <a href="javascript:void(0);" class="btn btn-warning btn-pill"
-                                                    onclick="event.preventDefault();
-								                        document.getElementById('approve-kyc').submit();" style="color: aliceblue;">
-                                                    Approve
+                                                <a href="/view/post/<%= posts[i].id  %> " class="btn btn-warning btn-pill" style="color: aliceblue;">
+                                                    View
                                                 </a>
-                                                <form id="approve-kyc" action="/approve-akyc" method="POST"
-                                                    style="display: none;">
-                                                    <input type="hidden" name="id" value="<%= kycs[i].id %>">
-                                                </form>
+                                                
                                             </td>
                                         </tr>
                                         <% } %>

@@ -194,7 +194,7 @@ exports.viewUserInvestment = (req, res, next) => {
         .then(investments => {
             var now = investments.createdAt;
             var new_date = moment(now, "DD-MM-YYYY").add(28, 'days');
-            res.render("dashboards/investment_detail_admin", {
+            res.render("dashboards/investment_details", {
                 investments: investments,
                 messages: unansweredChats,
                 moment,

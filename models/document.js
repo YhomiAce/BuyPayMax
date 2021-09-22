@@ -2,25 +2,22 @@
 const {
   Model
 } = require('sequelize');
-const dayjs = require("dayjs");
 module.exports = (sequelize, DataTypes) => {
-  class Kyc extends Model {
+  class KYC extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
-      Kyc.belongsTo(models.User, {
+      KYC.belongsTo(models.User, {
         foreignKey: "user_id",
         as: "user",
       });
     }
   };
-  Kyc.init({
+  KYC.init({
     id: {
-      allowNull: false,
       primaryKey: true,
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV1,
@@ -44,10 +41,10 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {
     sequelize,
-    modelName: 'Kyc',
+    modelName: 'KYC',
+    tableName: 'documents',
     timestamps: true,
-    paranoid: true,
-    tableName: 'Kycs',
+    paranoid: true
   });
-  return Kyc;
+  return KYC;
 };

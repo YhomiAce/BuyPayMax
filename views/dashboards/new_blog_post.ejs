@@ -1,0 +1,43 @@
+<!-- header -->
+<%- include("../partials/header_admin") %>
+<%- include("../partials/sidebar") %>
+
+
+<%- include("../partials/alerts") %>
+<!-- nav -->
+<script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
+
+<div class="main-content">
+<!-- forget password -->
+  <section class="section">
+    <div class="section-body">
+      <form action="/create-post" method="POST" enctype="multipart/form-data">
+        <div class="form-group">
+          <label for="">Authors Name</label>
+          <input type="text" name="author" class="form-control">
+        </div>
+        <div class="form-group">
+          <label for="">Post Title</label>
+          <input type="text" name="title" class="form-control">
+        </div>
+        <div class="form-group">
+          <label for="">Message Body</label>
+          <textarea name="body" rows="3" class="form-control"></textarea>
+        </div>
+        <div class="form-group">
+          <input type="file" name="image" class="form-control">
+        </div>
+        <button class="btn btn-primary btn-block" type="submit">Post Blog</button>
+      </form>
+
+    </div>
+  </section>
+</div>
+
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/ckeditor/4.16.2/ckeditor.min.js" integrity="sha512-m6erDKe9Z7AaH7tmP1BmqHXc31ZRsHcBFI43bPxjJSP2oEl0wbFUpclIVm7WqUChVayspHUFpXaOxXFcgJSl3w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> -->
+<script>
+  CKEDITOR.replace( 'body' );
+</script>
+
+
+<%- include("../partials/footer2") %>

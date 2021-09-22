@@ -1,26 +1,29 @@
 'use strict';
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('documents', {
+    await queryInterface.createTable('blogs', {
       id: {
-        allowNull: false,
-        primaryKey: true,
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV1,
+        primaryKey: true
       },
-      user_id: {
-        allowNull: true,
-        type: Sequelize.UUID,
-      },
-      type: {
+      author: {
         allowNull: true,
         type: Sequelize.STRING
+      },
+      title: {
+        allowNull: true,
+        type: Sequelize.TEXT,
+      },
+      body: {
+        allowNull: true,
+        type: Sequelize.TEXT
       },
       image: {
         allowNull: true,
         type: Sequelize.TEXT
       },
-      status: {
+      publish: {
         allowNull: true,
         type: Sequelize.BOOLEAN,
         defaultValue: false
@@ -34,12 +37,12 @@ module.exports = {
         type: Sequelize.DATE
       },
       deletedAt: {
-        type: Sequelize.DATE,
-        allowNull: true
+        allowNull: true,
+        type: Sequelize.DATE
       }
     });
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('documents');
+    await queryInterface.dropTable('blogs');
   }
 };
