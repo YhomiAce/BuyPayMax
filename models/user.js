@@ -51,7 +51,7 @@ module.exports = (sequelize, DataTypes) => {
         as: "withdrawals"
       });
 
-      User.hasOne(models.Kyc, {
+      User.hasOne(models.KYC, {
         foreignKey: "user_id",
         as: "kyc"
       });

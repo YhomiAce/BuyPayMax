@@ -671,6 +671,7 @@ exports.login = (req, res, next) => {
       },
     })
       .then((user) => {
+        console.log(user);
         if (user.activated !== 1) {
           req.flash("error", "Check your email for activation link");
           res.redirect("back");
