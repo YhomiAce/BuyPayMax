@@ -43,8 +43,11 @@ exports.signInUser = (req, res, next) => {
 };
 
 exports.signUpUser = (req, res, next) => {
-  //res.render("auths/login2");
-  res.render("signup");
+  const {ref} = req.query
+  console.log(ref);
+  res.render("signup", {
+    ref
+  });
 };
 
 exports.about = (req, res, next) => {
@@ -719,8 +722,6 @@ exports.register = async (req, res) => {
         length: 8,
         useLetters: true,
       });
-
-      console.log(uniqueRef);
       const user = await Users.findOne({ where: { email } });
       if (user) {
         req.flash("warning", "Email already taken!");
@@ -728,10 +729,12 @@ exports.register = async (req, res) => {
       }else{
 
         const hasPassword = bcrypt.hashSync(password, 10);
+        const {ref} = req.body
+        console.log("Reference",ref);
         const reference = await Users.findOne({
             where: {
             reference: {
-                [Op.eq]: req.session.ref,
+                [Op.eq]: ref,
             },
             },
         });

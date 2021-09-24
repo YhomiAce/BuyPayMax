@@ -18,6 +18,7 @@ const Withdrawal = require('../models').Withdrawal;
 
 // imports initialization
 const Op = Sequelize.Op;
+const params = require("../config/params");
 
 
 exports.home = async(req, res, next) => {
@@ -73,7 +74,8 @@ exports.home = async(req, res, next) => {
                 messages: unansweredChats,
                 moment,
                 coins,
-                products
+                products,
+                reflink: params.REF_LINK
             });
         } else {
             res.render("dashboards/users/user_home", {
@@ -88,7 +90,8 @@ exports.home = async(req, res, next) => {
                 messages: unansweredChats,
                 moment,
                 coins,
-                products
+                products,
+                reflink: params.REF_LINK
             });
         }
     

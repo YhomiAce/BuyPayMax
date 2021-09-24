@@ -34,6 +34,7 @@
             </a>
             <p class="text-form">Sign Up To Get Started!</p>
             <form action="/register" method="POST">
+              <input type="hidden" ref="<%= ref %> ">
               <label for="email">Enter your email</label>
               <input type="email" required class="form-control input" placeholder="youremail@email.com" name="email" id="email">
               <label for="Password1">Enter your password</label>
