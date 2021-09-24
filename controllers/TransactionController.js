@@ -2106,7 +2106,7 @@ exports.getPendingExternalTransaction = async(req, res)=>{
         // return res.json({transactions})
     } catch (error) {
         req.flash('error', "Server error");
-        res.redirect("/agent/home");
+        res.redirect("back");
     }
 }
 
@@ -2124,7 +2124,7 @@ exports.getPendingGiftCardTransaction = async(req, res)=>{
         // return res.json({transactions})
     } catch (error) {
         req.flash('error', "Server error");
-        res.redirect("/agent/home");
+        res.redirect("back");
     }
 }
 
@@ -2139,7 +2139,7 @@ exports.getPendingInternalTransaction = async(req, res)=>{
         // return res.json({transactions})
     } catch (error) {
         req.flash('error', "Server error");
-        res.redirect("/agent/home");
+        res.redirect("back");
     }
 }
 
@@ -2154,7 +2154,7 @@ exports.getInternalSellTransaction = async(req, res)=>{
         // return res.json({transactions})
     } catch (error) {
         req.flash('error', "Server error");
-        res.redirect("/agent/home");
+        res.redirect("back");
     }
 }
 
@@ -2172,7 +2172,7 @@ exports.getMyInternalSellTransaction = async(req, res)=>{
         // return res.json({transactions})
     } catch (error) {
         req.flash('error', "Server error");
-        res.redirect("/home");
+        res.redirect("back");
     }
 }
 
@@ -2190,7 +2190,7 @@ exports.getMyInternalBuyTransaction = async(req, res)=>{
         // return res.json({transactions})
     } catch (error) {
         req.flash('error', "Server error");
-        res.redirect("/home");
+        res.redirect("back");
     }
 }
 
@@ -2208,7 +2208,7 @@ exports.viewMyInternalSold = async(req, res)=>{
         // return res.json({transactions})
     } catch (error) {
         req.flash('error', "Server error");
-        res.redirect("/home");
+        res.redirect("back");
     }
 }
 
@@ -2226,7 +2226,7 @@ exports.viewMyInternalBuy = async(req, res)=>{
         // return res.json({transactions})
     } catch (error) {
         req.flash('error', "Server error");
-        res.redirect("/home");
+        res.redirect("back");
     }
 }
 
@@ -2239,7 +2239,7 @@ exports.getApprovedExternalTransaction = async(req, res)=>{
         })
     } catch (error) {
         req.flash('error', "Server error");
-        res.redirect("/agent/home");
+        res.redirect("back");
     }
 }
 
@@ -2253,7 +2253,7 @@ exports.getApprovedGiftCardTransaction = async(req, res)=>{
         })
     } catch (error) {
         req.flash('error', "Server error");
-        res.redirect("/agent/home");
+        res.redirect("back");
     }
 }
 
@@ -2266,7 +2266,7 @@ exports.getApprovedInternalTransaction = async(req, res)=>{
         })
     } catch (error) {
         req.flash('error', "Server error");
-        res.redirect("/agent/home");
+        res.redirect("back");
     }
 }
 
@@ -2279,7 +2279,7 @@ exports.viewPendingExternalTx = async(req, res)=>{
         })
     } catch (error) {
         req.flash('error', "Server error");
-        res.redirect("/agent/home");
+        res.redirect("back");
     }
 }
 
@@ -2292,7 +2292,7 @@ exports.viewPendingGiftCardTx = async(req, res)=>{
         })
     } catch (error) {
         req.flash('error', "Server error");
-        res.redirect("/agent/home");
+        res.redirect("back");
     }
 }
 
@@ -2305,7 +2305,7 @@ exports.viewPendingInternalTx = async(req, res)=>{
         })
     } catch (error) {
         req.flash('error', "Server error");
-        res.redirect("/agent/home");
+        res.redirect("back");
     }
 }
 
@@ -2318,7 +2318,7 @@ exports.viewInternalSellTx = async(req, res)=>{
         })
     } catch (error) {
         req.flash('error', "Server error");
-        res.redirect("/agent/home");
+        res.redirect("back");
     }
 }
 
