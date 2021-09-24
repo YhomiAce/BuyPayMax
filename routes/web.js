@@ -464,12 +464,14 @@ router.post("/external/create-receipt", AuthMiddleware.redirectAdminLogin, Trans
 router.get("/pending-external/transaction", AuthMiddleware.redirectAdminLogin, TransactionController.getPendingExternalTransaction);
 router.get("/pending-gift-card/transaction", AuthMiddleware.redirectAdminLogin, TransactionController.getPendingGiftCardTransaction);
 router.get("/pending-internal/transaction", AuthMiddleware.redirectAdminLogin, TransactionController.getPendingInternalTransaction);
+router.get("/internal-sell/transaction", AuthMiddleware.redirectAdminLogin, TransactionController.getInternalSellTransaction);
 router.get("/approved-external/transaction", AuthMiddleware.redirectAdminLogin, TransactionController.getApprovedExternalTransaction);
 router.get("/approved-gift-card/transaction", AuthMiddleware.redirectAdminLogin, TransactionController.getApprovedGiftCardTransaction);
 router.get("/approved-internal/transaction", AuthMiddleware.redirectAdminLogin, TransactionController.getApprovedInternalTransaction);
 router.get("/view/pending-external/:id", AuthMiddleware.redirectAdminLogin, TransactionController.viewPendingExternalTx);
 router.get("/view/pending-gift-card/:id", AuthMiddleware.redirectAdminLogin, TransactionController.viewPendingGiftCardTx);
 router.get("/view/pending-internal/:id", AuthMiddleware.redirectAdminLogin, TransactionController.viewPendingInternalTx);
+router.get("/view/internal-sell/:id", AuthMiddleware.redirectAdminLogin, TransactionController.viewInternalSellTx);
 router.get("/get/exchange/:id", TransactionController.getExchange);
 router.get("/check-coin/balance/:userId/:coinId", TransactionController.checkBalance);
 router.post("/buy/transaction/code", TransactionController.sendConfirmationCodeForBuy);
@@ -494,6 +496,11 @@ router.get("/viewmessage/:id", AuthMiddleware.redirectLogin, ChatController.read
 router.get("/user_chat", AuthMiddleware.redirectLogin, ChatController.userChatPage);
 router.post("/sendmessage", AuthMiddleware.redirectAdminLogin, ChatController.postAdminMessage);
 router.get("/messages", AuthMiddleware.redirectLogin, ChatController.allAdminMessages);
+
+router.get("/view-my-internal-sell", AuthMiddleware.redirectLogin, TransactionController.getMyInternalSellTransaction);
+router.get("/view-my-internal-buy", AuthMiddleware.redirectLogin, TransactionController.getMyInternalBuyTransaction);
+router.get("/view/my-internal-sell/:id", AuthMiddleware.redirectLogin, TransactionController.viewMyInternalSold);
+router.get("/view/my-internal-buy/:id", AuthMiddleware.redirectLogin, TransactionController.viewMyInternalBuy);
 
 router.get("/user_kyc", AuthMiddleware.redirectLogin, KycController.userKyc);
 router.get("/profile", AuthMiddleware.redirectLogin, ProfileController.profilePage);

@@ -281,8 +281,7 @@ exports.InvestNow = async (req, res) =>{
             return
         }else{
             const dur = Number(package.duration);
-            const week = dur * 4
-            const days = week * 7
+            const days = dur * 30;
             const now = moment();
             var new_date = moment(now, "DD-MM-YYYY").add(days, 'days');
             const amtUsed = Number(amount);
@@ -291,7 +290,7 @@ exports.InvestNow = async (req, res) =>{
                 user_id,
                 amount:amtUsed,
                 earning,
-                duration: week,
+                duration: days,
                 expiredAt: new_date
             };
             await Investment.create(request);
@@ -1769,6 +1768,16 @@ exports.BuyCoinFromInternalWallet = async(req, res) =>{
             length: 15,
             useLetters: true,
           });
+
+          
+        const userWallet = Number(user.wallet);
+        const naiaraBalance = userWallet - nairaAmount
+        await Users.update({wallet:naiaraBalance},{where:{id:user.id}})
+        
+        const newBal = balance + qty;
+
+        await Coin.update({balance: newBal}, {where:{userId: user_id, coinId}})
+        console.log("Coin Updated");
         
         await InternalBuy.create({
             userId:user_id, 
@@ -1794,7 +1803,7 @@ exports.BuyCoinFromInternalWallet = async(req, res) =>{
           <title>TRANSACTION RECEIPT</title>
         </head>
         <body>
-        <p>Your Transaction was successful. Request to buy ${qty} ${symbol} from Your PayBuyMax wallet</p>
+        <p>Your Transaction was successful. You bought ${qty} ${symbol} from Your PayBuyMax wallet</p>
         <h2> Receipt </h2>
         <ul>
             <li>Coin Type:.....................${coinTypes}</li>
@@ -2121,7 +2130,8 @@ exports.getPendingGiftCardTransaction = async(req, res)=>{
 
 exports.getPendingInternalTransaction = async(req, res)=>{
     try {
-        const transactions = await InternalBuy.findAll({where:{status:"pending"}, include:["coin", "user"]});
+        const transactions = await InternalBuy.findAll({include:["coin", "user"], order:[["createdAt", "DESC"]]});
+        
         res.render("dashboards/Trader/unapproved_internal",{
             transactions,
             moment
@@ -2130,6 +2140,93 @@ exports.getPendingInternalTransaction = async(req, res)=>{
     } catch (error) {
         req.flash('error', "Server error");
         res.redirect("/agent/home");
+    }
+}
+
+exports.getInternalSellTransaction = async(req, res)=>{
+    try {
+        const transactions = await Internal.findAll({include:["coin", "user"], order:[["createdAt", "DESC"]]});
+        
+        res.render("dashboards/Trader/internal_sell",{
+            transactions,
+            moment
+        })
+        // return res.json({transactions})
+    } catch (error) {
+        req.flash('error', "Server error");
+        res.redirect("/agent/home");
+    }
+}
+
+exports.getMyInternalSellTransaction = async(req, res)=>{
+    try {
+        const transactions = await Internal.findAll({where:{userId:req.session.userId}, include:["coin", "user"], order:[["createdAt", "DESC"]]});
+        const messages = await AdminMessages.findAll();
+        const user = await Users.findOne({where:{id:req.session.userId}})
+        res.render("dashboards/users/internal_sell",{
+            transactions,
+            moment,
+            messages,
+            user
+        })
+        // return res.json({transactions})
+    } catch (error) {
+        req.flash('error', "Server error");
+        res.redirect("/home");
+    }
+}
+
+exports.getMyInternalBuyTransaction = async(req, res)=>{
+    try {
+        const transactions = await InternalBuy.findAll({where:{userId:req.session.userId}, include:["coin", "user"], order:[["createdAt", "DESC"]]});
+        const messages = await AdminMessages.findAll();
+        const user = await Users.findOne({where:{id:req.session.userId}})
+        res.render("dashboards/users/internal_buy",{
+            transactions,
+            moment,
+            messages,
+            user
+        })
+        // return res.json({transactions})
+    } catch (error) {
+        req.flash('error', "Server error");
+        res.redirect("/home");
+    }
+}
+
+exports.viewMyInternalSold = async(req, res)=>{
+    try {
+        const transaction = await Internal.findOne({where:{id:req.params.id}, include:["coin", "user"], order:[["createdAt", "DESC"]]});
+        const messages = await AdminMessages.findAll();
+        const user = await Users.findOne({where:{id:req.session.userId}})
+        res.render("dashboards/users/view_internal_sell",{
+            transaction,
+            moment,
+            messages,
+            user
+        })
+        // return res.json({transactions})
+    } catch (error) {
+        req.flash('error', "Server error");
+        res.redirect("/home");
+    }
+}
+
+exports.viewMyInternalBuy = async(req, res)=>{
+    try {
+        const transaction = await InternalBuy.findOne({where:{id:req.params.id}, include:["coin", "user"], order:[["createdAt", "DESC"]]});
+        const messages = await AdminMessages.findAll();
+        const user = await Users.findOne({where:{id:req.session.userId}})
+        res.render("dashboards/users/view_internal_buy",{
+            transaction,
+            moment,
+            messages,
+            user
+        })
+        // return res.json({transactions})
+    } catch (error) {
+        req.flash('error', "Server error");
+        res.redirect("/home");
     }
 }
 
@@ -2162,7 +2259,7 @@ exports.getApprovedGiftCardTransaction = async(req, res)=>{
 
 exports.getApprovedInternalTransaction = async(req, res)=>{
     try {
-        const transactions = await InternalBuy.findAll({where:{status:"approved"}, include:["coin","user"]});
+        const transactions = await InternalBuy.findAll({where:{status:"approved"}, include:["coin","user"], order:[["createdAt", "DESC"]]});
         res.render("dashboards/Trader/approved_internal",{
             transactions,
             moment
@@ -2203,6 +2300,19 @@ exports.viewPendingInternalTx = async(req, res)=>{
     try {
         const transaction = await InternalBuy.findOne({where:{id:req.params.id}, include:["coin","user"]});
         res.render("dashboards/Trader/view_internal_pending",{
+            transaction,
+            moment
+        })
+    } catch (error) {
+        req.flash('error', "Server error");
+        res.redirect("/agent/home");
+    }
+}
+
+exports.viewInternalSellTx = async(req, res)=>{
+    try {
+        const transaction = await Internal.findOne({where:{id:req.params.id}, include:["coin","user"]});
+        res.render("dashboards/Trader/view_internal_sell",{
             transaction,
             moment
         })

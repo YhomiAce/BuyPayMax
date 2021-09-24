@@ -12,7 +12,7 @@
                    
                     <div class="card">
                         <div class="card-header">
-                            <h4>Buy Coin From Internal Wallet Details</h4>
+                            <h4>Sell Coin From Internal Wallet Details</h4>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
@@ -20,11 +20,11 @@
                                     <tbody>
                                         <tr>
                                             <td>Name</td>
-                                            <td><%= transaction.customerName %></td>
+                                            <td><%= transaction.user.name %></td>
                                         </tr>
                                         <tr>
                                             <td>Email</td>
-                                            <td><%= transaction.customerEmail %></td>
+                                            <td><%= transaction.user.email %></td>
                                         </tr>
                                         <tr>
                                             <td>Coin Type</td>
@@ -38,10 +38,6 @@
                                         <tr>
                                             <td>Current Exchange Rate</td>
                                             <td><%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(transaction.coin.dollarRate.toFixed(3))  %></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Dollar To Naira Exchange Rate</td>
-                                            <td><%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format(transaction.exchange)  %></td>
                                         </tr>
                                         <tr>
                                             <td>Quantity</td>

@@ -46,22 +46,9 @@ module.exports = {
         type: Sequelize.DECIMAL,
         allowNull: true
       },
-      status:{
-        type: Sequelize.ENUM("pending", "approved", "rejected"),
-        allowNull: false,
-        defaultValue:"pending"
-      },
       reference: {
         type:Sequelize.STRING,
         allowNull: false
-      },
-      walletAddress:{
-        type: Sequelize.STRING,
-        allowNull: true
-      },
-      receipt:{
-        type: Sequelize.STRING,
-        allowNull: true
       },
       createdAt: {
         allowNull: false,

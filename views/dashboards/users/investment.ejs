@@ -72,7 +72,7 @@
                                     </div>
                                 </div>
                                 <div class="form-group" id="earnBox" style="display: none;">
-                                    <label for="">Weekly Earning</label>
+                                    <label for="">Daily Earning</label>
                                     <input type="text" class="form-control" readonly id="earnings" tabindex="1"
                                         required autofocus>
                                     
@@ -177,7 +177,7 @@
             duration = Number(duration)
             amt = Number(amt);
             var money = amt + (amt * commission/100);
-            var week = duration * 4
+            var week = duration * 30
             var earning = money/week
             var earnings = Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format(earning.toFixed(3))
             

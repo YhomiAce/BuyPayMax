@@ -65,22 +65,9 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DECIMAL,
       allowNull: true
     },
-    status:{
-      type: DataTypes.ENUM("pending", "approved", "rejected"),
-      allowNull: false,
-      defaultValue:"pending"
-    },
     reference: {
       type:DataTypes.STRING,
       allowNull: false
-    },
-    walletAddress:{
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    receipt:{
-      type: DataTypes.STRING,
-      allowNull: true
     },
   }, {
     sequelize,
