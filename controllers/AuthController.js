@@ -1004,7 +1004,7 @@ exports.register = async (req, res) => {
                 req.flash("error", "Error sending mail");
                 res.redirect("back");
             }else{
-                console.log('Mail Sent: ', info);
+                // console.log('Mail Sent: ', info);
                 const update = await Users.update({email_token}, {where: {email}});
                 req.flash(
                     "success",

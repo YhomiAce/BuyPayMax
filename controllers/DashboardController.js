@@ -61,7 +61,6 @@ exports.home = async(req, res, next) => {
         });
         const coins = user.coins;
         const products = await Product.findAll();
-        console.log(coins);
         if (kyc) {
             res.render("dashboards/users/user_home", {
                 user: user,

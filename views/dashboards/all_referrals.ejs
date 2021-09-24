@@ -34,7 +34,7 @@
                                             <td><%= referrals[i].user  ? referrals[i].user.email : '' %></td>
                                             <td><%= referrals[i].referrals ? referrals[i].referrals.name : '' %></td>
                                             <td><%= referrals[i].referrals ? referrals[i].referrals.email : '' %></td>
-                                            <td><%= referrals[i].createdAt %></td>
+                                            <td><%= moment(referrals[i].createdAt).format("DD-MMM-YYYY") %></td>
                                         </tr>
                                         <% } %>
                                     </tbody>

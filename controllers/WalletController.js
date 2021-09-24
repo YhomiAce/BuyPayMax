@@ -311,6 +311,17 @@ exports.postEditUser = async (req, res, next) => {
               },
             }
           )
+          const referral = await Referrals.findOne({where:{user_id: userId}});
+          const hasTakeBonus = referral.haveCollectedBonus
+          if (referral && !hasTakeBonus) {
+            const refBonus = newAmt*0.1; // 10% of the amount being deposited
+            const userToCollectBonus = await Users.findOne({where:{id: referral.referral_id}});
+            const usersBalance = Number(userToCollectBonus.wallet)
+            const wallBal = refBonus + usersBalance
+            await Users.update({wallet: wallBal}, {where:{id: referral.referral_id}})
+            await Referrals.update({haveCollectedBonus: true}, {where:{user_id: userId}})
+            console.log('Refferal Bonus added: '+refBonus);
+          }
           
         }else{
           const coinAmt = Number(amount);

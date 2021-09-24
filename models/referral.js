@@ -37,6 +37,11 @@ module.exports = (sequelize, DataTypes) => {
     user_id: {
       allowNull: true,
       type: DataTypes.UUID,
+    },
+    haveCollectedBonus: {
+      allowNull: true,
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
     }
     
   }, {
