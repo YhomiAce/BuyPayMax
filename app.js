@@ -134,7 +134,7 @@ io.on("connection", socket => {
 });
 
 // scheduler task and all
-cron.schedule("*/5 * * * *", () => {
+cron.schedule("* 6 * * *", () => {
    
     // if(shell.exec("node cronjob.js").code !== 0) {
     //     console.log("something went wrong");
