@@ -15,35 +15,8 @@
         <div class="col-md-1"></div>
         <div class="col-md-10">
 
-            <% for(let i=0; i<blogs.length; i++) { %> 
-
-                <div class="blog-block-container">
-                    <div class="blog-block">
-                    <div class="row blog-block-row">
-                        <div class="col-md-7">
-                            <img src="<%= blogs[i].image %> " alt="Image" class="img-thumbnail" />
-                        </div>
-                        <div class="col-md-5 blog-title-div">
-                            <p class="blog-title"><%= blogs[i].title  %></p>
-                            <p class="blog-sub-title"><%= blogs[i].author  %></p>
-                        </div>
-                    </div>
-                    </div>
-                    <div>
-                        <p class="blog-content">
-                            <%= stripHtml(blogs[i].body)  %>
-                        </p>
-                        <p class="text-secondary">
-                            <i class="fas fa-calendar"></i> <%= moment(blogs[i].images).format("LLLL")  %> &nbsp;&nbsp;&nbsp;| &nbsp;&nbsp;
-                        </p>
-                    </div>
-                </div>
-            
-            <% } %>
             <!-- Blog One -->
-            
-            <!-- Blog One -->
-            <!-- <div class="blog-block-container">
+            <div class="blog-block-container">
                 <div class="blog-block">
                 <div class="row blog-block-row">
                     <div class="col-md-7">
@@ -57,19 +30,79 @@
                 </div>
                 <div>
                     <p class="blog-content">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-                    <p class="text-secondary">
-                        <i class="fas fa-calendar"></i> September 8, 2021 &nbsp;&nbsp;&nbsp;| &nbsp;&nbsp; <i class="fas fa-clock"></i> 12:56pm
-                    </p>
+                    <div class="row">
+                        <div class="col-sm-8">
+                            <p class="text-secondary">
+                                <i class="fas fa-calendar"></i> September 8, 2021 &nbsp;&nbsp;&nbsp;| &nbsp;&nbsp; <i class="fas fa-clock"></i> 12:56pm
+                            </p>
+                        </div>
+                        <div class="col-sm-4 prompt-action">
+                            <a href="#">
+                                <i class="fas fa-thumbs-up"></i>
+                            </a>
+                            <a href="#">
+                                <i class="fas fa-share"></i>
+                            </a>
+                            <a href="#" id="popper-button" class="text">
+                                2 Comments
+                            </a>
+                        </div>
+                        <!--Comment Section-->
+                        <div class="col-md-12">
+                            <div id="popper-popup">
+                                <div class="container-fluid">
+                                    <div class="row">
+                                    <div class="col-lg-8 py-1">
+                                        <h5>2 Comments</h5>
+                                    </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <div class="comment-meta d-flex align-items-baseline">
+                                                <h6 class="me-2">Paybuymax</h6>
+                                            </div>
+                                            <div class="comment-body">
+                                                Lorem ipsum, dolor sit amet consectetur adipisicing elit. Non minima ipsum at amet doloremque qui magni, placeat deserunt pariatur itaque laudantium impedit aliquam eligendi repellendus excepturi quibusdam nobis esse accusantium.
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-12">
+                                            <div class="comment-meta d-flex align-items-baseline">
+                                                <h6 class="me-2">Admin</h6>
+                                            </div>
+                                            <div class="comment-body">
+                                                Lorem ipsum, dolor sit amet consectetur adipisicing elit. Non minima ipsum at amet doloremque qui magni, placeat deserunt pariatur itaque laudantium impedit aliquam eligendi repellendus excepturi quibusdam nobis esse accusantium.
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-12 py-3">
+                                            <div class="flex-grow-1 ms-2 ms-sm-3">
+                                                <form>
+                                                    <textarea rows="2" placeholder="Comment here..." required ></textarea>
+                                                    <input type="submit" value="Comment">
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                              </div>
+                        </div>
+                        <!--Comment Section-->
+                        <script src="assests/js/comment-toggle.js"></script>
+                    </div>
+                    <div class="row join-group">
+                        <div class="col-sm-8">
+                            <a href="#"><i class="fab fa-whatsapp-square"></i> Join Our WhatsApp Group</a>
+                        </div>
+                        <div class="col-sm-4">
+                            <a href="#"><i class="fab fa-telegram"></i> Join Our Telegram Group</a>
+                        </div>
+                    </div>
                 </div>
-            </div> -->
-
+            </div>
         </div>
         <div class="col-md-1"></div>
       </div>
     </div>
   </section>
-
-<!--FAQ Section Ends-->
-<script src="/assests/js/script.js"></script>
-
 <%- include("./partials/footer") %>

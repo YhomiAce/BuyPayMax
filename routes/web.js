@@ -591,6 +591,7 @@ router.get("/free/wallet/:coinId", PackageController.getFreeWallet);
 router.get("/approve-deposit/:id", AuthMiddleware.redirectAdminLogin, BankDepositController.approvedCoinDesposit);
 // router.get("/coin/create", AuthMiddleware.redirectLogin, BankDepositController.populateCoinTable);
 router.get("/coin/get",BankDepositController.getCoins);
+router.get("/coin-list",BankDepositController.CoinList);
 
 // managers
 router.get("/gift-cards", AuthMiddleware.redirectAdminLogin, PackageController.addGiftCard);

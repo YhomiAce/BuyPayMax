@@ -5,7 +5,14 @@ const uniqueString = require("unique-string");
 const nodemailer = require("nodemailer");
 const speakeasy = require("speakeasy");
 const moment = require("moment");
+const axios = require('axios');
 const generateUniqueId = require("generate-unique-id");
+
+//1. Import coingecko-api
+const CoinGecko = require('coingecko-api');
+
+//2. Initiate the CoinGecko API Client
+const CoinGeckoClient = new CoinGecko();
 
 const { stripHtml} = require("../helpers/helpers")
 
@@ -28,10 +35,44 @@ const { error } = require("shelljs");
 // imports initialization
 const Op = Sequelize.Op;
 
-exports.index = (req, res, next) => {
+exports.index = async(req, res, next) => {
   //res.render("auths/login2");
-  res.render("index");
+  const coins = await this.getCoinList()
+  console.log(coins);
+  res.render("index", {
+    coins,
+    moment
+  });
 };
+
+exports.CoinList = async() =>{
+  try {
+      let data = await CoinGeckoClient.coins.markets();
+      const result = data.data.slice(0, 4)
+      // const index = result.indexOf()
+      const newAr = result.filter(coin => coin.id !== "binancecoin")
+      return newAr
+  } catch (error) {
+      return  error.message
+      // req.flash('error', "Server error!");
+      // res.redirect("/dashboard");
+  }
+}
+
+exports.getCoinList = async() =>{
+  try {
+    const url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1&sparkline=false"
+    let resp = await axios.get(url);
+    const result = resp.data.slice(0,4)
+    // const index = result.indexOf()
+    const newAr = result.filter(coin => coin.id !== "binancecoin")
+    return newAr
+  } catch (error) {
+      return  error.message
+      // req.flash('error', "Server error!");
+      // res.redirect("/dashboard");
+  }
+}
 
 exports.adminLogin = (req, res, next) => {
   res.render("auths/loginb");
@@ -702,20 +743,23 @@ exports.login = (req, res, next) => {
 };
 
 exports.register = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password1, password2 } = req.body;
   const mailformat = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
   const digits_only = (string) =>
     [...string].every((c) => "+0123456789".includes(c));
 
   try {
-    if (!email || !password) {
+    if (!email || !password1 || !password2) {
       req.flash("warning", "Please Fill all Fields");
       res.redirect("back");
     } else if (!email.match(mailformat)) {
       req.flash("warning", "Enter valid email address");
       res.redirect("back");
-    } else if (password.length < 6) {
+    } else if (password1.length < 6) {
       req.flash("warning", "Passwords must be greater than 5 letters");
+      res.redirect("back");
+    } else if (password1 !== password2) {
+      req.flash("warning", "Passwords Do not match");
       res.redirect("back");
     } else {
       let uniqueRef = generateUniqueId({
@@ -726,15 +770,16 @@ exports.register = async (req, res) => {
       if (user) {
         req.flash("warning", "Email already taken!");
         res.redirect("back");
+        return
       }else{
 
-        const hasPassword = bcrypt.hashSync(password, 10);
-        const {ref} = req.body
-        console.log("Reference",ref);
+        const hasPassword = bcrypt.hashSync(password1, 10);
+        const {referral} = req.body
+        console.log("Reference",referral);
         const reference = await Users.findOne({
             where: {
             reference: {
-                [Op.eq]: ref,
+                [Op.eq]: referral,
             },
             },
         });
@@ -745,6 +790,7 @@ exports.register = async (req, res) => {
             password: hasPassword,
             reference: uniqueRef,
             referral_id: reference.id,
+            wallet: 500
             });
             const referral = await Referrals.create({
                     referral_id: reference.id,

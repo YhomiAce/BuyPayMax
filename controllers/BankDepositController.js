@@ -2,8 +2,16 @@
 const Sequelize = require("sequelize");
 const multer = require("multer");
 const path = require("path");
-const moment = require('moment')
+const moment = require('moment');
+const axios = require('axios');
 const nodemailer = require("nodemailer");
+
+
+//1. Import coingecko-api
+const CoinGecko = require('coingecko-api');
+
+//2. Initiate the CoinGecko API Client
+const CoinGeckoClient = new CoinGecko();
 
 // local imports
 const BankDeposits = require("../models").BankDeposit;
@@ -352,6 +360,22 @@ exports.getCoins = async(req, res) =>{
             }
         ] })
         return res.send(user)
+    } catch (error) {
+        return res.send({err: error.message})
+        // req.flash('error', "Server error!");
+        // res.redirect("/dashboard");
+    }
+}
+
+exports.CoinList = async(req, res) =>{
+    try {
+        // let data = await CoinGeckoClient.coins.markets();
+        const url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1&sparkline=false"
+        let resp = await axios.get(url);
+        const result = resp.data.slice(0,4)
+        // const index = result.indexOf()
+        const newAr = result.filter(coin => coin.id !== "binancecoin")
+        return res.send({ newAr, result})
     } catch (error) {
         return res.send({err: error.message})
         // req.flash('error', "Server error!");
