@@ -42,8 +42,13 @@
                                                 novalidate="">
                                                 <div class="form-group">
                                                     <label for="name">Name</label>
+                                                    <% if(!edit) { %>
                                                     <input type="text" class="form-control" name="name" tabindex="1"
+                                                        required autofocus value="<%= user.name %>" disabled>
+                                                    <% }  else { %>
+                                                        <input type="text" class="form-control" name="name" tabindex="1"
                                                         required autofocus value="<%= user.name %>">
+                                                    <% } %>
                                                     <div class="invalid-feedback">
                                                         Please fill in name
                                                     </div>
@@ -60,7 +65,7 @@
                                                     <label for="">Phone</label>
                                                     <% if(!edit) { %>
                                                     <input type="text" class="form-control" name="phone" tabindex="1"
-                                                        required autofocus value="<%= user.phone %>">
+                                                        required autofocus value="<%= user.phone %>" disabled>
                                                     <% }  else { %>
                                                     <input type="text" class="form-control" name="phone" tabindex="1"
                                                         required autofocus value="<%= user.phone %>">

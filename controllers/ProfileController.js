@@ -326,10 +326,7 @@ exports.updateProfile = (req, res, next) => {
         req.flash('warning', "Enter valid mobile phone");
         res.redirect("back");
     } else {
-        Users.update({
-                phone: phone,
-                name
-            }, {
+        Users.update( req.body, {
                 where: {
                     id: {
                         [Op.eq]: req.session.userId

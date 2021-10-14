@@ -37,12 +37,13 @@
               
               <label for="email">Enter your email</label>
               <input type="email" required class="form-control input" placeholder="youremail@email.com" name="email" id="email">
-              <label for="phone">Referral Code (If any)</label>
-              <input type="text" class="form-control input" placeholder="Enter Referral Code or Leave Blank" name="referral" id="phone">
+              
               <label for="Password1">Enter your password</label>
               <input type="password" required class="form-control input" placeholder="********" name="password1" id="password1">
               <label for="Password2">Confirm your password</label>
               <input type="password" required class="form-control input" placeholder="*******" name="password2" id="password2">
+              <label for="phone">Referral Code (If any)</label>
+              <input type="text" class="form-control input" value="<%= ref  %>" placeholder="Enter Referral Code or Leave Blank" name="referral" id="phone">
               <input type="submit" class="btn btn-block login-btn" value="GET STARTED" name="submit">
             </form>
             <p class="dont-have-acc">Already a member? <a class="link-below-form" href="/login">Login</a></p>

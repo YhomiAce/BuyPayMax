@@ -1,6 +1,8 @@
 // package imports
 const Sequelize = require("sequelize");
 const moment = require("moment");
+const multer = require("multer");
+const path = require("path");
 
 // local imports
 const Packages = require("../models").Package;
@@ -20,6 +22,37 @@ const {numFormatter} = require("../helpers/helpers")
 
 // imports initialization
 const Op = Sequelize.Op;
+
+// constants
+const storage = multer
+    .diskStorage({
+        destination: "./public/uploads/",
+        filename: function (req, file, cb) {
+            cb(null, file.fieldname + "-" + Date.now() + path.extname(file.originalname));
+        },
+    });
+
+const checkFileType = (file, cb) => {
+    const filetypes = /jpeg|jpg|png|gif|JPEG|JPG|PNG|GIF/;
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = filetypes.test(file.mimetype);
+
+    if (mimetype && extname) {
+        return cb(null, true);
+    } else {
+        cb(new Error("Images only!"));
+    }
+}
+
+// init upload 
+const upload = multer({
+    storage: storage,
+    fileFilter: (req, file, cb) => {
+        checkFileType(file, cb);
+    }
+}).fields([{
+    name: 'image'
+}]);
 
 exports.addPackage = (req, res, next) => {
     AdminMessages.findAll()
@@ -154,14 +187,22 @@ exports.addGiftCard = (req, res, next) => {
 }
 
 exports.createGiftCard = async(req, res, next) => {
+    
     try {
-        const {name} = req.body;
-        const card = await Card.findOne({where:{name}});
-        if (card) {
-            req.flash('error', "Gift Card already exist!");
+        
+        
+        console.log(req.file);
+        console.log(req.body);
+        let name = req.body.name;
+        if (!name) {
+            req.flash('warning', "Enter a Name for the Gift card");
             res.redirect("back");
-        }else{
-            await Card.create({name});
+        } else {
+            
+            await Card.create({
+                name,
+                image: req.file.filename
+            })    
         }
         req.flash('success', "Gift Card Created");
         res.redirect("back");

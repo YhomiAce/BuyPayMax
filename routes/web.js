@@ -48,16 +48,10 @@ const PostsController = require('../controllers/PostsController');
 const SEVEN_DAYS = 1000 * 60 * 60 * 24 * 7;
 
 const storage = multer.diskStorage({
-    destination:function(req,file,cb){
-      cb(null,'uploads/')
+    destination:"./public/uploads/",
+    filename: function (req, file, cb) {
+        cb(null, file.fieldname + "-" + Date.now() + path.extname(file.originalname));
     },
-    filename:function(req,file,cb){
-        let reference = generateUniqueId({
-            length: 15,
-            useLetters: true,
-            });
-      cb(null,reference+file.originalname)
-    }
   })
   
   const filter = (req,file,cb)=>{
@@ -509,7 +503,7 @@ router.get("/profilesettings", AuthMiddleware.redirectLogin, ProfileController.e
 router.post("/editprofile", AuthMiddleware.redirectLogin, ProfileController.updateProfile);
 router.post("/updatetwoway", AuthMiddleware.redirectLogin, ProfileController.updateTwoWay);
 router.post("/emailtwoway", AuthMiddleware.redirectLogin, ProfileController.updateEmailWay);
-router.post("/user_kyc", AuthMiddleware.redirectLogin,upload.single('image'), KycController.uploadKyc);
+router.post("/user_kyc", AuthMiddleware.redirectLogin, KycController.uploadKyc);
 router.get("/withdraw",  AuthMiddleware.authVerirfication, TransactionController.withdrawWallet);
 router.get("/withdraw-coin",  AuthMiddleware.redirectLogin, TransactionController.withdrawCoin);
 router.get("/transfer-history",  AuthMiddleware.redirectLogin, TransactionController.transferHistory);
@@ -595,7 +589,7 @@ router.get("/coin-list",BankDepositController.CoinList);
 
 // managers
 router.get("/gift-cards", AuthMiddleware.redirectAdminLogin, PackageController.addGiftCard);
-router.post("/create/gift-cards", AuthMiddleware.redirectAdminLogin, PackageController.createGiftCard);
+router.post("/create/gift-cards", AuthMiddleware.redirectAdminLogin, uploader.single("image"), PackageController.createGiftCard);
 router.post("/delete/gift-card", AuthMiddleware.redirectAdminLogin, PackageController.deleteGiftCard);
 router.get("/add/manager", AuthMiddleware.redirectAdminLogin, ManagerController.addManager);
 router.post("/add/manager", AuthMiddleware.redirectAdminLogin, ManagerController.postAddManagers);

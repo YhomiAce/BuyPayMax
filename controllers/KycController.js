@@ -58,7 +58,7 @@ exports.userKyc = (req, res, next) => {
     
 }
 
-exports.uploadKyc = async(req, res, next) => {
+exports.uploadKycFile = async(req, res, next) => {
     try {
         const result = await cloudinary.uploader.upload(req.file.path);
         const docPath = result.secure_url;
@@ -70,6 +70,84 @@ exports.uploadKyc = async(req, res, next) => {
         req.flash('error', "Server error!");
         res.redirect("back");
     }
+}
+
+exports.uploadKyc = (req, res, next) => {
+    upload(req, res, (err) => {
+        if (err) {
+            req.flash('error', "Check image and try again!");
+            res.redirect("back");
+        } else {
+            console.log(req.files);
+            console.log(req.body);
+            let document = req.body.document;
+            if (!document) {
+                req.flash('warning', "Select Document");
+                res.redirect("back");
+            } else if (req.files.image == "" || req.files.image == null || req.files.image == undefined) {
+                req.flash('warning', "Enter Image");
+                res.redirect("back");
+            } else {
+                // insert into bankdeposit table with
+                // check if users have already Uploaded
+                //if they have then update the image and type 
+                // else insert new
+                Kycs.findOne({
+                    where: {
+                        user_id: {
+                            [Op.eq]: req.session.userId
+                        }
+                    }
+                })
+                .then(kyc => {
+                    if (kyc) {
+                        Kycs.update({
+                            type: document,
+                            image: req.files.image[0].filename,
+                            status: 0,
+                        },{
+                            where: {
+                                user_id: {
+                                    [Op.eq]: req.session.userId
+                                }
+                            }
+                        })
+                        .then(kyc2 => {
+                            User.update({isKyc: true}, {where:{id:req.session.userId}})
+                            .then(resp =>{
+
+                                req.flash('success', "Document uploaded, awaiting confirmation!");
+                                res.redirect("back");
+                            })
+                        })
+                        .catch(error => {
+                            req.flash('error', "Error in verification, try again!");
+                            res.redirect("back");
+                        });
+                    } else {
+                        Kycs.create({
+                            user_id: req.session.userId,
+                            type: document,
+                            image: req.files.image[0].filename,
+                            status: 0,
+                        })
+                        .then(kyc => {
+                            req.flash('success', "Document uploaded, awaiting confirmation!");
+                            res.redirect("back");
+                        })
+                        .catch(error => {
+                            req.flash('error', "Error in verification, try again!");
+                            res.redirect("back");
+                        });
+                    }
+                })
+                .catch(error => {
+                    req.flash('error', "Error in verification, try again!");
+                            res.redirect("back");
+                });
+            }
+        }
+    });
 }
 
 exports.unApprovedKyc = async(req, res, next) => {

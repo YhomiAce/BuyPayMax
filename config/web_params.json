@@ -2,6 +2,7 @@
     "bitmint": {
        "title": "PayBuyMax",
        "name": "PayBuyMax",
-       "website": "https://tobby-epay.herokuapp.com/signup?ref="
+       "website": "https://tobby-epay.herokuapp.com/signup?ref=",
+       "localhost":"http://localhost:5000/signup?ref="
     }
 }

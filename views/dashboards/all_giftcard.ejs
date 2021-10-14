@@ -23,6 +23,7 @@
                     <tr>
                       <th class="text-center">#</th>
                       <th>Name</th>
+                      <th>Image</th>
                       <th>Date Created</th>
                       <th>Action</th>
                     </tr>
@@ -32,6 +33,9 @@
                     <tr>
                       <td><%= i + 1 %></td>
                       <td><%= cards[i].name %></td>
+                      <td>
+                        <img alt="gift-card" height="100" width="100" src="/uploads/<%= cards[i].image !== null ? cards[i].image :"image-1607515046658.png"  %>" class="img-thumbnail" >
+                      </td>
                       <td><%= moment(cards[i].createdAt).format('DD-MM-YYYY') %></td>
                       <td>
                        
@@ -70,11 +74,15 @@
           </button>
         </div>
         <div class="modal-body">
-          <form action="/create/gift-cards" method="POST">
+          <form action="/create/gift-cards" method="POST" enctype="multipart/form-data">
               <div class="form-group">
+                <label for="name">Gift Card Name</label>
                   <input type="text" class="form-control" name="name" placeholder="Name">
               </div>
-              
+              <div class="form-group">
+                <label for="image">Gift Card Image</label>
+                <input type="file" class="form-control" name="image">
+              </div>
             <button type="submit" class="btn btn-primary btn-block">Submit</button>
           </form>
         </div>
