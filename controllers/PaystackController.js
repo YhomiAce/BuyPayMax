@@ -5,9 +5,11 @@ const axios = require('axios');
 // local imports
 const Withdrawals = require("../models").Withdrawal;
 const Users = require("../models").User;
+const Deposit = require("../models").Deposit;
 const parameters = require("../config/params");
 const auth = require("../config/auth");
 const helpers = require("../helpers/cryptedge_helpers");
+const { Service } = require("../helpers/paystack");
 
 // imports initialization
 const Op = Sequelize.Op;
@@ -39,9 +41,29 @@ exports.getBanks = (req, res, next) => {
         });
 }
 
+exports.verifyTransaction = async (req, res) =>{
+    try {
+        const deposit = await Deposit.findOne({where:{id:req.body.id}})
+        const response = await Service.Paystack.verifyPayment(deposit.reference);
+        if (response.status !== true) {
+            return res.status(400).send({success: false, message: "Server Error"})
+        }
+        return res.status(200).send({
+            success: true,
+            response
+        });
+    } catch (error) {
+        return res.status(500).send({
+            success: false,
+            message: "Unable to Connect to Paystack"
+        });
+    }
+}
+
 exports.verifyAccount = (req, res, next) => {
     let accountNumber = req.body.account;
     let bankCode = req.body.bank_code;
+    console.log(req.body);
     axios.get(`${parameters.PAYSTACK_BASEURL}/bank/resolve?account_number=${accountNumber}&bank_code=${bankCode}`, {
             headers: auth.header,
         })
@@ -189,64 +211,71 @@ exports.createTransferRecipient = (req, res, next) => {
 }
 
 exports.payWithPaystack = (req, res, next) => {
-        id = req.body.id;
-        DollarValue.findOne({})
-            .then(dollar => {
-                Withdrawals.findOne({
-                    where: {
-                        id: {
-                            [Op.eq]: id
-                        }
-                    }
-                })
-                .then(withdrawal => {
-                    if (withdrawal) {
-                        axios({
-                                method: 'post',
-                                url: `${parameters.PAYSTACK_BASEURL}/transfer`,
-                                data: {
-                                    "source": "balance",
-                                    "amount": withdrawal.amount * Math.abs(parseInt(dollar.amount)),
-                                    "recipient": withdrawal.recipient_id,
-                                    "reason": `${parameters.APP_NAME} INVESTMENT PAYOUT`
-                                },
-                                headers: auth.header,
+        const{id, amount, type } = req.body;
+       
+        Withdrawals.findOne({
+            where: {
+                id: {
+                    [Op.eq]: id
+                }
+            }
+        })
+        .then(withdrawal => {
+            if (withdrawal) {
+                axios({
+                        method: 'post',
+                        url: `${parameters.PAYSTACK_BASEURL}/transfer`,
+                        data: {
+                            "source": "balance",
+                            "amount": amount *100,
+                            "recipient": withdrawal.recipient_code,
+                            "reason": `${parameters.APP_NAME} ${type} PAYOUT`
+                        },
+                        headers: auth.header,
+                    })
+                    .then(response => {
+                        Withdrawals.update({
+                            transfer_code: response.data.data.transfer_code,
+                            reference: response.data.data.reference
+                            }, {
+                                where: {
+                                    id: {
+                                        [Op.eq]: id
+                                    }
+                                }
                             })
-                            .then(response => {
-                                Withdrawals.update({
-                                        status: 1
-                                    }, {
-                                        where: {
-                                            id: {
-                                                [Op.eq]: id
-                                            }
-                                        }
-                                    })
-                                    .then(updatedWithdrawal => {
-                                        req.flash('success', "Withdrawal updated successfully");
-                                        res.redirect("back");
-                                    })
-                                    .catch(error => {
-                                        req.flash('error', "Server error" + error);
-                                        res.redirect("back");
-                                    });
+                            .then(updatedWithdrawal => {
+                                console.log('success', "Withdrawal updated successfully");
+                                return res.json({
+                                    success: true,
+                                    message: "Transfer Initiated",
+                                    data: response.data.data
+                                })
                             })
                             .catch(error => {
-                                req.flash('error', "Server error" + error);
-                                res.redirect("back");
+                                return res.status(500).json({
+                                    success: false,
+                                    message: "An Error Occurred Please Contact Service Provider"
+                                })
                             });
-                    } else {
-                        req.flash('error', "Invalid withdrawal");
-                        res.redirect("/");
-                    }
+                    })
+                    .catch(error => {
+                        return res.status(500).json({
+                            success: false,
+                            message: "An Error Occurred Please Contact Service Provider"
+                        })
+                    });
+            } else {
+                return res.status(500).json({
+                    success: false,
+                    message: "An Error Occurred Please Contact Service Provider"
                 })
-                .catch(error => {
-                    req.flash('error', "Server error" + error);
-                    res.redirect("back");
-                });
+            }
+        })
+        .catch(error => {
+            return res.status(500).json({
+                success: false,
+                message: "An Error Occurred Please Contact Service Provider"
             })
-            .catch(error => {
-                    req.flash('error', "Server error" + error);
-                    res.redirect("back");
-            });
-                }
+        });
+}

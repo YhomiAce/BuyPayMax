@@ -42,6 +42,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.FLOAT,
       defaultValue: 0
     },
+    image: {
+      allowNull: true,
+      type: DataTypes.STRING
+    },
   }, {
     sequelize,
     modelName: 'Product',

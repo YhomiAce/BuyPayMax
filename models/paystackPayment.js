@@ -2,8 +2,10 @@
 const {
   Model
 } = require('sequelize');
+const dayjs = require("dayjs");
+
 module.exports = (sequelize, DataTypes) => {
-  class rate extends Model {
+  class Payment extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -11,34 +13,46 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      
+      Payment.belongsTo(models.User, {
+        foreignKey: "user_id",
+        as: "user",
+      });
     }
-  };
-  rate.init({
+
+  }
+  
+  Payment.init({
     id: {
+      allowNull: false,
       primaryKey: true,
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV1,
     },
-    name: {
+    user_id: {
       allowNull: true,
-      type: DataTypes.STRING
+      type: DataTypes.UUID,
     },
-    currencyValue: {
+    payment_category: {
       allowNull: true,
+      type: DataTypes.STRING,
+    },
+    payment_reference: {
+      allowNull: true,
+      type: DataTypes.STRING,
+    },
+    amount: {
       type: DataTypes.FLOAT,
-      defaultValue: 1
+      allowNull: false
     },
-    naira: {
-      allowNull: true,
-      type: DataTypes.FLOAT,
-      defaultValue: 0
-    },
+    
   }, {
     sequelize,
-    modelName: 'Rate',
-    tableName: 'rates',
+    modelName: 'Payment',
     timestamps: true,
-    paranoid: true
+    paranoid: true,
+    tableName: 'paystack_payments',
   });
-  return rate;
+  // Payment.sync({force: true})
+  return Payment;
 };

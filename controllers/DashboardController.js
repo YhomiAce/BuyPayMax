@@ -340,6 +340,29 @@ exports.adminPassword = (req, res, next) => {
         });
 }
 
+exports.getRefferal = async(req, res) => {
+    try {
+        const referral = await Referrals.findAll({
+            where: {
+                referral_id: "d4ea57b0-ffa0-11eb-b779-49a06245dff8"
+            },
+            order: [
+                ['createdAt', 'DESC'],
+            ],
+            include: [
+                {
+                    model: Users,
+                    as: "user",
+                    attributes:["email", "name", "id"]
+                }
+            ],
+        })
+        return res.send({referral})
+    } catch (error) {
+        return res.send({error})
+    }
+}
+
 exports.userReferral = (req, res, next) => {
     AdminMessages.findAll()
         .then(unansweredChats => {
@@ -350,7 +373,13 @@ exports.userReferral = (req, res, next) => {
                     order: [
                         ['createdAt', 'DESC'],
                     ],
-                    include: ["user"],
+                    include: [
+                        {
+                            model: Users,
+                            as: "user",
+                            attributes:["email", "name", "id"]
+                        }
+                    ],
                 })
                 .then(referrals => {
                     Users.findOne({
@@ -361,6 +390,7 @@ exports.userReferral = (req, res, next) => {
                             }
                         })
                         .then(user => {
+                            // console.log(referrals);
                             res.render("dashboards/users/user_referral", {
                                 referrals: referrals,
                                 messages: unansweredChats,

@@ -1,17 +1,18 @@
 <!-- header -->
-<%- include("../partials/header_admin") %>
-<%- include("../partials/sidebar") %>
+<%- include("../../partials/header") %>
+<%- include("../../partials/user_sidebar") %>
 
 <!-- Main Content -->
 <div class="main-content">
-    <%- include("../partials/alerts") %>
+    <%- include("../../partials/alerts") %>
+
     <section class="section">
         <div class="section-body">
             <div class="row">
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <h4>Approved Wallet Deposits</h4>
+                            <h4>Deposits History</h4>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
@@ -19,29 +20,29 @@
                                     <thead>
                                         <tr>
                                             <th class="text-center">#</th>
-                                            <th>Email</th>
                                             <th>Amount</th>
-                                            <th>Coin Type</th>
-                                            <th>Reference</th>
+                                            <th>Type</th>
                                             <th>Status</th>
-                                            <th>Date</th>
-                                            <th>Action</th>
+                                            <th>Date Approved</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <%  for (let i = 0; i < deposits.length; i++ ) { %>
                                         <tr>
                                             <td><%= i + 1 %></td>
-                                            <td><%= deposits[i].user.email %></td>
-                                            <td><%= deposits[i].amount %></td>
-                                            <td><%= deposits[i].channel %></td>
-                                            <td><%= deposits[i].reference %></td>
-                                            <td><%= deposits[i].status %></td>
+                                            <td><%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format(deposits[i].amount) %></td>
+                                            <td><%= deposits[i].channel === "PAYSTACK" ? "Naira Wallet" : "Crypto Wallet" %></td>
+                                            <% if (deposits[i].status === "pending") { %>
+                                             <td class="text-info text-bold">PENDING</td>
+                                            <% } %>
+                                            <% if (deposits[i].status === "approved") { %>
+                                            <td class="text-success text-bold">APPROVED</td>
+                                            <% } %>
+                                            <% if (deposits[i].status === "disapproved") { %>
+                                            <td class="text-danger text-bold">DISAPPROVED</td>
+                                            <% } %>
                                             <td><%= moment(deposits[i].createdAt).format("DD-MMM-YYYY") %></td>
-                                            <td>
-                                                <a href="/bankdeposit/<%= deposits[i].id %>"
-                                                    class="btn btn-primary btn-pill">View</a>
-                                            </td>
+                                            
                                         </tr>
                                         <% } %>
                                     </tbody>
@@ -54,4 +55,4 @@
         </div>
     </section>
 </div>
-<%- include("../partials/footer2") %>
+<%- include("../../partials/user_footer") %>

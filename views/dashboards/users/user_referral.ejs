@@ -47,9 +47,9 @@
                                         <%  for (let i = 0; i < referrals.length; i++ ) { %>
                                         <tr>
                                             <td><%= i + 1 %></td>
-                                            <td><%= referrals[i].user.name %></td>
+                                            <td><%= referrals[i].user.name !== null ?  referrals[i].user.name : "" %></td>
                                             <td><%= referrals[i].user.email %></td>
-                                            <td><%= referrals[i].createdAt %></td>
+                                            <td><%= moment(referrals[i].createdAt).format("DD-MMM-YYYY") %></td>
                                         </tr>
                                         <% } %>
                                     </tbody>

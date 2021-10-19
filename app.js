@@ -13,11 +13,14 @@ const morgan = require('morgan')
 // local imports
 const Users = require("./models").User;
 const Investments = require("./models").Investment;
+const Rate = require("./models").Rate;
+const Product = require("./models").Product;
 const History = require('./models').History;
 const parameters = require("./config/params");
 const auth = require("./config/auth");
 const webParameters = require("./config/web_params.json");
 const socketHelpers = require("./helpers/socket_helpers");
+const {Service} = require("./helpers/paystack");
 const db = require('./config/db');
 
 // imports initialization
@@ -26,6 +29,7 @@ const Op = Sequelize.Op;
 // routes includes
 const webRoute = require("./routes/web");
 const apiRoute = require("./routes/api");
+const { image } = require('./helpers/cloudinary');
 
 // imports initalization
 const app = express();
@@ -134,7 +138,7 @@ io.on("connection", socket => {
 });
 
 // scheduler task and all
-cron.schedule("0 0 0 * * *", () => {
+cron.schedule("* 6 * * *", () => {
    
     // if(shell.exec("node cronjob.js").code !== 0) {
     //     console.log("something went wrong");
@@ -210,30 +214,20 @@ cron.schedule("0 0 0 * * *", () => {
     // }
 });
 
-cron.schedule("00 6 * * *", () => {
-   
-    // if(shell.exec("node cronjob.js").code !== 0) {
-    //     console.log("something went wrong");
+cron.schedule("*/10 * * * *", async() => {
+   const products = await Product.findAll();
+   const rate = await Rate.findOne({where:{name: "Dollar"}})
+    await Promise.all(products.map(async product =>{
+        console.log(product.name.toLowerCase(), rate.naira);
+        const data = await Service.Coingecko.getCoinDetails(product.name.toLowerCase());
+        const {image, current_price} = data[0];
+        const nairaRate = Number(rate.naira) * Number(current_price)
+
+        await Product.update({rate: nairaRate, dollarRate:current_price, image}, {where:{id:product.id}})
+        console.log("Rates updated");
+        
+    }))
     
-                                let type = 'Testing Cron'
-                                let desc = 'Cron Job Testing'
-                                let value = 123;
-                                let user_id = "d4ea57b0-ffa0-11eb-b779-49a06245dff8";
-                                History.create({
-                                    type,
-                                    desc,
-                                    value,
-                                    user_id
-                                })
-                                .then(msg =>{
-                                    console.log("Cron Job Added");
-                                })
-                                .catch(err =>{
-                                    return err;
-                                })
-                               
-                            
-    // }
 });
 
 // server

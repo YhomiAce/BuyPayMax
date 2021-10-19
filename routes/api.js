@@ -12,6 +12,6 @@ router.post("/signup", registerValidation(), validate, AuthController.registerUs
 
 router.post("/signin", loginValidation(), validate, AuthController.login);
 
-router.get("/check", Auth, AuthController.checkAuth)
+router.get("/user", Auth, AuthController.checkAuth)
 
 module.exports = router;

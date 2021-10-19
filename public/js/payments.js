@@ -2,6 +2,7 @@ let amountInput = document.getElementById("amount");
 const digits_only = string => [...string].every(c => '0123456789'.includes(c));
 
 function payWithPaystack() {
+    let amountInput = document.getElementById("naira-amount");
     let amount = amountInput.value;
     if (!digits_only(amount) || amount.length < 2) {
         iziToast.warning({
@@ -12,21 +13,33 @@ function payWithPaystack() {
     } else {
         let email = document.getElementById("user_email").value;
         let phone = document.getElementById('user_phone').value;
-        let conversionRate = document.getElementById("dollar_rate").innerHTML;
+        let name = document.getElementById('user_name').value;
         var handler = PaystackPop.setup({
-            key: 'pk_live_1f9ff1a42b0c4dac55f9d2a4588b56f36af394ad',
+            key: 'pk_test_0c79398dba746ce329d163885dd3fe5bc7e1f243',
             email: email,
-            amount: amount * 100 * conversionRate, //multiply each amount by 100 to get kobo equivalent
+            amount: amount * 100, //multiply amount by 100 to get kobo equivalent
             currency: "NGN",
-            ref: '' + Math.floor((Math.random() * 1000000000) + 1), // generates a pseudo-unique reference. Please replace with a reference you generated. Or remove the line entirely so our API will generate one for you
             metadata: {
-                custom_fields: [{
-                    display_name: "Mobile Number",
-                    variable_name: "mobile_number",
-                    value: phone
-                }]
+                custom_fields: [
+                    {
+                        display_name: "Mobile Number",
+                        variable_name: "mobile_number",
+                        value: phone
+                    },
+                    {
+                        display_name: "Customer Email",
+                        variable_name: "Email",
+                        value: email
+                    },
+                    {
+                        display_name: "Customer Name",
+                        variable_name: "Name",
+                        value: name
+                    }
+            ]
             },
             callback: function (response) {
+                console.log(response);
                 let reference = response.reference;
                 $.ajax({
                     type: 'POST',
@@ -35,7 +48,9 @@ function payWithPaystack() {
                         email: email,
                         amount: amount,
                         reference: reference,
-                        channel: "PAYSTACK"
+                        channel: "PAYSTACK",
+                        payment_category: "Fund Naira Wallet",
+                        currency: "NGN"
                     },
                     success: function(data) {
                         if (data.status == true) {
@@ -77,6 +92,7 @@ function payWithPaystack() {
 }
 
 function payWithCryptos() {
+    let amountInput = document.getElementById("usd-amount");
     let amount = amountInput.value;
     if (!digits_only(amount) || amount.length < 2) {
         iziToast.warning({
@@ -89,7 +105,7 @@ function payWithCryptos() {
         let phone = document.getElementById('user_phone').value;
         paylot({
             amount: amount,
-            key: 'pyt_pk-8a13fd5280a144c1bf419bb5332172fe',
+            key: 'pyt_sk-788f2710321c44fcaf9b689de2f5ad16',
             reference: Date.now() + '' + Math.floor((Math.random() * 1000000000) + 1),
             currency: 'USD',
             payload: {
@@ -106,6 +122,7 @@ function payWithCryptos() {
                 });
             }
         }, (err, tx) => {
+            console.log(tx);
             if(err){
                 iziToast.warning({
                     title: 'Warning!',

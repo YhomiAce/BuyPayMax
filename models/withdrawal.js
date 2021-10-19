@@ -35,6 +35,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.FLOAT,
       defaultValue: 0,
     },
+    charge: {
+      allowNull: true,
+      type: DataTypes.FLOAT,
+      defaultValue: 0,
+    },
     acct_name: {
       allowNull: true,
       type: DataTypes.TEXT,
@@ -47,13 +52,30 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true,
       type: DataTypes.TEXT,
     },
+    bank_code: {
+      allowNull: true,
+      type: DataTypes.STRING,
+    },
     reference: {
-      type: DataTypes.TEXT
+      allowNull: true,
+      type: DataTypes.STRING
+    },
+    recipient_code: {
+      allowNull: true,
+      type: DataTypes.STRING
+    },
+    transfer_code: {
+      allowNull: true,
+      type: DataTypes.STRING
     },
     status: {
       allowNull: true,
       type: DataTypes.ENUM("pending", "approved", "disapproved"),
       defaultValue: "pending",
+    },
+    meta: {
+      type: DataTypes.TEXT,
+      allowNull: true
     },
     fileDoc: {
       allowNull: true,

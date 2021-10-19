@@ -234,7 +234,12 @@
             <td><img style="width: 30px; padding-right: 5px;" src="<%= coins[i].image %> " alt=""> <span> <%= coins[i].id %>  <%= coins[i].symbol.toUpperCase() %></span> </td>
             <td> <span> <%= coins[i].symbol.toUpperCase() %></span> </td>
             <td> <%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format((Number(coins[i].current_price)) )   %></td>
-            <td class="hidden" style="color: red;"><%= (coins[i].price_change_percentage_24h).toFixed(2) %> %</td>
+            <% if (coins[i].price_change_percentage_24h < 0) { %>
+                <td class="hidden" style="color: red;"><%= (coins[i].price_change_percentage_24h).toFixed(2) %> %</td>
+            <% } %>
+            <% if (coins[i].price_change_percentage_24h > 0) { %>
+                <td class="hidden" style="color: green;"><%= (coins[i].price_change_percentage_24h).toFixed(2) %> %</td>
+            <% } %>
             <td class="hidden"><%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format((Number(coins[i].market_cap)) )   %></td>
             <td class="hidden"><button type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" style="font-size: 13px;" class="btn btn-success">Buy</button></td>
         </tr>

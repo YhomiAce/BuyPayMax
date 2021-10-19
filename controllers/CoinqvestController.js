@@ -14,9 +14,45 @@ const helpers = require("../helpers/cryptedge_helpers");
 const Op = Sequelize.Op;
 
 const client = new CoinqvestClient(
-    '71a7389ae9cc',
-    'T$qN-fd3d-DU$x-kybR-*RZM-k5KB'
+    '728633af516b',
+    'TgVR-9$$C-n*PP-MbQg-q4@!-FutU'
 );
+
+exports.createCustomer = async (req, res) =>{
+    try {
+        client.post('/customer',
+            {
+                customer:{
+                    email: 'john@doe.com',
+                    firstname: 'John',
+                    lastname: 'Doe',
+                    company: 'ACME Inc.',
+                    adr1: '810 Beach St',
+                    adr2: 'Finance Department',
+                    zip: 'CA 94133',
+                    city: 'San Francisco',
+                    countrycode: 'US'
+                }
+            },
+            function (response) {
+
+                console.log(response.status);
+                console.log(response.data);
+
+                if (response.status !== 200) {
+                    // something went wrong, let's abort and debug by looking at our log file
+                    console.log('Could not create customer. Inspect above log entry.');
+                    return;
+                }
+
+                let customerId = response.data['customerId']; // store this persistently in your database
+                return res.send({customerId})
+            }
+        );
+    } catch (error) {
+        return res.send({error})
+    }
+}
 
 exports.createCheckout = (req, res, next) => {
 

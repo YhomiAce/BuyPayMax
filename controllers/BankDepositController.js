@@ -385,10 +385,9 @@ exports.CoinList = async(req, res) =>{
 
 exports.approveDeposits = (req, res, next) => {
     id = req.body.id;
-    let amount;
-    let amount_p = req.body.amount
+    
      
-    Investment.findOne({
+    Deposits.findOne({
             where: {
                 id: {
                     [Op.eq]: id
@@ -413,8 +412,8 @@ exports.approveDeposits = (req, res, next) => {
                     }
                 })
                 .then(userUpdated => {
-                    Investment.update({
-                        status: 1
+                    Deposits.update({
+                        status: "approved"
                     }, {
                         where: {
                             id: {
@@ -423,31 +422,19 @@ exports.approveDeposits = (req, res, next) => {
                         }
                     })
                     .then(updatedDeposit => {
-                           
-                        
-                        
-                        Deposits.create({
-                                user_id: bankdeposit.user_id,
-                                amount: amount,
-                                channel: "WALLET DEPOSIT"
-                            })
-                            .then(deposit => {
-                                 let desc = 'Your BTC deposit was approved'
-                                 let type = 'BTC deposit'
-                                 History.create({
-                                            user_id:owner,
-                                            type,
-                                            desc,
-                                            value:amount_p 
-                                           
-                                        })
-                                req.flash('success', "Wallet Deposit approved");
-                                res.redirect("back");
-                            })
-                            .catch(error => {
-                                req.flash('error', "Server error!");
-                                res.redirect("back");
-                            });
+                          
+                        let desc = 'Your deposit was approved'
+                        let type = bankdeposit.channel === "PAYSTACK" ? 'Naira Wallet' : "Crytpo Wallet"
+                        History.create({
+                            user_id:owner,
+                            type,
+                            desc,
+                            value:bankdeposit.amount 
+                                
+                        })
+                        req.flash('success', "Wallet Deposit approved");
+                        res.redirect("back");
+                            
                     })
                     .catch(error => {
                         req.flash('error', "Server error!" + error);
@@ -471,8 +458,7 @@ exports.approveDeposits = (req, res, next) => {
 
 exports.unApproveADeposits = (req, res, next) => {
     id = req.body.id;
-    let amount;
-    Investment.findOne({
+    Deposits.findOne({
             where: {
                 id: {
                     [Op.eq]: id
@@ -482,48 +468,18 @@ exports.unApproveADeposits = (req, res, next) => {
         })
         .then(bankdeposit => {
             if (bankdeposit) {
-                amount = Math.abs(Number(bankdeposit.amount));
-                // fund the users account before anything
-                let userWallet = Math.abs(Number(bankdeposit.user.wallet));
-                let currentWallet = userWallet - amount;
-                Users.update({
-                    wallet: currentWallet
+                
+                Deposits.update({
+                    status: "disapproved"
                 }, {
                     where: {
                         id: {
-                            [Op.eq]: bankdeposit.user_id
+                            [Op.eq]: id
                         }
                     }
-                })
-                .then(userUpdated => {
-                    Investment.update({
-                        status: 0
-                    }, {
-                        where: {
-                            id: {
-                                [Op.eq]: id
-                            }
-                        }
-                    })
-                    .then(updatedDeposit => {
-                        Deposits.create({
-                                user_id: req.session.userId,
-                                amount: amount,
-                                channel: "BANK DEPOSIT"
-                            })
-                            .then(deposit => {
-                                req.flash('success', "Wallet Deposit disapproved");
-                                res.redirect("back");
-                            })
-                            .catch(error => {
-                                req.flash('error', "Server error!");
-                                res.redirect("back");
-                            });
-                    })
-                    .catch(error => {
-                        req.flash('error', "Server error!" + error);
-                        res.redirect("back");
-                    });
+                }).then(approved =>{
+                    req.flash('success', "Wallet Deposit disapproved");
+                    res.redirect("back");
                 })
                 .catch(error => {
                     req.flash('error', "Server error!"+ error);

@@ -31,6 +31,10 @@ const Card = require('../models').Card;
 const GiftCard = require('../models').GiftCard;
 const Package = require('../models').Package;
 const Investment = require('../models').Investment;
+const Rate = require('../models').Rate;
+const { Service } = require("../helpers/paystack");
+
+
 const router = require("../routes/web");
 
 // imports initialization
@@ -159,6 +163,7 @@ exports.viewUserWithdrawalDetail = (req, res, next) => {
 exports.withdrawWallet = (req, res, next) => {
     AdminMessages.findAll()
     .then(unansweredChats => {
+        console.log(parameters.PAYSTACK_BASEURL);
         Users.findOne({
             where: {
                 id: {
@@ -168,17 +173,22 @@ exports.withdrawWallet = (req, res, next) => {
         })
         .then(user => {
             if (user) {
-                Product
-                let wallet = Math.abs(Number(user.wallet));
-                let revenue = Math.abs(Number(user.revenue));
-                let userTotal = wallet + revenue
-                res.render("dashboards/users/user_withdrawing", {
-                    user: user,
-                    userTotal,
-                    wallet,
-                    messages: unansweredChats,
-                    moment
-                });
+                // console.log(parameters.PAYSTACK_BASEURL);
+                axios.get(`${parameters.PAYSTACK_BASEURL}/bank`).then(banks =>{
+                //    console.log(banks.data);
+                    const data = banks.data.data;
+                    let wallet = Math.abs(Number(user.wallet));
+                    let revenue = Math.abs(Number(user.revenue));
+                    let userTotal = wallet + revenue
+                    res.render("dashboards/users/user_withdrawing", {
+                        user: user,
+                        userTotal,
+                        wallet,
+                        messages: unansweredChats,
+                        moment,
+                        banks: data
+                    });
+                })
             } else {
                 res.redirect("back");
             }
@@ -480,78 +490,94 @@ exports.withdrawFromCoinWallet = async(req, res, next) => {
     }
 }
 
-exports.withdrawFromWallet = (req, res, next) => {
-    let {
-        code,
-        acct_name,
-        acct_number,
-        amount,
-        bank_name,
-        userId
-    } = req.body;
-   
-    if (!acct_name || !acct_number || !amount || !bank_name) {
-        req.flash('warning', "Enter all fields");
-        res.redirect("back");
-    } else {
-        // get user wallet
-        Users.findOne({
-                where: {
-                    id: {
-                        [Op.eq]: userId
+exports.withdrawFromWallet = async(req, res, next) => {
+    try {
+        let {
+            userId,
+            code,
+            acct_name,
+            bank_name,
+            bank_code,
+            acct_number,
+            amount
+        } = req.body;
+       console.log(req.body);
+        if (!acct_number || !acct_name || !amount || !bank_name) {
+            req.flash('warning', "Enter all fields");
+            res.redirect("back");
+            return
+        } else if (!helpers.isNumeric(amount)) {
+            req.flash('warning', "Enter valid amount");
+            res.redirect("back");
+            return
+        } else {
+            // get user wallet
+            const user = await Users.findOne({
+                    where: {
+                        id: {
+                            [Op.eq]: req.session.userId
+                        }
                     }
-                }
-            })
-            .then(user => {
-                if (user.oauth_token === code) {
-                    let type = 'Withdrawal'
-                    let desc = 'Withdrawal request initiated'
-                    let userWallet = Math.abs(Number(user.wallet));
-                    amount = Math.abs(Number(amount));
-                    let currentWallet = userWallet - amount;
-                    if (amount > userWallet) {
-                        req.flash('warning', "Insufficient fund");
-                        res.redirect("back");
-                    } else {
-                        let reference = generateUniqueId({
-                            length: 15,
-                            useLetters: true,
-                          });
-                        Withdrawals.create({
-                                amount,
-                                user_id:userId,
-                                bank_name,
-                                acct_name,
-                                acct_number,
-                                reference
-                            })
-                            .then(withdrawal => {
-                                
-                                History.create({
-                                    type,
-                                    desc,
-                                    value:amount,
-                                    user_id:userId
-                                }).then(hist =>{
-
-                                    req.flash('success', "Withdrawal success, awaiting disbursement!");
-                                    res.redirect("back");
-                                })
-                            })
-                            .catch(error => {
-                                req.flash('error', "Server error");
-                                res.redirect("back");
-                            });
-                    }
-                } else {
-                    req.flash('warning', "Invalid Confirmation Code");
+                });
+                
+            if (user.oauth_token === code) {
+                let type = 'Withdrawal'
+                let desc = 'Withdrawal request initiated'
+                let userWallet = Math.abs(Number(user.wallet));
+                amount = Math.abs(Number(amount));
+                if (amount > userWallet) {
+                    req.flash('warning', "Insufficient fund");
                     res.redirect("back");
+                    return
+                } else {
+                    // console.log(user);
+                    let owner = req.session.userId
+                    const paystack = await Service.Paystack.createTransferReceipt(acct_name, acct_number, bank_code);
+                    console.log(paystack);
+                    if (paystack.status === true) {
+                        
+                        const metaData = {
+                            account_number: paystack.data.details.account_number,
+                            account_name: paystack.data.details.account_name,
+                            bank_code: paystack.data.details.bank_code,
+                            bank_name: paystack.data.details.bank_name,
+                        }
+                        const withdrawRequest = {
+                            amount,
+                            user_id:owner,
+                            acct_name,
+                            acct_number,
+                            bank_name,
+                            bank_code,
+                            recipient_code: paystack.data.recipient_code,
+                            meta: JSON.stringify(metaData)
+                        }
+                        await Withdrawals.create(withdrawRequest)
+                        await History.create({
+                            type,
+                            desc,
+                            value:req.body.amount,
+                            user_id:req.session.userId
+                        })
+                        req.flash('success', "Withdrawal success, awaiting disbursement!");
+                        res.redirect("back");
+                        return
+                    }else{
+                        req.flash('danger', "An Error Occurred!");
+                        res.redirect("/home");
+                        return
+                    }             
                 }
-            })
-            .catch(error => {
-                req.flash('error', "Server error");
+            } else {
+                req.flash('warning', "Invalid OTP Token");
                 res.redirect("back");
-            });
+                return
+            }
+        }
+        
+    } catch (error) {
+        req.flash('error', "Server error");
+        res.redirect("back");
     }
 }
 
@@ -2028,6 +2054,16 @@ exports.getExchange = async(req,res)=>{
     }
 }
 
+exports.getExchangeRate = async(req,res)=>{
+    try {
+        const {id} = req.params
+        const rate = await Rate.findOne({where:{id}})
+        return res.json(rate)
+    } catch (error) {
+        return res.send({msg:error.response})
+    }
+}
+
 exports.checkBalance = async(req,res)=>{
     try {
         const {userId,coinId} = req.params
@@ -2045,6 +2081,20 @@ exports.generateReceiptForExternal = async(req, res) =>{
         res.render("dashboards/Trader/external",{
             admin,
             products:product
+        })
+    } catch (error) {
+        req.flash('error', "Server error");
+        res.redirect("back");
+    }
+}
+
+exports.editExchangeRate = async(req, res) =>{
+    try {
+        const admin = await Admins.findOne({where:{id:req.session.adminId}});
+        const rate = await Rate.findOne({where:{id:req.params.id}});
+        res.render("dashboards/edit_rate",{
+            admin,
+            rate
         })
     } catch (error) {
         req.flash('error', "Server error");
@@ -2401,8 +2451,11 @@ exports.sendConfirmationCodeForWithdraw = async(req, res) =>{
 
         if (type === "money") {
             balance = Number(user.wallet);
-            if (balance < amount) {
+            walletBalance = balance - amount
+            if (balance <= 500 || balance < amount) {
                 return res.json({success: false,msg:"Your Account balance is Low. Can't Perform this transaction"});
+            }else if (walletBalance <= 500) {
+                return res.json({success: false,msg:"Low Balance: Your Minimum balance is N500"});
             }
         }
        
@@ -2435,16 +2488,16 @@ exports.sendConfirmationCodeForWithdraw = async(req, res) =>{
         text: "PayBuyMax", // plain text body
         html: output, // html body
       };
-      const sendMail = await transporter.sendMail(mailOptions, async(err, info) => {
-        if (err) {
-            console.log(err);
-          return res.json({success: false,msg:"Error sending mail, please try again"});
-          
-        } else {
-            await Users.update({oauth_token: code}, {where:{id: userId}})
-            return res.json({success: true,msg:"Code Sent"});
-          
-        }
+      const sendMail = transporter.sendMail(mailOptions, async (err, info) => {
+          if (err) {
+              console.log(err);
+              return res.json({ success: false, msg: "Error sending mail, please try again" });
+
+          } else {
+              await Users.update({ oauth_token: code }, { where: { id: userId } });
+              return res.json({ success: true, msg: "Code Sent" });
+
+          }
       });
 
         // return res.json({user, wallet, code});

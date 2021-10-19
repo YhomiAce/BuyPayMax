@@ -2,8 +2,17 @@
 <%- include("../../partials/header") %>
 <%- include("../../partials/user_sidebar") %>
 <!-- Main Content -->
+<div class="container container-fluid">
+    
+</div>
 <div class="main-content">
     <%- include("../../partials/alerts") %>
+    <!-- <div class="alert alert-info alert-dismissible fade show" role="alert" style="max-width: 80%; background-color:#776d6d; color: #ffffff;">
+        <strong>Important notice:</strong><span>3% Withdrawal Charges will be removed and a Processing Fee of <%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format(200) %> </span>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+        </button>
+    </div> -->
     <section class="section">
         <div class="row ">
             <div class="col-lg-12 col-md-12 col-sm-12 col-12">
@@ -31,8 +40,7 @@
         <div class="section-body">
             <div class="row">
                 <div class="col-12 col-md-12 col-lg-12">
-                    <form class="needs-validation" novalidate=""
-                        id="withdarawForm">
+                    <form class="needs-validation" id="withdarawForm">
                         <div class="card">
                             <div class="card-header">
                                 <h4>Withdraw From Wallet</h4>
@@ -64,11 +72,32 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="name">Bank Name</label>
-                                    <input type="text" class="form-control" id="user_bank_name" name="user_bank_name" tabindex="1" required
-                                        autofocus>
+                                    <label for="name">Select Bank</label>
+                                    <select name="bank_code" class="form-control bank_list" id="bank">
+                                        <option selected disabled>Select Your Bank</option>
+                                        <% for( let i = 0; i < banks.length; i++ ) { %>
+                                        <option value="<%= banks[i].code %>"><%= banks[i].name %></option>
+                                        <% } %>
+                                        
+                                    </select>
                                     <div class="invalid-feedback">
-                                        Please fill in amount
+                                        Please select bank
+                                    </div>
+                                </div>
+                                <div class="row" id="verify" style="display: none;">
+                                    <div class="form-group col-md-4">
+                                        <input type="text" id="message" class="form-control text-success" disabled>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <input type="text" id="acctNumber" class="form-control text-success" disabled>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <input type="text" id="acctName" class="form-control text-success" disabled>
+                                    </div>
+                                </div>
+                                <div id="errMsg" style="display: none;">
+                                    <div class="text-danger" id="feedbk">
+                                        
                                     </div>
                                 </div>
                             </div>
@@ -91,18 +120,22 @@
                 </div>
                 <div class="modal-body">
                     <center>
+                        <div id="showAlert">
+                            <h3 class="mb-0" id="coinBalance"></h3>
+                        </div>
                         
-                        <p class="text-muted font-16" id="statement"></p>
-                        <h3 class="mb-0">Enter Confirmation Code Sent to Your Email</h3>
+                        
                         
                         <p class="text-muted font-13 mt-1">
                            
-                            <form action="/userwithdraw" method="POST">
+                            <form action="/userwithdraw" method="POST" id="codeBox" style="display: none;">
+                                <h3 class="mb-0">Enter Confirmation Code Sent to Your Email</h3>
                                 <input type="text" id="code" class="form-control" name="code" required>
                                 <input type="hidden" name="userId" value="<%= user.id  %> ">
                                 
                                 <input type="hidden" id="amount"  name="amount" value="" >
                                 <input type="hidden" id="bank_name" name="bank_name" value="" >
+                                <input type="hidden" id="bank_code" name="bank_code" value="" >
                                 <input type="hidden" id="acct_name" name="acct_name" value="" >
                                 <input type="hidden" id="acct_number" name="acct_number" value="" >
                                 <button class="btn btn-info mt-5" id="confirmPayment" type="submit">Confirm Code</button></p>
@@ -115,17 +148,64 @@
     </div>
 </div>
 <%- include("../../partials/user_footer2") %>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
+    
     $(document).ready(()=>{
-        // var walletType = $('#coin').find(":selected").val();
+        $('.bank_list').select2();
+        
+        $("#bank").change(()=>{
+            $("#verify").hide()
+            $("#errMsg").hide()
+            var bank_code = $("#bank").val()
+            var bank_name = $( "#bank option:selected" ).text();
+            $('#bank_name').val(bank_name);
+            $('#bank_code').val(bank_code);
+            console.log(bank_code, bank_name);
+            var act_number = $("#act_number").val();
+            $("#withdrawBtn").html("Verifying Account...");
+            $("#withdrawBtn").prop('disabled', true);
+            $.ajax({
+                url: "/verifyAccount",
+                method: "POST",
+                data:{account: act_number, bank_code},
+                success: (res =>{
+                    console.log(res);
+                    if (res.status === true) {
+                        $("#verify").show()
+                        $("#errMsg").hide()
+                        $("#message").val(res.message);
+                        $("#acctNumber").val(res.data.account_number);
+                        $("#acctName").val(res.data.account_name);
+                        $("#withdrawBtn").prop('disabled', false);
+                        $("#withdrawBtn").html("Withdraw");
+                    }else if (res.status === false) {
+                        $("#errMsg").show()
+                        $("#verify").hide()
+                        
+                        $("#feedbk").text(res.message)
+                        $("#withdrawBtn").html("Unable To Withdraw");
+                        $("#withdrawBtn").prop('disabled', true);
+                    }else{
+                        console.log('error');
+                    }
+                })
+            })
+        });
         $("#withdrawBtn").click(()=>{
+            $("#showAlert").hide()
             var amount = $("#user_amount").val();
             var act_name = $("#act_name").val();
             var act_number = $("#act_number").val();
-            var user_bank_name = $("#user_bank_name").val();
+            if (amount === "" || act_name === "" || act_number === "") {
+                $("#showAlert").show()
+                $("#coinBalance").text("Please Fill all fields");
+               return
+            }
             console.log(amount);
             $('#amount').val(amount);
-            $('#bank_name').val(user_bank_name);
+            
             $('#acct_name').val(act_name);
             $('#acct_number').val(act_number);
             var userId = $('#user_id').val();
@@ -136,6 +216,16 @@
                 data:{userId, type:"money", amount},
                 success:(res) =>{
                     console.log(res);
+                    console.log(res);
+                    if (res.success === true) {
+                        $("#codeBox").show()
+                        $("#showAlert").hide()
+                    }
+                    if (res.success === false) {
+                        $("#codeBox").hide()
+                        $("#showAlert").show()
+                        $("#coinBalance").text(res.msg)
+                    }
                 }
             })
         })

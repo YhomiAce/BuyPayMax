@@ -148,14 +148,27 @@ exports.UpdateExchangeRate = async(req, res, next) => {
         const {rateId, nairaRate} = req.body
         await Rate.update({naira:nairaRate},{where:{id:rateId}});
         req.flash('success', "Rate Updated successfully!");
-         res.redirect("back");
-        re
+         res.redirect("/exchange-rate");
     } catch (error) {
      req.flash('error', "Server error!");
      res.redirect("/dashboard");
     }
     
- }
+}
+
+exports.deleteExchangeRate = async(req, res, next) => {
+   
+    try {
+        const {id} = req.body
+        await Rate.destroy({where:{id}});
+        req.flash('success', "Rate Deleted successfully!");
+         res.redirect("back");
+    } catch (error) {
+     req.flash('error', "Server error!");
+     res.redirect("/dashboard");
+    }
+    
+}
 
 exports.addCoinPackage = (req, res, next) => {
     AdminMessages.findAll()

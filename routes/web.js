@@ -45,6 +45,8 @@ const PaystackController = require("../controllers/PaystackController");
 const AuthMiddleware = require("../middlewares/auth_middleware");
 const CryptBankController = require('../controllers/CryptBankController');
 const PostsController = require('../controllers/PostsController');
+const CoinBaseController = require('../controllers/CoinBaseController');
+const BinanceController = require('../controllers/BinanceController');
 const SEVEN_DAYS = 1000 * 60 * 60 * 24 * 7;
 
 const storage = multer.diskStorage({
@@ -438,8 +440,10 @@ router.post("/createcheckout", AuthMiddleware.redirectLogin, CoinqvestController
 router.get('/history',AuthMiddleware.redirectLogin, TransactionController.transactionHistory )
 // users specific routes
 router.get("/buy/internal", AuthMiddleware.redirectLogin, WalletController.walletPage);
+router.get("/fund-wallet", AuthMiddleware.redirectLogin, WalletController.fundYourWallet);
 router.get("/wallet-balance", AuthMiddleware.redirectLogin, WalletController.walletBalance);
 router.post("/fundwallet", AuthMiddleware.redirectLogin, WalletController.fundWallet);
+router.get("/wallet-history", AuthMiddleware.redirectLogin, WalletController.walletFundingHistory);
 router.get("/buy", AuthMiddleware.redirectLogin, TransactionController.buyCoin);
 router.get("/sell", AuthMiddleware.redirectLogin, TransactionController.sellCoin);
 router.get("/sell/coin", AuthMiddleware.redirectLogin, TransactionController.sellBitCoin);
@@ -467,6 +471,8 @@ router.get("/view/pending-gift-card/:id", AuthMiddleware.redirectAdminLogin, Tra
 router.get("/view/pending-internal/:id", AuthMiddleware.redirectAdminLogin, TransactionController.viewPendingInternalTx);
 router.get("/view/internal-sell/:id", AuthMiddleware.redirectAdminLogin, TransactionController.viewInternalSellTx);
 router.get("/get/exchange/:id", TransactionController.getExchange);
+router.get("/get/exchange/rate/:id", TransactionController.getExchangeRate);
+router.get("/edit/exchange-rate/:id", AuthMiddleware.redirectAdminLogin, TransactionController.editExchangeRate);
 router.get("/check-coin/balance/:userId/:coinId", TransactionController.checkBalance);
 router.post("/buy/transaction/code", TransactionController.sendConfirmationCodeForBuy);
 
@@ -480,10 +486,12 @@ router.get("/get/exchange-rate", PackageController.getAllExchangeRate);
 router.get("/exchange-rate/:id", PackageController.getExchangeRate);
 router.post("/exchange-rate", AuthMiddleware.redirectAdminLogin, PackageController.SaveExchangeRate);
 router.post("/update-exchange-rate", PackageController.UpdateExchangeRate);
+router.post("/delete/exchange-rate", PackageController.deleteExchangeRate);
 router.get("/admins", AuthMiddleware.redirectAdminLogin, UserController.allAdmins);
 router.get("/packages_ethereum", AuthMiddleware.redirectLogin, PackageController.usersPackagesEthereum);
 router.get("/packages", AuthMiddleware.redirectLogin, PackageController.usersPackages);
 router.get("/referrals", AuthMiddleware.redirectLogin, DashboardController.userReferral);
+router.get("/get-ref",  DashboardController.getRefferal);
 router.get("/allreferrals", AuthMiddleware.redirectAdminLogin, DashboardController.allReferral);
 router.get('/adminmessages',AuthMiddleware.redirectAdminLogin, ChatController.adminMessage)
 router.get("/viewmessage/:id", AuthMiddleware.redirectLogin, ChatController.readMessage);
@@ -512,7 +520,7 @@ router.post("/userwithdraw",  AuthMiddleware.authVerirfication, TransactionContr
 router.post("/userwithdraw-coin",  AuthMiddleware.authVerirfication, TransactionController.withdrawFromCoinWallet);
 router.get("/mywithdraws", AuthMiddleware.redirectLogin, TransactionController.aUserWithdrawals);
 router.get("/view-withdrawal/:id", AuthMiddleware.redirectLogin, TransactionController.viewUserWithdrawalDetail);
-router.get("/deposits", AuthMiddleware.redirectLogin, TransactionController.userDeposits);
+// router.get("/deposits", AuthMiddleware.redirectLogin, TransactionController.userDeposits);
 router.get("/bankdeposits", AuthMiddleware.redirectLogin, BankDepositController.usersUploads);
 router.get("/btc-unapproved", AuthMiddleware.redirectAdminLogin, BankDepositController.unApprovedDeposit);
 router.get("/btc-approved", AuthMiddleware.redirectAdminLogin, BankDepositController.approvedDeposit);
@@ -525,6 +533,7 @@ router.post("/verifyAccount", AuthMiddleware.redirectLogin, PaystackController.v
 router.post("/createwithdrawal", AuthMiddleware.redirectLogin, PaystackController.createTransferRecipient);
 router.get("/unapprovedpaystack", AuthMiddleware.redirectAdminLogin, TransactionController.unappWithdrawPaystack);
 router.post("/adminpayout", AuthMiddleware.redirectAdminLogin, PaystackController.payWithPaystack);
+router.post("/verify-deposit", AuthMiddleware.redirectLogin, PaystackController.verifyTransaction);
 
 router.get("/dollarpage", AuthMiddleware.redirectAdminLogin, CryptBankController.dollarPage);
 router.post("/dollarpage", AuthMiddleware.redirectAdminLogin, CryptBankController.postUpdateDollar);
@@ -624,7 +633,20 @@ router.post("/publish-post", AuthMiddleware.redirectAdminLogin, PostsController.
 router.post("/delete-post", AuthMiddleware.redirectAdminLogin, PostsController.deletePost);
 router.post("/create-post", AuthMiddleware.redirectAdminLogin, uploader.single('image'), PostsController.createNewPost);
 
+// Deposits Admin Routes
+router.get("/deposits", AuthMiddleware.redirectAdminLogin, WalletController.depositsTransactions);
+// router.post("/approved/deposits", AuthMiddleware.redirectAdminLogin, WalletController.walletFundingHistory);
+// router.post("/unapproved/deposits", AuthMiddleware.redirectAdminLogin, WalletController.walletFundingHistory);
+
 // Test Route
-router.get("/get-kycs", KycController.unApprovedKyc)
+router.get("/get-kycs", KycController.unApprovedKyc);
+
+router.get("/new-cust", CoinqvestController.createCustomer)
+router.get("/bi-prices", BinanceController.getPrices)
+router.get("/co-price", CoinBaseController.currentExchange)
+router.get("/coin-user", CoinBaseController.getCurrentUser)
+router.get("/coin-address", CoinBaseController.listAddresses)
+router.get("/coin-acct", CoinBaseController.accountData)
+router.post("/coin-wallet", CoinBaseController.createWallet)
 
 module.exports = router;

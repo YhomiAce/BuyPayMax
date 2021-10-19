@@ -28,9 +28,7 @@ const okvalidate = validations => {
 
 const registerValidation = () => {
     return [
-      body("name", "name is required").notEmpty(),
       body("email", "email is required").isEmail(),
-      body("phone", "phone is required").notEmpty(),
       body("password", "Enter Password with length of 5 or more characters").isLength({min:5})     
     ];
   };

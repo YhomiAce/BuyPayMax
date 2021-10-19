@@ -40,13 +40,17 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true,
       type: DataTypes.STRING
     },
-    walletAddressId: {
+    currency: {
       allowNull: true,
-      type: DataTypes.UUID
+      type: DataTypes.STRING
+    },
+    walletAddress: {
+      allowNull: true,
+      type: DataTypes.STRING
     },
     status: {
       allowNull: false,
-      type: DataTypes.ENUM("pending", "completed"),
+      type: DataTypes.ENUM("pending", "approved", "disapproved"),
       defaultValue: "pending"
     },
     createdAt: {

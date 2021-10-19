@@ -1,0 +1,43 @@
+<!-- header -->
+<%- include("../partials/header_admin") %>
+<%- include("../partials/sidebar") %>
+
+<!-- Main Content -->
+<div class="main-content">
+    <%- include("../partials/alerts") %>
+   
+    
+        <section class="section">
+            <div class="section-body">
+                <div class="row">
+                    <div class="col-12 col-md-12 col-lg-12">
+                       
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4> Edit Exchange Rate</h4>
+                                </div>
+                                <div class="card-body">
+                                    <form action="/update-exchange-rate" method="POST">
+                                        <input type="hidden" name="rateId" id="RateId" value="<%= rate.id %>">
+                                          <div class="form-group">
+                                            <input type="text" class="form-control" readonly value="1">
+                                        </div>
+                                          <div class="form-group">
+                                              <input type="text" class="form-control" id="name" readonly value="<%= rate.name %>">
+                                          </div>
+                                          
+                                          <div class="form-group">
+                                              <input type="number" class="form-control" value="<%= rate.naira  %>" id="nairaRate" name="nairaRate" placeholder="Enter Naira Equivalent">
+                                          </div>
+                                          
+                                        <button type="submit" class="btn btn-primary">Submit</button>
+                                    </form>
+                                    
+                                </div>
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+<%- include("../partials/footer2") %>

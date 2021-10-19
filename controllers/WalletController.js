@@ -14,6 +14,8 @@ const AdminMessages = require("../models").AdminMessage;
 const Product = require("../models").Product;
 const Coin = require("../models").Coin;
 const Wallet = require("../models").Wallet;
+const Payment = require("../models").Payment;
+const Rate = require("../models").Rate;
 const helpers = require("../helpers/cryptedge_helpers");
 const generateUniqueId = require("generate-unique-id");
 
@@ -104,6 +106,34 @@ exports.walletPage = (req, res, next) => {
         });
 }
 
+exports.fundYourWallet = async(req, res) =>{
+  try {
+    const messages = await AdminMessages.findAll();
+    const user = await Users.findOne({where:{id: req.session.userId}, include:[
+        {
+            model: Coin,
+            as: "coins",
+            include: {
+                model: Product,
+                as: "coinTypes"
+            }
+        }
+    ]});
+    const coins = user.coins;
+
+    res.render("dashboards/users/wallet_action", {
+      user,
+      messages,
+      moment,
+      coins
+    });
+
+  } catch (error) {
+    req.flash('error', "Server error!");
+    res.redirect("/home");
+  }
+}
+
 exports.walletBalance = async (req, res) =>{
   try {
       const unansweredChats = await Chats.findAll({
@@ -132,34 +162,23 @@ exports.walletBalance = async (req, res) =>{
             }
         }
     ] })
-    const referral = await Referrals.findAll({
-        where: {
-            referral_id: {
-                [Op.eq]: req.session.userId
-            }
-        }
-    });
-    
-    const bank = await CryptBank.findOne({});
 
-    const dollar = await DollarValue.findOne({})
-    const products = await Product.findAll();
+    const rate = await Rate.findOne({where:{name:"Dollar"}})
+    
     const coins = user.coins;
     res.render("dashboards/users/account_balance", {
       user: user,
       email: user.email,
       phone: user.phone,
       wallet: user.wallet,
-      referral: user.referral_count,
-      referral_amount: referral.length * 1000,
       messages: unansweredChats,
       moment,
-      products,
-      coins
+      coins,
+      rate
   });
   } catch (error) {
     req.flash('error', "Server error!");
-            res.redirect("/home");
+    res.redirect("/home");
   }
 }
 
@@ -341,67 +360,108 @@ exports.postEditUser = async (req, res, next) => {
 
 
 exports.fundWallet = async (req, res, next) => {
-    // first check if the user email is valid
-    let email = req.body.email;
-    let amount = req.body.amount;
-    let walletAddressId = req.body.walletAddressId
-    const {walletAddress, balance} = await Wallet.findOne({where:{id: walletAddressId}})
-    let reference = generateUniqueId({
-      length: 15,
-      useLetters: true,
-    });;
-    let channel = req.body.channel;
-    let userId;
-    // amount = 0.2;
-    Users.findOne({
-            where: {
-                email: {
-                    [Op.eq]: email
-                }
-            }
-        })
-        .then(user => {
-            if (user) {
-                userId = user.id;
-                 // add it to transaction as deposits, and also add it to the deposit table with useful details
-                        Transactions.create({
-                                user_id: userId,
-                                amount,
-                                type: "DEPOSIT"
-                            })
-                            .then(transaction => {
-                                Deposits.create({
-                                        user_id: userId,
-                                        amount,
-                                        reference,
-                                        channel,
-                                        walletAddressId
-                                    })
-                                    .then(deposit => {
-                                      // const updateBalance = Number(amount) + Number(balance)
-                                      Wallet.update({status: 'in_use', userId}, {where: {walletAddress}})
-                                      .then(wallet =>{
-
-                                        req.flash("success", "Deposit Successful wait for Admin Confirmation");
-                                        res.redirect("back");
-                                      })
-                                    })
-                                    .catch(error => {
-                                        console.log(`deposit error`);
-                                        res.redirect("back");
-                                    });
-                            })
-                            .catch(error => {
-                                console.log(`transaction error`);
-                                res.redirect("back");
-                            });
-            } else {
-                console.log(`user not found`);
-                res.redirect("back");
-            }
-        })
-        .catch(error => {
-            console.log(`fetching user error`);
-            res.redirect("back");
+    try {
+      // first check if the user email is valid
+    
+    const {email, amount, reference, channel, walletAddress, currency, payment_reference} = req.body
+    
+    const user = await Users.findOne({
+      where: {
+          email: {
+              [Op.eq]: email
+          }
+      }
+    });
+        
+      if (user) {
+          // add it to transaction as deposits, and also add it to the deposit table with useful details
+        await Transactions.create({
+          user_id: user.id,
+          amount,
+          type: "DEPOSIT"
         });
+                      
+        await Deposits.create({
+          user_id: user.id,
+          amount,
+          reference,
+          channel,
+          walletAddress,
+          currency
+        });
+
+       if (channel === "PAYSTACK") {
+          // Safe Paystack transaction
+          const payment = {
+            user_id: user.id,
+            payment_category: req.body.payment_category,
+            payment_reference: reference,
+            amount
+          }
+          await Payment.create(payment);
+        }
+                              
+        return res.status(200).send({status: true, message: "Deposit Made Successfully"});
+                                
+      } else {
+          console.log(`user not found`);
+          return res.status(400).send({status: false, message: "User Not Found"})
+      }
+    } catch (error) {
+      return res.status(500).send({status: false, message: "Server Error"})
+    }
+        
+}
+
+exports.walletFundingHistory = async (req, res, next) => {
+  try {
+   
+    const user = await Users.findOne({
+      where: {
+          id: {
+              [Op.eq]: req.session.userId
+          }
+      }
+    });
+    const messages = await AdminMessages.findAll();
+    const deposits = await Deposits.findAll({where:{user_id: req.session.userId}, order:[["createdAt", "DESC"]], include: ["user"]})
+    res.render("dashboards/users/funding_history",{
+      moment,
+      user,
+      messages,
+      deposits
+    })
+    
+  } catch (error) {
+    req.flash("error", "Server error!");
+    res.redirect("back");
+  }
+      
+}
+
+exports.depositsTransactions = async (req, res, next) => {
+  try {
+   const {status} = req.query
+    const user = await Users.findOne({
+      where: {
+          id: {
+              [Op.eq]: req.session.userId
+          }
+      }
+    });
+    const messages = await Chats.findAll();
+    const deposits = await Deposits.findAll({where:{status} ,order:[["createdAt", "DESC"]], include: ["user"]})
+    res.render("dashboards/deposits",{
+      moment,
+      user,
+      messages,
+      deposits,
+      type: "Pending"
+    })
+    
+  } catch (error) {
+    req.flash("error", "Server error!");
+    res.redirect("back");
+  }
+      
 }

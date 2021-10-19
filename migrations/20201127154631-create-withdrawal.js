@@ -17,6 +17,11 @@ module.exports = {
         type: Sequelize.FLOAT,
         defaultValue: 0,
       },
+      charge: {
+        allowNull: true,
+        type: Sequelize.FLOAT,
+        defaultValue: 0,
+      },
       acct_name: {
         allowNull: true,
         type: Sequelize.TEXT,
@@ -29,13 +34,30 @@ module.exports = {
         allowNull: true,
         type: Sequelize.TEXT,
       },
+      bank_code: {
+        allowNull: true,
+        type: Sequelize.STRING,
+      },
       reference: {
-        type: Sequelize.TEXT
+        allowNull: true,
+        type: Sequelize.STRING
+      },
+      recipient_code: {
+        allowNull: true,
+        type: Sequelize.STRING
+      },
+      transfer_code: {
+        allowNull: true,
+        type: Sequelize.STRING
       },
       status: {
         allowNull: true,
         type: Sequelize.ENUM("pending", "approved", "disapproved"),
         defaultValue: "pending",
+      },
+      meta: {
+        type: Sequelize.TEXT,
+        allowNull: true
       },
       fileDoc: {
         allowNull: true,
@@ -50,8 +72,7 @@ module.exports = {
         type: Sequelize.DATE
       },
       deletedAt: {
-        type: Sequelize.DATE,
-        allowNull: true
+        type: Sequelize.DATE
       }
     });
   },
