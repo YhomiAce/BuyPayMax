@@ -34,6 +34,7 @@ exports.home = async(req, res, next) => {
                 }]
             }
         ] })
+        // console.log(user);
         const referral = await Referrals.findAll({where:{referral_id: req.session.userId}});
         const investment = await  Investments.findAll({where: {user_id: req.session.userId}});
         const activeInvestments = await Investments.findAll({

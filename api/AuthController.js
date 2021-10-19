@@ -63,6 +63,11 @@ exports.registerUser = async(req, res, next)=>{
                 })
             }
             
+            const products = await Product.findAll();
+            await Promise.all(products.map(async product =>{
+                await Coin.create({userId: savedUser.id, coinId: product.id})
+                console.log('wallet created');
+            }));
                 let user_email = savedUser.email;
                 let email_token = uniqueString();
                 const output = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">

@@ -38,7 +38,7 @@ const Op = Sequelize.Op;
 exports.index = async(req, res, next) => {
   //res.render("auths/login2");
   const coins = await this.getCoinList()
-  console.log(coins);
+  // console.log(coins);
   res.render("index", {
     coins,
     moment
