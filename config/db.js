@@ -20,14 +20,6 @@ const db = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.D
   },
   dialectOptions: {
     connectTimeout: 80000
-  },
-  hooks: {
-    afterConnect() {
-      const dTypes = {
-        DECIMAL: CustomDecimal
-      };
-      this.connectionManager.refreshTypeParser(dTypes);
-    }
   }
 });
 

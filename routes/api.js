@@ -8,6 +8,10 @@ const { registerValidation, validate, loginValidation } = require('../helpers/va
 
 const router = express.Router();
 
+router.get("/", (req, res)=>{
+    res.send("Welcome To PayBuyMax API")
+})
+
 router.post("/signup", registerValidation(), validate, AuthController.registerUser);
 
 router.post("/signin", loginValidation(), validate, AuthController.login);
