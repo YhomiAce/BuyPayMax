@@ -6,13 +6,8 @@ const db = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.D
 
 });
 
-try {
-  db.authenticate().then(()=>{
-    console.log('database connected')
-  }).catch((err)=>console.log(err))
-} catch (error) {
-  console.log(error);
-  process.exit(1)
-}
+db.authenticate().then(()=>{
+  console.log('database connected')
+}).catch((err)=>console.log(err))
 
 module.exports = db;
