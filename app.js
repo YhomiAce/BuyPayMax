@@ -9,6 +9,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cron = require("node-cron");
 const morgan = require('morgan')
+const cors = require('cors')
 
 // local imports
 const Users = require("./models").User;
@@ -29,22 +30,12 @@ const Op = Sequelize.Op;
 // routes includes
 const webRoute = require("./routes/web");
 const apiRoute = require("./routes/api");
-const { image } = require('./helpers/cloudinary');
 
 // imports initalization
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
 let users = []; 
-// const db = new Sequelize('dephifoodsnetwor_bitmint_db', 'dephifoodsnetwor_bitmint_user', 'dejideji123!',{
-//     host:'localhost',
-//     dialect:'mysql',
-
-// });
-
-// db.authenticate().then(()=>{
-//     console.log('database connected')
-// }).catch((err)=>console.log(err))
 
 app.locals = webParameters;
 
@@ -53,6 +44,13 @@ app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 
 // middlewares
+app.use(cors());
+app.use(function (req,res,next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers','Origin, X-Requested-With, Content-Type, Accept');
+    res.header('Access-Control-Allow-Methods', 'POST, PUT, GET, PATCH, DELETE, OPTIONS');
+    next();
+  });
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: true

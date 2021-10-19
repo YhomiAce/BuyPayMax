@@ -1,6 +1,7 @@
+require("dotenv").config();
 const bcrypt = require("bcryptjs");
 const jwt = require('jsonwebtoken');
-// const dotenv = require("dotenv");
+
 const generateUniqueId = require("generate-unique-id");
 const uniqueString = require("unique-string");
 const nodemailer = require("nodemailer");
