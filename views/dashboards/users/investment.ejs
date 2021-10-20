@@ -174,9 +174,10 @@
             toPrice = Number(toPrice)
             charge = Number(charge)
             commission = Number(commission)
+            var diff = commission-charge
             duration = Number(duration)
             amt = Number(amt);
-            var money = amt + (amt * commission/100);
+            var money = amt + (amt * diff/100);
             var week = duration * 30
             var earning = money/week
             var earnings = Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format(earning.toFixed(3))

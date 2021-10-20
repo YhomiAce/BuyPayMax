@@ -544,6 +544,7 @@ router.get("/approved-kycs", AuthMiddleware.redirectAdminLogin, KycController.ap
 router.post("/approve-akyc", AuthMiddleware.redirectAdminLogin, KycController.approveAKYC);
 router.post("/disapprove-akyc", AuthMiddleware.redirectAdminLogin, KycController.disApproveAKYC);
 router.get("/unapproved-withdrawal", AuthMiddleware.redirectAdminLogin, TransactionController.unapprovedWithdrawals);
+router.get("/withdrawal-detail/:id", AuthMiddleware.redirectAdminLogin, TransactionController.withdrawalDetails);
 router.get("/disapproved-withdrawal", AuthMiddleware.redirectAdminLogin, TransactionController.disapprovedWithdrawals);
 router.get("/unapproved-coin-withdrawal", AuthMiddleware.redirectAdminLogin, TransactionController.unapprovedCoinWithdrawals);
 router.get("/approved-coin-withdrawal", AuthMiddleware.redirectAdminLogin, TransactionController.approvedCoinWithdrawals);
@@ -551,7 +552,7 @@ router.get("/coin-withdraw/details/:id", AuthMiddleware.redirectAdminLogin, Tran
 router.get("/approved-withdrawal", AuthMiddleware.redirectAdminLogin, TransactionController.approvedWithdrawals);
 router.post("/unapprove-withdrawal", AuthMiddleware.redirectAdminLogin, TransactionController.postDisApproveWithdrawal);
 router.post("/approve-transfer", AuthMiddleware.redirectAdminLogin, TransactionController.postApproveCoinWithdrawal);
-router.post("/approve-withdrawal", upload.single('reciept'), AuthMiddleware.redirectAdminLogin, TransactionController.postApproveWithdrawal);
+router.post("/approve-withdrawal", AuthMiddleware.redirectAdminLogin, TransactionController.postApproveWithdrawal);
 router.post("/approve/external-transaction", upload.single('image'), AuthMiddleware.redirectAdminLogin, TransactionController.approveExternalTransaction);
 router.post("/approve/gift-card-transaction", upload.single('image'), AuthMiddleware.redirectAdminLogin, TransactionController.approveGiftCardTransaction);
 router.post("/approve/internal-transaction", upload.single('image'), AuthMiddleware.redirectAdminLogin, TransactionController.approveInternalTransaction);

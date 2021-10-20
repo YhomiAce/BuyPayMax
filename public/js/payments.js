@@ -103,14 +103,19 @@ function payWithCryptos() {
     } else {
         let email = document.getElementById("user_email").value;
         let phone = document.getElementById('user_phone').value;
+        let name = document.getElementById('user_name').value;
+        let id = document.getElementById('user_id').value;
         paylot({
             amount: amount,
-            key: 'pyt_sk-788f2710321c44fcaf9b689de2f5ad16',
-            reference: Date.now() + '' + Math.floor((Math.random() * 1000000000) + 1),
+            key: 'pyt_pk-7cdcf561cbf14013a15bfd63b1f0f5ee',
+            reference: 'T-'+Date.now() + '' + Math.floor((Math.random() * 1000000000) + 1),
             currency: 'USD',
             payload: {
-                type: 'payment',
-                subject: 'Cryptedge Wallet Funding',
+                type: 'Fund Crypto Wallet',
+                subject: 'Crypto Wallet Funding',
+                name: name,
+                userId: id,
+                userPhone: phone,
                 email: email,
                 sendMail: true
             },
@@ -133,6 +138,7 @@ function payWithCryptos() {
                 //Transaction was successful
                 let reference = tx.reference;
                 let amountPaid = tx.amount;
+                const {destination, payload, realValue, confirmed} = tx
                 $.ajax({
                     type: 'POST',
                     url: '/fundwallet',

@@ -1,12 +1,6 @@
 const axios = require('axios');
 const crypto = require("crypto");
 
-var reqParam = {
-  baseUrl: 'https://api.coinbase.com',
-  method: 'GET',
-  path: '/v2/exchange-rates?currency=USD',
-  body: ''
-};
 
 const key = {
   APIKEY: 'pEq4hin3Qb5RT0kG',
@@ -142,7 +136,7 @@ exports.createWallet = async(req,res) =>{
     const name = "Test ETH Address"
     var encHash = {
       baseUrl: 'https://api.coinbase.com',
-      method: 'post',
+      method: 'POST',
       path: '/v2/accounts/2de2684a-064f-5190-a44d-47a3005fa683/addresses',
       body: '',
       scopes: "wallet:addresses:create"
@@ -154,16 +148,34 @@ exports.createWallet = async(req,res) =>{
           'CB-ACCESS-SIGN': sign.signature,
           'CB-ACCESS-TIMESTAMP': sign.timestamp,
           'CB-ACCESS-KEY': key.APIKEY,
+          'CB-VERSION': '2020-07-20'
         }
       }
       const body = {
-        name
+        name: name
       }
-      // const url = `${reqParam.baseUrl}/v2/exchange-rates?currency=NGN`
-      var options = await axios.post(`${encHash.baseUrl}/${encHash.path}`, config); 
+      const url = `${encHash.baseUrl}/${encHash.path}`
+      console.log(url);
+      var options = await axios.post(url, config); 
       return res.send({data: options.data})
   } catch (error) {
-      console.error(error);
+      // console.error(error);
       return res.send({error})
+  }
+}
+
+exports.getAccount = async (req, res) =>{
+  try {
+    
+      var address = null;
+
+      client.getAccount('primary', function(err, account) {
+        account.createAddress(function(err, addr) {
+          console.log(addr);
+          address = addr;
+        });
+      });
+  } catch (error) {
+    
   }
 }

@@ -1,0 +1,165 @@
+<!-- header -->
+<%- include("../partials/header_admin") %>
+<%- include("../partials/sidebar") %>
+
+<!-- Main Content -->
+<div class="main-content">
+    <%- include("../partials/alerts") %>
+    <section class="section">
+        <div class="section-body">
+            <div class="row">
+                <div class="col-12">
+                   
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Withdrawal Details</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped" id="table-1">
+                                    <tbody>
+                                        <tr>
+                                            <td>Name</td>
+                                            <td><%= withdrawals.user.name %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Email</td>
+                                            <td><%= withdrawals.user.email %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Phone</td>
+                                            <td><%= withdrawals.user.phone %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Amount</td>
+                                            <td><%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format((Number(withdrawals.amount))) %></td>
+                                        </tr>
+                                        <% if (withdrawals.reference !== null) { %>
+                                            <tr>
+                                                <td>Transaction Reference</td>
+                                                <td>
+                                                    <%= withdrawals.reference %>
+                                                </td>
+                                            </tr>
+                                        <% } %>
+                                        <tr>
+                                            <td>Account Name</td>
+                                            <td><%= withdrawals.acct_name %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Account Number</td>
+                                            <td><%= withdrawals.acct_number %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Bank Name</td>
+                                            <td><%= withdrawals.bank_name %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Amount Sent</td>
+                                            <td><%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format((Number(takeHome))) %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Date Requested</td>
+                                            <td><%= moment(withdrawals.createdAt).format("DD-MMM-YYYY") %></td>
+                                        </tr>
+                                        <% if (withdrawals.status === "pending" ) { %>
+                                            <tr>
+                                                <td>Approve</td>
+                                                <td>
+                                                    <input type="hidden" id="takeHome" value="<%= takeHome %>">
+                                                    <button class="btn btn-success approveBtn" type="button" data-toggle="modal" data-target="#approveNow">Approve Withdrawal</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Disapprove</td>
+                                                <td>
+                                                    <form action="/unapprove-withdrawal" method="post">
+                                                        <input type="hidden" id="withdrawalId" name="id" value="<%= withdrawals.id %>">
+                                                        <button class="btn btn-danger" type="submit">Disapprove Withdrawal</button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                         
+                                        <% } %>
+                                        <% if (withdrawals.status === "disapproved") { %>
+                                            <tr>
+                                                <td>Approve</td>
+                                                <td>
+                                                    <button class="btn btn-success approveBtn" type="button" data-toggle="modal" data-target="#approveNow">Approve Withdrawal</button>
+                                                </td>
+                                            </tr>
+                                        <% } %>
+
+                                        
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </section>
+    <div class="modal fade" id="approveNow" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <!-- <h4 class="modal-title" id="myCenterModalLabel">Payment for: </h4> -->
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <center>
+                        <div id="showAlert">
+                            <h3 class="mb-0" id="coinBalance"></h3>
+                        </div>
+                        
+                        <div id="spinner">
+                            <img src="/assets/img/spinner.gif" alt="" style="text-align: center;">
+                        </div>
+                        <div class="errBox" style="display: none;"></div>
+                        <p class="text-muted font-13 mt-1">
+                           
+                            <form action="/approve-withdrawal" method="POST" style="display: none;" id="tokenBox" >
+                                <h3 class="mb-0">Enter Confirmation Code Sent to Your Mobile</h3>
+                                <input type="text" id="code" class="form-control" name="code" required>
+                                
+                                <input type="hidden" name="id" value="<%= withdrawals.id %>">
+                                <button class="btn btn-info mt-5" id="confirmPayment" type="submit">Confirm Code</button></p>
+                        </form>
+                           
+                    </center>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div>
+</div>
+<%- include("../partials/footer2") %>
+<script>
+    $(document).ready(()=>{
+        var id = $("#withdrawalId").val();
+        var amount = $("#takeHome").val();
+        $(".approveBtn").click(()=>{
+            console.log(id, amount);
+            $("#tokenBox").hide();
+            $("#errBox").hide();
+            $.ajax({
+                url:"/adminpayout",
+                method: "POST",
+                data:{type: "WITHDRAWAL", amount, id},
+                success: (res) =>{
+                    console.log(res);
+                    if (res.success === true) {
+                        $("#spinner").hide();
+                        $("#errBox").hide();
+                        $("#tokenBox").show();
+                    }else if (res.success === false) {
+                        $("#spinner").hide();
+                        $("#errBox").show();
+                        $("#tokenBox").hide();
+                    }
+                }
+            })
+        })
+    })
+</script>

@@ -11,7 +11,7 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <h4>Unapproved Withdrawals</h4>
+                            <h4><%= status %>  Withdrawals</h4>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
@@ -19,10 +19,11 @@
                                     <thead>
                                         <tr>
                                             <th class="text-center">#</th>
+                                            <th>Name</th>
                                             <th>Email</th>
                                             <th>Amount</th>
-                                            <th>Transaction Reference</th>
-                                            <th>Status</th>
+                                            <th>Account Name</th>
+                                            <th>Account Number</th>
                                             <th>Date</th>
                                             <th>Action</th>
                                         </tr>
@@ -31,18 +32,16 @@
                                         <%  for (let i = 0; i < withdrawals.length; i++ ) { %>
                                         <tr>
                                             <td><%= i + 1 %></td>
+                                            <td><%= withdrawals[i].user.name%></td>
                                             <td><%= withdrawals[i].user.email %></td>
-                                            <td><%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format(withdrawals[i].amount.toFixed(3))  %></td>
-                                            <td><%= withdrawals[i].reference %></td>
+                                            <td><%=Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format((Number(withdrawals[i].amount))) %></td>
                                            
 
-                                            <td><%= withdrawals[i].status %></td>
+                                            <td><%= withdrawals[i].acct_name %></td>
+                                            <td><%= withdrawals[i].acct_number %></td>
                                             <td><%= moment(withdrawals[i].createdAt).format("DD-MMM-YYYY") %></td>
                                             <td>
-                                                <a href="/withdraw/details/<%= withdrawals[i].id  %> " class="btn btn-warning btn-pill" style="color: aliceblue;">
-                                                    View
-                                                </a>
-                                                
+                                                <a href="/withdrawal-detail/<%= withdrawals[i].id %>" class="btn btn-primary">View</a>
                                             </td>
                                         </tr>
                                         <% } %>

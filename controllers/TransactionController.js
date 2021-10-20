@@ -32,6 +32,7 @@ const GiftCard = require('../models').GiftCard;
 const Package = require('../models').Package;
 const Investment = require('../models').Investment;
 const Rate = require('../models').Rate;
+const Transaction = require("../models").Transaction;
 const { Service } = require("../helpers/paystack");
 
 
@@ -629,6 +630,36 @@ exports.transactionHistory = (req, res, next) => {
     });
 }
 
+exports.withdrawalDetails = (req, res, next) => {
+    AdminMessages.findAll()
+    .then(unansweredChats => {
+        Withdrawals.findOne({
+            where: {
+                id: req.params.id
+            },
+            include: ["user"]
+        })
+        .then(withdrawals => {
+            const amount = Number(withdrawals.amount)
+            const charge = ((3/100)* amount) + 200
+            const takeHome = amount - charge
+            res.render("dashboards/withdrawal_details", {
+                withdrawals,
+                messages: unansweredChats,
+                moment,
+                takeHome
+            });
+        })
+        .catch(error => {
+            req.flash('error', "Server error");
+            res.redirect("back");
+        });
+    })
+    .catch(error => {
+        req.flash('error', "Server error!");
+        res.redirect("back");
+    });
+}
 
 
 exports.unapprovedWithdrawals = (req, res, next) => {
@@ -649,19 +680,20 @@ exports.unapprovedWithdrawals = (req, res, next) => {
             res.render("dashboards/unapproved_withdrawals", {
                 withdrawals,
                 messages: unansweredChats,
-                moment
+                moment,
+                status: "Unapproved"
             });
         })
         .catch(error => {
             console.log(error)
             req.flash('error', "Server error");
-            res.redirect("/");
+            res.redirect("back");
         });
     })
     .catch(error => {
         console.log(error)
         req.flash('error', "Server error!");
-        res.redirect("/");
+        res.redirect("back");
     });
     
 }
@@ -681,10 +713,11 @@ exports.disapprovedWithdrawals = (req, res, next) => {
         })
         .then(withdrawals => {
             console.log({withdrawals});
-            res.render("dashboards/disapproved_withdrawals", {
+            res.render("dashboards/unapproved_withdrawals", {
                 withdrawals,
                 messages: unansweredChats,
-                moment
+                moment,
+                status: "Disapproved"
             });
         })
         .catch(error => {
@@ -854,132 +887,244 @@ exports.approvedWithdrawals = (req, res, next) => {
             ],
         })
         .then(withdrawals => {
-            res.render("dashboards/approved_withdrawals", {
+            res.render("dashboards/unapproved_withdrawals", {
                 withdrawals: withdrawals,
                 messages: unansweredChats,
-                moment
+                moment,
+                status:"Approved"
             });
         })
         .catch(error => {
             req.flash('error', "Server error");
-            res.redirect("/");
+            res.redirect("back");
         });
     })
     .catch(error => {
         req.flash('error', "Server error!");
-        res.redirect("/");
+        res.redirect("back");
     });
 }
 
 exports.postApproveWithdrawal = async(req, res, next) => {
-   
-   const {id} = req.body;
-   const result = await cloudinary.uploader.upload(req.file.path);
-   const docPath = result.secure_url;
-  
-    Withdrawals.findOne({
-            where: {
-                id: {
-                    [Op.eq]: id
-                }
-            }
-        })
-        .then(withdrawal => {
-            if(withdrawal) {
-                let owner = withdrawal.user_id
-                
-                Withdrawals.update({
-                    status: "approved",
-                    fileDoc: docPath
-                }, {
-                    where: {
-                        id: {
-                            [Op.eq]: id
-                        }
+    try {
+        const {id, code} = req.body;
+    
+        const withdrawal = await Withdrawals.findOne({
+                where: {
+                    id: {
+                        [Op.eq]: id
                     }
-                })
-                .then(updatedWithdrawal => {
-                    
-                     let type = 'Withdrawal'
-                    let desc = 'Withdrawal request approved'
-                     History.create({
-                        type,
-                        desc,
-                        value:req.body.amount,
-                        user_id:owner
-                    }).then(history =>{
-                        Users.findOne({where:{id:owner}}).then(user =>{
-                            const userBalance = Number(user.wallet) - Number(withdrawal.amount);
-                            const email = user.email;
-                            Users.update({wallet: userBalance}, {where:{id: user.id}}).then(update =>{
-                                const now  = moment();
-                                const output = `<html>
-        <head>
-          <title>TRANSACTION RECEIPT</title>
-        </head>
-        <body>
-        <p>Your Withdrawal was successful. You just withdraw ${withdrawal.amount} from Your PayBuyMax wallet</p>
-        <h2> Receipt </h2>
-        <ul>
-            
-            <li>Amount:.....................N${withdrawal.amount} </li>
-            <li>Account Name:.....................${withdrawal.acct_name} </li>
-            <li>Account Number:.....................${withdrawal.acct_number} </li>
-            <li>Bank Name:.....................${withdrawal.bank_name} </li>
-            <li>Transaction Reference:.....................${withdrawal.reference}</li>
-            <li>Date:.....................${now}</li>
-        </ul>
-        </body>
-                </html>`;
-      let transporter = nodemailer.createTransport({
-        host: parameters.EMAIL_HOST,
-        port: parameters.EMAIL_PORT,
-        secureConnection: true, // true for 465, false for other ports
-        auth: {
-          user: parameters.EMAIL_USERNAME, // generated ethereal user
-          pass: parameters.EMAIL_PASSWORD, // generated ethereal password
-        },
+                },
+                include: ["user"]
+            });
+        const paystack = await Service.Paystack.finalizeTransfer(withdrawal.transfer_code, code);
         
-      });
-
-      // send mail with defined transport object
-      let mailOptions = {
-        from: ` "PayBuyMax" <${parameters.EMAIL_USERNAME}>`, // sender address
-        to: `${user.email}`, // list of receivers
-        subject: "[PayBuyMax] Withdrawal Receipt", // Subject line
-        text: "PayBuyMax", // plain text body
-        html: output, // html body
-      };
-      const sendMail = transporter.sendMail(mailOptions, async(err, info) => {
-        if (err) {
-            console.log(err);
-          return res.json({msg:"Error sending mail, please try again"});
-          
-        } else {
-            req.flash('success', "Withdrawal updated successfully");
-            res.redirect("back");
-          
-        }
-      });
-                    
-                            })
-                        })
-                    })
-                })
-                .catch(error => {
-                    req.flash('error', "Server error");
-                    res.redirect("back");
-                });
-            } else {
-                req.flash('error', "Invalid withdrawal");
-                    res.redirect("/");
+        if(paystack.status === true) {
+            let owner = withdrawal.user_id
+            
+            await Withdrawals.update({
+                status: "approved"
+            }, {
+                where: {
+                    id: {
+                        [Op.eq]: id
+                    }
+                }
+            });
+            console.log(withdrawal);
+            const wallet = withdrawal.user.wallet;
+            const amount = withdrawal.amount;
+            
+            const balance = Number(wallet) - Number(amount);
+            console.log(wallet, amount, balance);
+            await Users.update({wallet: balance}, {where:{id: withdrawal.user_id}});
+    
+            let type = 'Withdrawal'
+            let desc = 'Withdrawal request approved'
+            await History.create({
+                type,
+                desc,
+                value:amount,
+                user_id:withdrawal.user_id
+            });
+    
+            const request = {
+                user_id:withdrawal.user_id,
+                type: "WITHDRAWAL",
+                amount: withdrawal.amount
             }
-        })
-        .catch(error => {
-            req.flash('error', "Server error");
-            res.redirect("back");
+            await Transaction.create(request);
+            const now  = moment();
+                                    const output = `<html>
+            <head>
+            <title>TRANSACTION RECEIPT</title>
+            </head>
+            <body>
+            <p>Your Withdrawal was successful. You just withdraw ${withdrawal.amount} from Your PayBuyMax wallet</p>
+            <h2> Receipt </h2>
+            <ul>
+                
+                <li>Amount:.....................N${withdrawal.amount} </li>
+                <li>Account Name:.....................${withdrawal.acct_name} </li>
+                <li>Account Number:.....................${withdrawal.acct_number} </li>
+                <li>Bank Name:.....................${withdrawal.bank_name} </li>
+                <li>Transaction Reference:.....................${withdrawal.reference}</li>
+                <li>Date:.....................${now}</li>
+            </ul>
+            </body>
+                    </html>`;
+        let transporter = nodemailer.createTransport({
+            host: parameters.EMAIL_HOST,
+            port: parameters.EMAIL_PORT,
+            secureConnection: true, // true for 465, false for other ports
+            auth: {
+            user: parameters.EMAIL_USERNAME, // generated ethereal user
+            pass: parameters.EMAIL_PASSWORD, // generated ethereal password
+            },
+            
         });
+
+        // send mail with defined transport object
+        let mailOptions = {
+            from: ` "PayBuyMax" <${parameters.EMAIL_USERNAME}>`, // sender address
+            to: `${withdrawal.user.email}`, // list of receivers
+            subject: "[PayBuyMax] Withdrawal Receipt", // Subject line
+            text: "PayBuyMax", // plain text body
+            html: output, // html body
+        };
+        const sendMail = transporter.sendMail(mailOptions, async(err, info) => {
+            if (err) {
+                console.log(err);
+            return res.json({msg:"Error sending mail, please try again"});
+            
+            } else {
+                console.log('withdrawal updated successfully');
+            
+            }
+        });
+        req.flash('success', "Withdrawal Approved successfully");
+        res.redirect("back");
+          
+      } else {
+          req.flash('error', "Paystack Error");
+          res.redirect("/dashboard");
+      }
+    } catch (error) {
+         req.flash('error', "Server error!");
+         res.redirect("back");
+    }
+         
 }
+
+// exports.postApproveWithdrawal = async(req, res, next) => {
+   
+//    const {id} = req.body;
+//    const result = await cloudinary.uploader.upload(req.file.path);
+//    const docPath = result.secure_url;
+  
+//     Withdrawals.findOne({
+//             where: {
+//                 id: {
+//                     [Op.eq]: id
+//                 }
+//             }
+//         })
+//         .then(withdrawal => {
+//             if(withdrawal) {
+//                 let owner = withdrawal.user_id
+                
+//                 Withdrawals.update({
+//                     status: "approved",
+//                     fileDoc: docPath
+//                 }, {
+//                     where: {
+//                         id: {
+//                             [Op.eq]: id
+//                         }
+//                     }
+//                 })
+//                 .then(updatedWithdrawal => {
+                    
+//                      let type = 'Withdrawal'
+//                     let desc = 'Withdrawal request approved'
+//                      History.create({
+//                         type,
+//                         desc,
+//                         value:req.body.amount,
+//                         user_id:owner
+//                     }).then(history =>{
+//                         Users.findOne({where:{id:owner}}).then(user =>{
+//                             const userBalance = Number(user.wallet) - Number(withdrawal.amount);
+//                             const email = user.email;
+//                             Users.update({wallet: userBalance}, {where:{id: user.id}}).then(update =>{
+//                                 const now  = moment();
+//                                 const output = `<html>
+//         <head>
+//           <title>TRANSACTION RECEIPT</title>
+//         </head>
+//         <body>
+//         <p>Your Withdrawal was successful. You just withdraw ${withdrawal.amount} from Your PayBuyMax wallet</p>
+//         <h2> Receipt </h2>
+//         <ul>
+            
+//             <li>Amount:.....................N${withdrawal.amount} </li>
+//             <li>Account Name:.....................${withdrawal.acct_name} </li>
+//             <li>Account Number:.....................${withdrawal.acct_number} </li>
+//             <li>Bank Name:.....................${withdrawal.bank_name} </li>
+//             <li>Transaction Reference:.....................${withdrawal.reference}</li>
+//             <li>Date:.....................${now}</li>
+//         </ul>
+//         </body>
+//                 </html>`;
+//       let transporter = nodemailer.createTransport({
+//         host: parameters.EMAIL_HOST,
+//         port: parameters.EMAIL_PORT,
+//         secureConnection: true, // true for 465, false for other ports
+//         auth: {
+//           user: parameters.EMAIL_USERNAME, // generated ethereal user
+//           pass: parameters.EMAIL_PASSWORD, // generated ethereal password
+//         },
+        
+//       });
+
+//       // send mail with defined transport object
+//       let mailOptions = {
+//         from: ` "PayBuyMax" <${parameters.EMAIL_USERNAME}>`, // sender address
+//         to: `${user.email}`, // list of receivers
+//         subject: "[PayBuyMax] Withdrawal Receipt", // Subject line
+//         text: "PayBuyMax", // plain text body
+//         html: output, // html body
+//       };
+//       const sendMail = transporter.sendMail(mailOptions, async(err, info) => {
+//         if (err) {
+//             console.log(err);
+//           return res.json({msg:"Error sending mail, please try again"});
+          
+//         } else {
+//             req.flash('success', "Withdrawal updated successfully");
+//             res.redirect("back");
+          
+//         }
+//       });
+                    
+//                             })
+//                         })
+//                     })
+//                 })
+//                 .catch(error => {
+//                     req.flash('error', "Server error");
+//                     res.redirect("back");
+//                 });
+//             } else {
+//                 req.flash('error', "Invalid withdrawal");
+//                     res.redirect("/");
+//             }
+//         })
+//         .catch(error => {
+//             req.flash('error', "Server error");
+//             res.redirect("back");
+//         });
+// }
 
 exports.postApproveCoinWithdrawal = async(req, res, next) => {
    try {
@@ -1405,7 +1550,7 @@ exports.postDisApproveWithdrawal = (req, res, next) => {
                 });
             } else {
                 req.flash('error', "Invalid withdrawal");
-                    res.redirect("back");
+                res.redirect("back");
             }
         })
         .catch(error => {
