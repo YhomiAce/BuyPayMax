@@ -6,73 +6,137 @@
 <div class="main-content">
     <%- include("../partials/alerts") %>
    
-    
-        <section class="section">
-            <div class="section-body">
-                <div class="row">
-                    <div class="col-12 col-md-12 col-lg-12">
-                        <form action="/edit/user" method="POST"
-                
-                            class="needs-validation" novalidate="">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h4>You are about to edit  <%=user.name %>'s earning</h4>
-                                   
-                                </div>
-                                <div class="card-body">
-                                    <div class="form-group">
-                                        <label for="name"> Name</label>
-                                        <input type="text" class="form-control" tabindex="1"
-                                        value="<%= user.name %>" readonly required autofocus disabled>
-                                        
-                                    </div>
-                
-                                    
-                                    <div class="form-group">
-                                        <label for="price">Wallet Balance</label>
-                                        <input type="text" class="form-control" tabindex="1"
-                                        value="<%= user.wallet %>" required autofocus disabled>
-                                    </div>
-                                    <% for(let i=0; i<coins.length; i++) { %>    
-                                    <div class="form-group">
-                                        <label for="duration"> <%= coins[i].coinTypes.symbol %> Balance</label>
-                                        <input type="text" class="form-control" tabindex="1"
-                                        value="<%= coins[i].balance %>" required autofocus disabled>
-                                        
-                                    </div>
-                                    <% } %>
-                                    <div class="form-group">
-                                        <label for="duration">Package Type</label>
-                                        <select name="account" id="coin" class="form-control" required>
-                                            <option value="" disabled selected>Select Account Fund</option>
-                                            <% for(let i=0; i< products.length; i++) { %> 
-                                            <option value="<%= products[i].id  %>"><%= products[i].name  %></option>
-                                            <% } %>
-                                            <option value="wallet">Wallet</option>
-                                        </select>
-                                        <div class="invalid-feedback">
-                                            Please choose account to fund
+    <section class="section">
+        <div class="section-body">
+            <div class="row">
+                <div class="col-12 col-sm-12 col-lg-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4><%= user.name %> Profile </h4>
+                        </div>
+                        
+                        <div class="card-body">
+                            <ul class="nav nav-tabs center" id="myTab2" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="home-tab2" data-toggle="tab" href="#home2" role="tab"
+                                        aria-controls="home" aria-selected="true">Profile</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="contact-tab2" data-toggle="tab" href="#contact2" role="tab"
+                                        aria-controls="contact" aria-selected="false">Wallet</a>
+                                </li>
+                            </ul>
+                            <div class="tab-content tab-bordered" id="myTab3Content">
+                                <div class="tab-pane fade show active" id="home2" role="tabpanel"
+                                    aria-labelledby="home-tab2">
+                                    <div class="row">
+                                        <div class="col-12 col-md-12 col-lg-12">
+                                            <form action="/editprofile" method="POST" class="needs-validation"
+                                                novalidate="">
+                                                <div class="form-group">
+                                                    <label for="name">Name</label>
+                                                    <% if(!edit) { %>
+                                                    <input type="text" class="form-control" name="name" tabindex="1"
+                                                        required autofocus value="<%= user.name %>" disabled>
+                                                    <% }  else { %>
+                                                        <input type="text" class="form-control" name="name" tabindex="1"
+                                                        required autofocus value="<%= user.name %>">
+                                                    <% } %>
+                                                    <div class="invalid-feedback">
+                                                        Please fill in name
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="">Email</label>
+                                                    <input type="text" class="form-control" name="email" tabindex="1"
+                                                        required autofocus value="<%= user.email %>" disabled>
+                                                    <div class="invalid-feedback">
+                                                        Please fill in email
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="">Phone</label>
+                                                    <% if(!edit) { %>
+                                                    <input type="text" class="form-control" name="phone" tabindex="1"
+                                                        required autofocus value="<%= user.phone %>" disabled>
+                                                    <% }  else { %>
+                                                    <input type="text" class="form-control" name="phone" tabindex="1"
+                                                        required autofocus value="<%= user.phone %>">
+                                                    <% } %>
+                                                    <div class="invalid-feedback">
+                                                        Please fill in phone number
+                                                    </div>
+                                                </div>
+                                                
+                                            </form>
                                         </div>
                                     </div>
-                                    <div class="form-group">
-                                        <label for="ledger_balance">Add New Amount</label>
-                                        <input id="ledger_balance" type="number" step="any" class="form-control" name="amount" tabindex="1"
-                                        required autofocus>
-                                        <div class="invalid-feedback">
-                                            Please enter amount to add
+                                </div>
+                                
+                                <div class="tab-pane fade" id="contact2" role="tabpanel" aria-labelledby="contact-tab2">
+                                    <div class="row">
+                                        <div class="col-12 col-md-12 col-lg-12">
+                                            <form action="/edit/user" method="POST" class="needs-validation" novalidate="">
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        <h4>You are about to edit  <%=user.name %>'s earning</h4>
+                                                       
+                                                    </div>
+                                                    <div class="card-body">
+                                                        
+                                                        <div class="form-group">
+                                                            <label for="price">Wallet Balance</label>
+                                                            <input type="text" class="form-control" tabindex="1"
+                                                            value="<%= user.wallet %>" required autofocus disabled>
+                                                        </div>
+                                                        <% for(let i=0; i<coins.length; i++) { %>    
+                                                        <div class="form-group">
+                                                            <label for="duration"> <%= coins[i].coinTypes.symbol %> Balance</label>
+                                                            <input type="text" class="form-control" tabindex="1"
+                                                            value="<%= coins[i].balance %>" required autofocus disabled>
+                                                            
+                                                        </div>
+                                                        <% } %>
+                                                        <div class="form-group">
+                                                            <label for="duration">Package Type</label>
+                                                            <select name="account" id="coin" class="form-control" required>
+                                                                <option value="" disabled selected>Select Account Fund</option>
+                                                                <% for(let i=0; i< products.length; i++) { %> 
+                                                                <option value="<%= products[i].id  %>"><%= products[i].name  %></option>
+                                                                <% } %>
+                                                                <option value="wallet">Wallet</option>
+                                                            </select>
+                                                            <div class="invalid-feedback">
+                                                                Please choose account to fund
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="ledger_balance">Add New Amount</label>
+                                                            <input id="ledger_balance" type="number" step="any" class="form-control" name="amount" tabindex="1"
+                                                            required autofocus>
+                                                            <div class="invalid-feedback">
+                                                                Please enter amount to add
+                                                            </div>
+                                                        </div>
+                                                        <input type="hidden" name="userId" value="<%= user.id %>">
+                                                    </div>
+                                                    <div class="card-footer text-right">
+                                                        <button class="btn btn-primary mr-1"
+                                                        type="submit">Update</button>
+                                                    </div>
+                                                </div>
+                                            </form>
                                         </div>
                                     </div>
-                                    <input type="hidden" name="userId" value="<%= user.id %>">
                                 </div>
-                                <div class="card-footer text-right">
-                                    <button class="btn btn-primary mr-1"
-                                    type="submit">Update</button>
-                                </div>
+                               
                             </div>
-                        </form>
+                        </div>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
+        
     </div>
 <%- include("../partials/footer2") %></div>

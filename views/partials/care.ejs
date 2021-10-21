@@ -1,0 +1,98 @@
+<ul class="sidebar-menu">
+
+    <li class="dropdown text-center">
+        <span style="padding-left: 10px; font-size: large; color: white;">Welcome Customer Care</span>
+    </li>
+    <li class="dropdown">
+        <a href="/agent/home" class="nav-link"><i class="fas fa-university" data-feather="home"></i><span>Dashboard</span></a>
+    </li>
+    <li class="dropdown">
+        <a href="#" class="menu-toggle nav-link has-dropdown"><i class="fa fa-users"></i><span>Users</span></a>
+                <ul class="dropdown-menu">
+                    <li><a class="nav-link" href="/users">Active</a></li>
+                    <li><a class="nav-link" href="/deleted/users">Deleted Users</a></li>
+                    
+                </ul>
+    </li>
+    
+    <li class="dropdown">
+        <a href="#" class="menu-toggle nav-link has-dropdown">
+            <i class="fas fa-chart-pie"></i>
+            <span>Transactions</span></a>
+        <ul class="dropdown-menu">
+            <li><a class="nav-link" href="/pending-internal/transaction">Buy</a></li>
+            <li><a class="nav-link" href="/internal-sell/transaction">Sell</a></li>
+            
+            
+        </ul>
+    </li>
+    
+    <li class="dropdown">
+        <a href="#" class="menu-toggle nav-link has-dropdown"><i
+                class="fa fa-university"></i><span>Withdrawals</span></a>
+        <ul class="dropdown-menu">
+            <li><a class="nav-link" href="/unapproved-withdrawal">Pending</a></li>
+            <li><a class="nav-link" href="/approved-withdrawal">Approved</a></li>
+            <li><a class="nav-link" href="/disapproved-withdrawal">Disapproved</a></li>
+        </ul>
+    </li>
+    <li class="dropdown">
+        <a href="#" class="menu-toggle nav-link has-dropdown"><i class="fas fa-coins"></i><span>Transfer</span></a>
+        <ul class="dropdown-menu">
+            <li><a class="nav-link" href="/unapproved-coin-withdrawal">Unapproved</a></li>
+            <li><a class="nav-link" href="/approved-coin-withdrawal">Approved</a></li>
+        </ul>
+    </li>
+    <li class="dropdown">
+        <a href="#" class="menu-toggle nav-link has-dropdown"><i class="fas fa-receipt"></i><span>Receipt</span></a>
+        <ul class="dropdown-menu">
+            <li><a class="nav-link" href="/generate-receipt">Crypto Receipt</a></li>
+            <li><a class="nav-link" href="/giftcard-receipt">Giftcard Receipt</a></li>
+            <li><a class="nav-link" href="/pending-external/transaction">Pending Crypto</a></li>
+            <li><a class="nav-link" href="/pending-gift-card/transaction">Pending Giftcard</a></li>
+            
+            <li><a class="nav-link" href="/approved-external/transaction">Completed Crypto</a></li>
+            <li><a class="nav-link" href="/approved-gift-card/transaction">Completed Giftcard</a></li>
+            
+        </ul>
+    </li>
+    <li class="dropdown">
+        <a href="#" class="menu-toggle nav-link has-dropdown"><i
+                class="fas fa-gift"></i><span>Coins & Packages</span></a>
+        <ul class="dropdown-menu">
+            <li><a class="nav-link" href="/add/coin">Add New Coin</a></li>
+            <!-- <li><a class="nav-link" href="/add/package">Add New Package</a></li> -->
+            <li><a class="nav-link" href="/view/coins">View Coins</a></li>
+            <li><a class="nav-link" href="/gift-cards">GiftCards</a></li>
+            <!-- <li><a class="nav-link" href="/view/packages">View Packages</a></li> -->
+        </ul>
+    </li>
+    <li class="dropdown">
+        <a href="#" class="menu-toggle nav-link has-dropdown"><i
+                class="fa fa-university"></i><span>KYC</span></a>
+        <ul class="dropdown-menu">
+            <li><a class="nav-link" href="/unapproved-kycs">Pending</a></li>
+            <li><a class="nav-link" href="/approved-kycs">Approved</a></li>
+        </ul>
+    </li>
+    <li class="dropdown">
+        <a href="/agent/wallet" class="nav-link"><i class="fas fa-wallet"></i><span>Wallets</span></a>
+    </li>
+    <li class="dropdown">
+        <a href="#" class="menu-toggle nav-link has-dropdown"><i class="fas fa-user-cog"></i><span>Settings</span></a>
+        <ul class="dropdown-menu">
+            <li><a class="nav-link" href="/admin-password">Password</a></li>
+            
+            
+        </ul>
+    </li>
+    <li class="dropdown">
+        <a href="javascript:void(0);" class="nav-link" onclick="event.preventDefault();
+                        document.getElementById('logout-menu').submit();">
+                            <i class="fas fa-sign-out-alt"></i><span>Logout</span>
+                        </a>
+                        <form id="logout-menu" action="/logout" method="POST" style="display: none;">
+                        </form>
+    </li>
+    
+</ul>

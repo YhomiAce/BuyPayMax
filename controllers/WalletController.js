@@ -273,7 +273,8 @@ exports.editWallet = (req, res, next) => {
             res.render("dashboards/editUser", {
               user: user,
               coins,
-              products
+              products,
+              edit: false
             });
 
           })
