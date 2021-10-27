@@ -2866,10 +2866,16 @@ exports.sendConfirmationCodeForWithdraw = async(req, res) =>{
         let balance;
         // Todo 
         if (type === "coin") {
-            const coin = await Coin.findOne({where:{userId, coinId:req.body.coinId}});
+            const coin = await Coin.findOne({where:{userId, coinId:req.body.coinId}, include: ["coinTypes"]});
+            
             balance = Number(coin.balance);
-            if (balance < amount) {
-                return res.json({success: false,msg:"Your Coin balance is Low. Can't Perform this transaction"});
+            const maxWithdrawal = Number(coin.coinTypes.maxWithdrawal);
+            const maximumWithdrawal = balance* (maxWithdrawal/100)
+            // console.log(coin, maximumWithdrawal);
+            if (balance < amount ) {
+                return res.json({success: false,msg:"Your Coin balance is Low"});
+            }else if (amount >= maximumWithdrawal) {
+                return res.json({success: false,msg:`You exceed the maximum withdrawal. You can only withdraw ${maxWithdrawal}% of your coin`});
             }
         }
 

@@ -1,0 +1,191 @@
+<!-- header -->
+<%- include("../partials/header_admin") %>
+<%- include("../partials/sidebar") %>
+
+<!-- Main Content -->
+<div class="main-content">
+    <%- include("../partials/alerts") %>
+    <div class="modal fade" id="checkValidity" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <!-- <h4 class="modal-title" id="myCenterModalLabel">Payment for: </h4> -->
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <center>
+                        <div id="boxAlert">
+                            <img src="/assests/img/spinner.gif" alt="">
+                        </div>
+                        <div id="fail" style="display: none;">
+                            <h3>An Error Occurred. Please Try agian</h3>
+                        </div>                
+                        <div class="card" id="success" style="display: none;">
+                            <div class="card-header">
+                                
+                                <h4>Transaction Details</h4>
+                            </div>
+                            <div class="card-body" id="txBody">
+                                
+                            </div>
+                            <div class="card-footer">
+                                <h4 id="message"></h4>
+                            </div>
+                        </div>                        
+                           
+                    </center>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div>
+    <section class="section">
+        <div class="section-body">
+            
+            <div class="row">
+                <div class="col-12">
+                   
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Deposit Details</h4>
+                        </div>
+                        <div class="card-body">
+                            
+                            <div class="table-responsive">
+                                <table class="table table-striped" id="table-1">
+                                    <tbody>
+                                        <tr>
+                                            <td>Name</td>
+                                            <td><%= deposits.user.name %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Email</td>
+                                            <td><%= deposits.user.email %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Transaction reference</td>
+                                            <td><%= deposits.reference %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Wallet Address</td>
+                                            <td><%= deposits.wallet_address %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Coin Type</td>
+                                            <td><%= deposits.coin.name %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Amount Sent</td>
+                                            <td><%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(deposits.amountSent) %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Quantity</td>
+                                            <td><%= deposits.quantity %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Deposit Confirmed</td>
+                                            <% if (deposits.confirmed) { %>
+                                                <td><button class="btn btn-success">Yes</button></td>
+                                            <% } %>
+                                            <% if (!deposits.confirmed) { %>
+                                                <td><button class="btn btn-danger">NO</button></td>
+                                            <% } %>
+                                            
+                                        </tr>
+                                        <tr>
+                                            <td>Transaction Status</td>
+                                            <td class="text-default"><%= deposits.status %></td>
+                                            
+                                        </tr>
+                                        <tr>
+                                            <td>Date</td>
+                                            <td><%= moment(deposits.createdAt).format("DD-MM-YYYY") %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Check Validity</td>
+                                            <td>
+                                                <input type="hidden" value="<%=deposits.reference%>" id="referenceId">
+                                                <button class="btn btn-info" type="button" data-toggle="modal" id ="validBtn" data-target="#checkValidity">Check Validity</button>
+                                            </td>
+                                        </tr>
+                                        <% if(deposits.status === "pending") { %> 
+                                        <tr>
+                                            <td>Approve</td>
+                                            <td>
+                                                <form action="/approve-coin-deposit" method="post">
+                                                    <input type="hidden" name="id" value="<%= deposits.id %>">
+                                                    <button type="submit" class="btn btn-success">Approve</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Disapprove</td>
+                                            <td>
+                                                <form action="/disapprove-coin-deposit" method="post">
+                                                    <input type="hidden" name="id" value="<%= deposits.id %>">
+                                                    <button type="submit" class="btn btn-danger">Disapprove</button>
+                                                </form>
+                                                
+                                            </td>
+                                        </tr>
+                                        <% } %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </section>
+</div>
+<%- include("../partials/footer2") %>
+
+<script>
+    $(document).ready(()=>{
+        $("#validBtn").click(()=>{
+            var referenceId = $("#referenceId").val();
+            $("#fail").hide()
+            $("#success").hide()
+            $.ajax({
+                url:"/verify-coin-deposit/"+referenceId,
+                method:"GET",
+                success:(res =>{
+                    console.log(res);
+                    if (res.success === true) {
+                        $("#boxAlert").hide()
+                        $("#success").show()
+                        $("#fail").hide()
+                        var amount = res.response.amount;
+                        var reference = res.response.reference;
+                        var sent = res.response.sent;
+                        var confirmed = res.response.confirmed;
+                        var currency = res.response.currency.symbol;
+                        var coinName = res.response.currency.name;
+                        var address = res.response.destination.address;
+                        var amountSent = res.response.realValue.amount;
+                        var amtCurrency = res.response.realValue.currency;
+                        var confirmStatus = confirmed ? '<h4 class="text-success">SENT</h4>' : '<h4 class="text-danger"> NOT SENT</h4>';                 
+                        var status = sent ? '<h4 class="text-success">Coin Received</h4>' : '<h4 class="text-danger">Coin NOT Received</h4>'
+                        const output = `
+                        <ul class="list-group">
+                            <li class="list-group-item">Transaction Reference: ${reference}</li>
+                            <li class="list-group-item">Amount Sent: ${amountSent}${amtCurrency}</li>
+                            <li class="list-group-item">Wallet Address: ${address}</li>
+                            <li class="list-group-item">Coin Sent: ${coinName}</li>
+                            <li class="list-group-item">Quantity Received: ${amount}${currency}</li>
+                            <li class="list-group-item">Confirmation Status: ${confirmStatus}</li>
+                            <li class="list-group-item">Sent: ${status}</li>
+                        </ul>
+                        `;
+                        $("#txBody").append(output)
+                    }else{
+                        $("#fail").show()
+                        $("#boxAlert").hide()
+                        $("#success").hide()
+                    }
+                })
+            })
+        })
+    })
+</script>

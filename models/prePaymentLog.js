@@ -18,6 +18,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "user_id",
         as: "user",
       });
+      PrePayment.belongsTo(models.Product, {
+        foreignKey: "coinId",
+        as: "coin",
+      });
     }
 
   }
@@ -60,7 +64,11 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: false,
       allowNull: false
     },
-    
+    status: {
+      allowNull: false,
+      type: DataTypes.ENUM("pending", "approved", "disapproved"),
+      defaultValue: "pending"
+    },
   }, {
     sequelize,
     modelName: 'PrePayment',

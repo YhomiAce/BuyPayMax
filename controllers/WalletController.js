@@ -14,8 +14,10 @@ const AdminMessages = require("../models").AdminMessage;
 const Product = require("../models").Product;
 const Coin = require("../models").Coin;
 const Wallet = require("../models").Wallet;
+const History = require("../models").History;
 const Payment = require("../models").Payment;
 const Rate = require("../models").Rate;
+const PrePayment = require("../models").PrePayment;
 const helpers = require("../helpers/cryptedge_helpers");
 const generateUniqueId = require("generate-unique-id");
 
@@ -455,7 +457,8 @@ exports.walletFundingHistory = async (req, res, next) => {
       }
     });
     const messages = await AdminMessages.findAll();
-    const deposits = await Deposits.findAll({where:{user_id: req.session.userId}, order:[["createdAt", "DESC"]], include: ["user"]})
+    const deposits = await Deposits.findAll({where:{user_id: req.session.userId}, order:[["createdAt", "DESC"]], include: ["user"]});
+    console.log(deposits);
     res.render("dashboards/users/funding_history",{
       moment,
       user,
@@ -473,18 +476,11 @@ exports.walletFundingHistory = async (req, res, next) => {
 exports.depositsTransactions = async (req, res, next) => {
   try {
    const {status} = req.query
-    const user = await Users.findOne({
-      where: {
-          id: {
-              [Op.eq]: req.session.userId
-          }
-      }
-    });
+    
     const messages = await Chats.findAll();
     const deposits = await Deposits.findAll({where:{status} ,order:[["createdAt", "DESC"]], include: ["user"]})
     res.render("dashboards/deposits",{
       moment,
-      user,
       messages,
       deposits,
       type: "Pending"
@@ -495,4 +491,163 @@ exports.depositsTransactions = async (req, res, next) => {
     res.redirect("back");
   }
       
+}
+
+exports.coinDepositsTransactions = async (req, res, next) => {
+  try {
+   const {status} = req.query
+    
+    const messages = await Chats.findAll();
+    const deposits = await PrePayment.findAll({where:{status} ,order:[["createdAt", "DESC"]], include: ["user", "coin"]});
+    
+    res.render("dashboards/coin_deposits",{
+      moment,
+      messages,
+      deposits,
+      type: "Pending"
+    })
+    
+  } catch (error) {
+    req.flash("error", "Server error!");
+    res.redirect("back");
+  }
+      
+}
+
+exports.viewCoinDepositsTransaction = async (req, res, next) => {
+  try {
+   const {id} = req.params
+    
+    const messages = await Chats.findAll();
+    const deposits = await PrePayment.findOne({where:{id} , include: ["user", "coin"]});
+    
+    res.render("dashboards/view_coin_deposits",{
+      moment,
+      messages,
+      deposits
+    })
+    
+  } catch (error) {
+    req.flash("error", "Server error!");
+    res.redirect("back");
+  }
+      
+}
+
+
+exports.approveCoinDeposits = async(req, res, next) => {
+  id = req.body.id;
+  
+   
+  PrePayment.findOne({
+          where: {
+              id: {
+                  [Op.eq]: id
+              }
+          },
+          include: ["user"],
+      })
+      .then(async deposit => {
+        console.log(deposit);
+          if (deposit) {
+              let owner = deposit.user_id
+              amount = Math.abs(Number(deposit.quantity));
+              // fund the users account before anything
+              const coin = await Coin.findOne({where: {userId: deposit.user_id, coinId: deposit.coinId}})
+              let userWallet = Math.abs(Number(coin.balance));
+              console.log(userWallet);
+              let currentWallet = userWallet + amount;
+              Coin.update({
+                  balance: currentWallet
+              }, {
+                  where: {userId: deposit.user_id, coinId: deposit.coinId}
+              })
+              .then(async userUpdated => {
+                  const data = {
+                    user_id: deposit.user_id,
+                    amount: deposit.amountSent,
+                    channel: "PAYLOT",
+                    walletAddress: deposit.wallet_address,
+                    reference: deposit.reference,
+                    currency: deposit.currency,
+                    status: "approved"
+                  }
+                  Deposits.create(data)
+                  .then(updatedDeposit => {
+                        
+                      let desc = 'Your deposit was approved'
+                      let type = "Crytpo Wallet"
+                      History.create({
+                          user_id:owner,
+                          type,
+                          desc,
+                          value:deposit.amountSent 
+                              
+                      }).then(async resp =>{
+                        await PrePayment.update({status: "approved"}, {where:{id}})
+                        req.flash('success', "Wallet Deposit approved");
+                        res.redirect("back");
+
+                      })
+                          
+                  })
+                  .catch(error => {
+                      req.flash('error', "Server error!" + error);
+                      res.redirect("back");
+                  });
+              })
+              .catch(error => {
+                  req.flash('error', "Server error!"+ error);
+                  res.redirect("back");
+              });
+          } else {
+              req.flash('warning', "Invalid deposit!");
+              res.redirect("back");
+          }
+      })
+      .catch(error => {
+          req.flash('error', "Server error!"+ error);
+          res.redirect("back");
+      });
+}
+
+exports.unApproveACoinDeposits = async(req, res, next) => {
+  id = req.body.id;
+  PrePayment.findOne({
+          where: {
+              id: {
+                  [Op.eq]: id
+              }
+          },
+          include: ["user", "coin"],
+      })
+      .then(deposit => {
+          if (deposit) {
+              const data = {
+                user_id: deposit.user_id,
+                amount: deposit.amountSent,
+                channel: "PAYLOT",
+                walletAddress: deposit.wallet_address,
+                reference: deposit.reference,
+                currency: deposit.currency,
+                status: "disapproved"
+              }
+              Deposits.create(data).then(async approved =>{
+                await PrePayment.update({status: "disapproved"}, {where:{id}})
+                  req.flash('success', "Wallet Deposit disapproved");
+                  res.redirect("back");
+              })
+              .catch(error => {
+                  req.flash('error', "Server error!"+ error);
+                  res.redirect("back");
+              });
+          } else {
+              req.flash('warning', "Invalid deposit!");
+              res.redirect("back");
+          }
+      })
+      .catch(error => {
+          req.flash('error', "Server error!"+ error);
+          res.redirect("back");
+      });
 }

@@ -53,13 +53,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.ENUM("pending", "approved", "disapproved"),
       defaultValue: "pending"
     },
-    createdAt: {
-      allowNull: false,
-      type: DataTypes.DATE,
-      get() {
-        return dayjs(this.getDataValue('createdAt')).format('ddd, MMM D, YYYY, h:mm A');
-      }
-    }
   }, {
     sequelize,
     modelName: 'Deposit',

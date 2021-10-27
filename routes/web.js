@@ -539,6 +539,7 @@ router.post("/createwithdrawal", AuthMiddleware.redirectLogin, PaystackControlle
 router.get("/unapprovedpaystack", AuthMiddleware.redirectAdminLogin, TransactionController.unappWithdrawPaystack);
 router.post("/adminpayout", AuthMiddleware.redirectAdminLogin, PaystackController.payWithPaystack);
 router.post("/verify-deposit", AuthMiddleware.redirectLogin, PaystackController.verifyTransaction);
+router.get("/verify-coin-deposit/:reference", AuthMiddleware.redirectLogin, PaylotController.verifyTransaction);
 router.post("/initialize-deposit",PaylotController.initializePayment);
 router.get("/verify-depsoit/:reference",PaylotController.verifyTransaction);
 router.post("/save/pre-payment",AuthMiddleware.redirectLogin, PaylotController.savePrePaymentLog);
@@ -644,8 +645,10 @@ router.post("/create-post", AuthMiddleware.redirectAdminLogin, uploader.single('
 
 // Deposits Admin Routes
 router.get("/deposits", AuthMiddleware.redirectAdminLogin, WalletController.depositsTransactions);
-// router.post("/approved/deposits", AuthMiddleware.redirectAdminLogin, WalletController.walletFundingHistory);
-// router.post("/unapproved/deposits", AuthMiddleware.redirectAdminLogin, WalletController.walletFundingHistory);
+router.get("/coin-deposits", AuthMiddleware.redirectAdminLogin, WalletController.coinDepositsTransactions);
+router.get("/view/coin-deposit/:id", AuthMiddleware.redirectAdminLogin, WalletController.viewCoinDepositsTransaction);
+router.post("/approve-coin-deposit", AuthMiddleware.redirectAdminLogin, WalletController.approveCoinDeposits);
+router.post("/disapprove-coin-deposit", AuthMiddleware.redirectAdminLogin, WalletController.unApproveACoinDeposits);
 
 // Test Route
 router.get("/get-kycs", KycController.unApprovedKyc);
