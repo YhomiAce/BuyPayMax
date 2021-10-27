@@ -70,21 +70,26 @@ exports.addPackage = (req, res, next) => {
 }
 
 exports.ExchangeRate = (req, res, next) => {
-    AdminMessages.findAll()
+    Chats.findAll()
    .then(unansweredChats => {
        Rate.findAll({
            where: {
                    deletedAt: {
                        [Op.eq]: null
                    }
-           }
+           },
+           include:["product"]
        })
        .then(rates => {
-           res.render("dashboards/exchange_rate", {
-               rates,
-               messages: unansweredChats,
-               moment
-           });
+           Product.findAll().then(products =>{
+
+                res.render("dashboards/exchange_rate", {
+                    rates,
+                    messages: unansweredChats,
+                    moment,
+                    products
+                });
+           })
        })
        .catch(error => {
            res.redirect("/dashboard");
@@ -117,7 +122,8 @@ exports.getExchangeRate = async(req, res, next) => {
                     deletedAt: {
                         [Op.eq]: null
                     }
-            }
+            },
+            include:["product"]
         })
         .then(rates => {
             
@@ -1162,7 +1168,8 @@ exports.postAddCoin =  async(req, res, next) => {
         symbol,
         rate,
         dollarRate,
-        charge
+        charge,
+        maxWithdrawal
     } = req.body;
     // check if any of them are empty
     if (!name || !symbol || !rate) {
@@ -1196,7 +1203,8 @@ exports.postAddCoin =  async(req, res, next) => {
                             rate,
                             symbol,
                             dollarRate,
-                            charge
+                            charge,
+                            maxWithdrawal
                             })
                             .then( async products => {
                                 const users=  await Users.findAll();
@@ -1297,7 +1305,8 @@ exports.postUpdateCoin = (req, res, next) => {
         symbol,
         rate, 
         dollarRate,
-        charge
+        charge,
+        maxWithdrawal
     } = req.body;
     // check if any of them are empty
     if (!name || !symbol || !rate || !dollarRate) {
@@ -1326,7 +1335,8 @@ exports.postUpdateCoin = (req, res, next) => {
                         symbol,
                         rate,
                         dollarRate,
-                        charge
+                        charge,
+                        maxWithdrawal
                         }, {
                             where: {
                                 id: {

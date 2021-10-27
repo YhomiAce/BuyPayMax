@@ -12,11 +12,15 @@ module.exports = {
         allowNull: true,
         type: Sequelize.UUID,
       },
-      amount: {
+      coinId: {
+        allowNull: true,
+        type: Sequelize.UUID,
+      },
+      amountSent: {
         type: Sequelize.FLOAT
       },
-      realValue: {
-        type: Sequelize.STRING
+      quantity: {
+        type: Sequelize.FLOAT
       },
       reference: {
         allowNull: true,
@@ -32,6 +36,7 @@ module.exports = {
       },
       confirmed: {
         type: Sequelize.BOOLEAN,
+        defaultValue: false,
         allowNull: false
       },
       createdAt: {

@@ -1,4 +1,5 @@
 // package imports
+require("dotenv").config();
 const bcrypt = require("bcryptjs");
 const Sequelize = require("sequelize");
 const uniqueString = require("unique-string");
@@ -14,7 +15,7 @@ const CoinGecko = require('coingecko-api');
 //2. Initiate the CoinGecko API Client
 const CoinGeckoClient = new CoinGecko();
 
-const { stripHtml} = require("../helpers/helpers")
+const { stripHtml, ucfirst} = require("../helpers/helpers")
 
 // local imports
 const parameters = require("../config/params");
@@ -38,10 +39,11 @@ const Op = Sequelize.Op;
 exports.index = async(req, res, next) => {
   //res.render("auths/login2");
   const coins = await this.getCoinList()
-  // console.log(coins);
+  console.log(coins);
   res.render("index", {
     coins,
-    moment
+    moment,
+    ucfirst
   });
 };
 
@@ -85,7 +87,6 @@ exports.signInUser = (req, res, next) => {
 
 exports.signUpUser = (req, res, next) => {
   const {ref} = req.query
-  console.log(ref);
   res.render("signup", {
     ref
   });
@@ -704,9 +705,16 @@ exports.signup = (req, res, next) => {
   res.render("registerb");
 };
 
-exports.login = (req, res, next) => {
+exports.login = async(req, res, next) => {
   const { email, password } = req.body;
-  if (email && password) {
+  const captcha = req.body['g-recaptcha-response'];
+  const url = `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.GOOGLE_CAPTCHA_SECRET}&response=${captcha}&remoteip=${req.connection.remoteAddress}`;
+  const response = await axios.post(url)
+  console.log(response);
+  if (!response.data.success || response.data.success !== true ) {
+    req.flash("warning", "Captcha Validation Failed");
+    res.redirect("back");
+  }else if (email && password) {
     Users.findOne({
       where: {
         email: {
@@ -744,12 +752,21 @@ exports.login = (req, res, next) => {
 
 exports.register = async (req, res) => {
   const { email, password1, password2 } = req.body;
+  const captcha = req.body['g-recaptcha-response']
+  
   const mailformat = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
   const digits_only = (string) =>
     [...string].every((c) => "+0123456789".includes(c));
 
   try {
-    if (!email || !password1 || !password2) {
+    
+    const url = `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.GOOGLE_CAPTCHA_SECRET}&response=${captcha}&remoteip=${req.connection.remoteAddress}`;
+    const response = await axios.post(url)
+    console.log(response);
+    if (!response.data.success || response.data.success !== true ) {
+      req.flash("warning", "Captcha Validation Failed");
+      res.redirect("back");
+    }else if (!email || !password1 || !password2) {
       req.flash("warning", "Please Fill all Fields");
       res.redirect("back");
     } else if (!email.match(mailformat)) {
@@ -772,7 +789,6 @@ exports.register = async (req, res) => {
         res.redirect("back");
         return
       }else{
-
         const hasPassword = bcrypt.hashSync(password1, 10);
         const {referral} = req.body
         console.log("Reference",referral);
@@ -1060,7 +1076,6 @@ exports.register = async (req, res) => {
                 req.session.ref = "";
             }
         })
-
         }
     }
   } catch (err) {

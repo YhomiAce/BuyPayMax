@@ -59,14 +59,21 @@
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label for="dollarRate">Withdrawal Percentage Charge </label>
+                                        <label for="dollarRate">Withdrawal Charge (%) </label>
                                         <input id="charge" type="number" step="any" class="form-control" name="charge" tabindex="1"
                                         value="<%= edit ? coin.charge : '' %>" required autofocus>
                                         <div class="invalid-feedback">
                                             Please enter Charge Percentage
                                         </div>
                                     </div>                                 
-                                    
+                                    <div class="form-group">
+                                        <label for="dollarRate">Maximum Withdrawal (%) </label>
+                                        <input id="maxWithdrawal" type="number" step="any" class="form-control" name="maxWithdrawal" tabindex="1"
+                                        value="<%= edit ? coin.maxWithdrawal : '' %>" required autofocus>
+                                        <div class="invalid-feedback">
+                                            Please enter Maximum Withdrawal Percentage
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="card-footer text-right">
                                     <button class="btn btn-primary mr-1"

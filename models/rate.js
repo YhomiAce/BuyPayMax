@@ -3,17 +3,20 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class rate extends Model {
+  class Rate extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      Rate.belongsTo(models.Product, {
+        foreignKey: "productId",
+        as: "product"
+      })
     }
   };
-  rate.init({
+  Rate.init({
     id: {
       primaryKey: true,
       type: DataTypes.UUID,
@@ -33,6 +36,9 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.FLOAT,
       defaultValue: 0
     },
+    productId: {
+      type: DataTypes.UUID
+    }
   }, {
     sequelize,
     modelName: 'Rate',
@@ -40,5 +46,5 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: true,
     paranoid: true
   });
-  return rate;
+  return Rate;
 };

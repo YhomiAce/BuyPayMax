@@ -40,73 +40,85 @@
         <div class="section-body">
             <div class="row">
                 <div class="col-12 col-md-12 col-lg-12">
-                    <form class="needs-validation" id="withdarawForm">
-                        <div class="card">
-                            <div class="card-header">
-                                <h4>Withdraw From Wallet</h4>
-                            </div>
-                            <div class="card-body">
-                                
-                                <div class="form-group">
-                                    <label for="">Account Name</label>
-                                    <input type="text" class="form-control" id="act_name" name="act_name"
-                                        tabindex="1" required autofocus>
-                                    <div class="invalid-feedback">
-                                        Please fill in your account name
+                    <% if (user.kyc !== null) { %>
+                        <% if (user.kyc.status === true) { %>
+                            <form class="needs-validation" id="withdarawForm">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h4>Withdraw From Wallet</h4>
                                     </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="">Account Number</label>
-                                    <input type="text" class="form-control" name="act_number" tabindex="1" id="act_number"
-                                        required autofocus>
-                                    <div class="invalid-feedback">
-                                        Please fill in account number
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="name">Amount</label>
-                                    <input type="number" step="any" class="form-control" id="user_amount" name="user_amount" tabindex="1" required
-                                        autofocus>
-                                    <div class="invalid-feedback">
-                                        Please fill in amount
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="name">Select Bank</label>
-                                    <select name="bank_code" class="form-control bank_list" id="bank">
-                                        <option selected disabled>Select Your Bank</option>
-                                        <% for( let i = 0; i < banks.length; i++ ) { %>
-                                        <option value="<%= banks[i].code %>"><%= banks[i].name %></option>
-                                        <% } %>
+                                    <div class="card-body">
                                         
-                                    </select>
-                                    <div class="invalid-feedback">
-                                        Please select bank
+                                        <div class="form-group">
+                                            <label for="">Account Name</label>
+                                            <input type="text" class="form-control" id="act_name" name="act_name"
+                                                tabindex="1" required autofocus>
+                                            <div class="invalid-feedback">
+                                                Please fill in your account name
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="">Account Number</label>
+                                            <input type="text" class="form-control" name="act_number" tabindex="1" id="act_number"
+                                                required autofocus>
+                                            <div class="invalid-feedback">
+                                                Please fill in account number
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="name">Amount</label>
+                                            <input type="number" step="any" class="form-control" id="user_amount" name="user_amount" tabindex="1" required
+                                                autofocus>
+                                            <div class="invalid-feedback">
+                                                Please fill in amount
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="name">Select Bank</label>
+                                            <select name="bank_code" class="form-control bank_list" id="bank">
+                                                <option selected disabled>Select Your Bank</option>
+                                                <% for( let i = 0; i < banks.length; i++ ) { %>
+                                                <option value="<%= banks[i].code %>"><%= banks[i].name %></option>
+                                                <% } %>
+                                                
+                                            </select>
+                                            <div class="invalid-feedback">
+                                                Please select bank
+                                            </div>
+                                        </div>
+                                        <div class="row" id="verify" style="display: none;">
+                                            <div class="form-group col-md-4">
+                                                <input type="text" id="message" class="form-control text-success" disabled>
+                                            </div>
+                                            <div class="form-group col-md-4">
+                                                <input type="text" id="acctNumber" class="form-control text-success" disabled>
+                                            </div>
+                                            <div class="form-group col-md-4">
+                                                <input type="text" id="acctName" class="form-control text-success" disabled>
+                                            </div>
+                                        </div>
+                                        <div id="errMsg" style="display: none;">
+                                            <div class="text-danger" id="feedbk">
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" id="user_id" value="<%= user.id  %> ">
+                                    <div class="card-footer text-right">
+                                        <button class="btn btn-primary btn-block" type="button" data-toggle="modal" id = "withdrawBtn" data-target="#withdawNow">Withdraw</button>
                                     </div>
                                 </div>
-                                <div class="row" id="verify" style="display: none;">
-                                    <div class="form-group col-md-4">
-                                        <input type="text" id="message" class="form-control text-success" disabled>
-                                    </div>
-                                    <div class="form-group col-md-4">
-                                        <input type="text" id="acctNumber" class="form-control text-success" disabled>
-                                    </div>
-                                    <div class="form-group col-md-4">
-                                        <input type="text" id="acctName" class="form-control text-success" disabled>
-                                    </div>
-                                </div>
-                                <div id="errMsg" style="display: none;">
-                                    <div class="text-danger" id="feedbk">
-                                        
-                                    </div>
-                                </div>
-                            </div>
-                            <input type="hidden" id="user_id" value="<%= user.id  %> ">
-                            <div class="card-footer text-right">
-                                <button class="btn btn-primary btn-block" type="button" data-toggle="modal" id = "withdrawBtn" data-target="#withdawNow">Withdraw</button>
-                            </div>
-                        </div>
-                    </form>
+                            </form>
+                        <% } %>
+                        <% if (user.kyc.status !== true) { %>
+                            <h3>You can not Perform This Transaction Please Wait For Admin Verification</h3>
+                        <% } %>
+                    
+                    <% } %>
+                    <% if (user.kyc === null) { %>
+                     <h3>You can not Perform This Transaction Please Goto the settings Section to complete Your Profile And KYC</h3>
+                    <% } %>
+                    
                 </div>
             </div>
         </div>

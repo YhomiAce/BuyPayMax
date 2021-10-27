@@ -107,7 +107,7 @@ function payWithCryptos() {
         let id = document.getElementById('user_id').value;
         paylot({
             amount: amount,
-            key: 'pyt_pk-7cdcf561cbf14013a15bfd63b1f0f5ee',
+            key: 'pyt_pk-bacba9e97c3d434aa2bf177af7eccfa4',
             reference: 'T-'+Date.now() + '' + Math.floor((Math.random() * 1000000000) + 1),
             currency: 'USD',
             payload: {

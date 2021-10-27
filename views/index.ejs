@@ -206,12 +206,11 @@
 <!--Live Updates-->
 <div class="marquee mb-5">
     <marquee behavior="scroll" direction="" style="font-size: 18px;">
-        <img style="width: 20px" src="/assests/img/btc.svg" alt="BTC" />
-        Bitcoin[BTC] $32,073.00-4.16%, <span style="padding-right: 30px;"></span>
-        <img style="width: 20px" src="/assests/img/ethereum-eth-logo.svg" alt="ETH" />
-        Ethereum[ETH] $32,073.00-4.16%, <span style="padding-right: 30px;"></span>
-        <img style="width: 20px" src="/assests/img/tether-usdt-logo.svg" alt="USDT" />
-        Tether[USDT] $32,073.00-4.16%
+        <% for( let i = 0; i < coins.length; i++ ) { %>
+        <img style="width: 20px" src="<%= coins[i].image %>" alt="Coin" />
+        <%= ucfirst(coins[i].id) %>[<%= coins[i].symbol.toUpperCase() %>] <%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format((Number(coins[i].current_price)) )   %>, <span style="padding-right: 30px;"></span>
+        
+        <% } %>
     </marquee>
 </div>
 <div class="container my-5">
@@ -231,7 +230,7 @@
         <% for( let i = 0; i < coins.length; i++ ) { %>
         <tr>
             <td class="hidden"><%= i+1 %> </td>
-            <td><img style="width: 30px; padding-right: 5px;" src="<%= coins[i].image %> " alt=""> <span> <%= coins[i].id %>  <%= coins[i].symbol.toUpperCase() %></span> </td>
+            <td><img style="width: 30px; padding-right: 5px;" src="<%= coins[i].image %> " alt=""> <span> <%= ucfirst(coins[i].id) %>  <%= coins[i].symbol.toUpperCase() %></span> </td>
             <td> <span> <%= coins[i].symbol.toUpperCase() %></span> </td>
             <td> <%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format((Number(coins[i].current_price)) )   %></td>
             <% if (coins[i].price_change_percentage_24h < 0) { %>

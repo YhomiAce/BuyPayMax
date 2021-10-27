@@ -15,7 +15,8 @@ const CoinGeckoClient = new CoinGecko();
 
 // local imports
 const BankDeposits = require("../models").BankDeposit;
-const Investment = require('../models').Investment
+const Investment = require('../models').Investment;
+const Referrals = require('../models').Referral;
 const Deposits = require("../models").Deposit;
 const AdminMessages = require("../models").AdminMessage;
 const Users = require("../models").User;
@@ -383,7 +384,7 @@ exports.CoinList = async(req, res) =>{
     }
 }
 
-exports.approveDeposits = (req, res, next) => {
+exports.approveDeposits = async(req, res, next) => {
     id = req.body.id;
     
      
@@ -411,7 +412,18 @@ exports.approveDeposits = (req, res, next) => {
                         }
                     }
                 })
-                .then(userUpdated => {
+                .then(async userUpdated => {
+                    const referral = await Referrals.findOne({where:{user_id: bankdeposit.user_id}});
+                    const hasTakeBonus = referral.haveCollectedBonus
+                    if (referral && !hasTakeBonus) {
+                        const refBonus = amount*0.1; // 10% of the amount being deposited
+                        const userToCollectBonus = await Users.findOne({where:{id: referral.referral_id}});
+                        const usersBalance = Number(userToCollectBonus.wallet)
+                        const wallBal = refBonus + usersBalance
+                        await Users.update({wallet: wallBal}, {where:{id: referral.referral_id}})
+                        await Referrals.update({haveCollectedBonus: true}, {where:{user_id: bankdeposit.user_id}})
+                        console.log('Refferal Bonus added: '+refBonus);
+                    }
                     Deposits.update({
                         status: "approved"
                     }, {

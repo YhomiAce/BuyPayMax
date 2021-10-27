@@ -1,3 +1,4 @@
+require("dotenv").config();
 const axios = require('axios');
 const parameters = require("../config/params");
 const auth = require("../config/auth");
@@ -85,7 +86,66 @@ const Service = {
                   console.log(error);
               }
         },
-    }
+    },
+    Paylot: {
+        url: "https://api.paylot.co/transactions",
+        async initializePayment(payload) {
+            try {
+                const createUserUrl = `${this.url}/initialize`;
+                const result = await axios({
+                    method: 'post',
+                    url: createUserUrl,
+                    data: payload
+                });
+                // console.log(result.data);
+                const resp = result.data;
+                return resp;
+            } catch (error) {
+                console.log(error);
+                const err = error.response.data
+                return err;
+            }
+        },
+        async verifyPayment(reference) {
+            try {
+                const createUserUrl = `${this.url}/verify/${reference}`;
+                const result = await axios({
+                    method: 'get',
+                    url: createUserUrl,
+                    headers: auth.paylot,
+                });
+                // console.log(result.data);
+                const resp = result.data;
+                return resp;
+            } catch (error) {
+                console.log(error);
+                const err = error.response.data
+                return err;
+            }
+        },
+    },
+
+    GoogleCaptcha: {
+        
+        async verifyCaptcha(captcha, conn) {
+            try {
+                console.log(process.env.GOOGLE_CAPTCHA_SECRET);
+                const createUserUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.GOOGLE_CAPTCHA_SECRET}&response=${captcha}&remoteip=${conn}`;
+                const result = await axios({
+                    method: 'post',
+                    url: createUserUrl
+                });
+                // console.log(result.data);
+                const resp = result.data;
+                return resp;
+            } catch (error) {
+                console.log(error);
+                const err = error.response.data
+                return err;
+            }
+        },
+        
+    },
     
   };
 

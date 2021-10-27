@@ -492,7 +492,7 @@ animation: cursorAnim3 .5s forwards;
 
 /* Gift Cards Section */
 .gift-card-section{
-    margin-top: 50px;
+    margin-top: 130px;
     margin-bottom: 100px;
 }
 .gift-card-section h1{
@@ -1140,6 +1140,20 @@ max-width: 100px;
 
 
 /* PRICING PLAN PAGE */
+.breadcrumb-invest{
+    margin-top: 80px;
+    padding: 50px 0;
+    text-align: center;
+    background-image: url(/assests/img/breadcrumb-invest.jpg);
+    background-position: center center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    padding: 100px 0px;
+}
+.breadcrumb-invest h1{
+    letter-spacing: 0.5px;
+    color: #fff;
+}
 .home-price{
     margin-top:30px !important;
 }
@@ -1228,6 +1242,20 @@ color: #fff;
 
 
 /***** FAQ SECTION PAGE ******/
+.breadcrumb-faq{
+    margin-top: 80px;
+    padding: 50px 0;
+    text-align: center;
+    background-image: url(/assests/img/breadcrumb-faq.jpg);
+    background-position: center center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    padding: 100px 0px;
+}
+.breadcrumb-faq h1{
+    letter-spacing: 0.5px;
+    color: #fff;
+}
 .faq-title {
     font-size: 2em;
     margin: 0.4em 0;

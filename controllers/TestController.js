@@ -1,16 +1,18 @@
-var Client = require('coinbase').Client;
+const axios = require('axios');
+const {Service} = require("../helpers/paystack")
 
-var client = new Client({
-  'apiKey': 'API KEY',
-  'apiSecret': 'API SECRET',
-  'version':'YYYY-MM-DD'
-});
+exports.TestCaptch = (req, res) =>{
+  res.render("test/captcha")
+}
 
-var address = null;
-
-client.getAccount('primary', function(err, account) {
-  account.createAddress(function(err, addr) {
-    console.log(addr);
-    address = addr;
-  });
-});
+exports.verifyCaptcha = async(req, res) =>{
+  try {
+    const captcha = req.body['g-recaptcha-response']
+    console.log(req.body['g-recaptcha-response']);
+    const resp = await Service.GoogleCaptcha.verifyCaptcha(captcha, req.socket.remoteAddress);
+    console.log(resp);
+    return res.send("succes")
+  } catch (error) {
+    return res.send("Error")
+  }
+}

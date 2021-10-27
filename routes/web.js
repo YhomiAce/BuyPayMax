@@ -32,6 +32,7 @@ const DashboardController = require("../controllers/DashboardController");
 const PackageController = require("../controllers/PackageController");
 const ManagerController = require("../controllers/ManagerController");
 const UserController = require("../controllers/UserController");
+const TestController = require("../controllers/TestController");
 
 const ChatController = require("../controllers/ChatController");
 const WalletController = require("../controllers/WalletController");
@@ -42,6 +43,7 @@ const BankDepositController = require("../controllers/BankDepositController");
 const KycController = require("../controllers/KycController");
 const ProfileController = require("../controllers/ProfileController");
 const PaystackController = require("../controllers/PaystackController");
+const PaylotController = require("../controllers/PaylotController");
 const AuthMiddleware = require("../middlewares/auth_middleware");
 const CryptBankController = require('../controllers/CryptBankController');
 const PostsController = require('../controllers/PostsController');
@@ -390,6 +392,8 @@ router.get('/auth/google/callback',
                 res.redirect("back");
             });
     });
+router.get("/test-cap", TestController.TestCaptch);
+router.post("/submit-captcha", TestController.verifyCaptcha);
 
 router.post("/signin", AuthMiddleware.redirectHome, AuthController.login);
 router.get("/signup", AuthController.signUpUser);
@@ -441,6 +445,7 @@ router.get('/history',AuthMiddleware.redirectLogin, TransactionController.transa
 // users specific routes
 router.get("/buy/internal", AuthMiddleware.redirectLogin, WalletController.walletPage);
 router.get("/fund-wallet", AuthMiddleware.redirectLogin, WalletController.fundYourWallet);
+router.get("/fund-crypto-wallet", AuthMiddleware.redirectLogin, WalletController.fundYourCryptoWallet);
 router.get("/wallet-balance", AuthMiddleware.redirectLogin, WalletController.walletBalance);
 router.post("/fundwallet", AuthMiddleware.redirectLogin, WalletController.fundWallet);
 router.get("/wallet-history", AuthMiddleware.redirectLogin, WalletController.walletFundingHistory);
@@ -534,6 +539,9 @@ router.post("/createwithdrawal", AuthMiddleware.redirectLogin, PaystackControlle
 router.get("/unapprovedpaystack", AuthMiddleware.redirectAdminLogin, TransactionController.unappWithdrawPaystack);
 router.post("/adminpayout", AuthMiddleware.redirectAdminLogin, PaystackController.payWithPaystack);
 router.post("/verify-deposit", AuthMiddleware.redirectLogin, PaystackController.verifyTransaction);
+router.post("/initialize-deposit",PaylotController.initializePayment);
+router.get("/verify-depsoit/:reference",PaylotController.verifyTransaction);
+router.post("/save/pre-payment",AuthMiddleware.redirectLogin, PaylotController.savePrePaymentLog);
 
 router.get("/dollarpage", AuthMiddleware.redirectAdminLogin, CryptBankController.dollarPage);
 router.post("/dollarpage", AuthMiddleware.redirectAdminLogin, CryptBankController.postUpdateDollar);

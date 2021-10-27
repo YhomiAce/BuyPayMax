@@ -42,6 +42,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.FLOAT,
       defaultValue: 0
     },
+    maxWithdrawal: {
+      allowNull: true,
+      type: DataTypes.FLOAT
+    },
     image: {
       allowNull: true,
       type: DataTypes.STRING

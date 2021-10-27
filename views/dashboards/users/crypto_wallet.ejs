@@ -1,0 +1,155 @@
+<!-- header -->
+<%- include("../../partials/header") %>
+<%- include("../../partials/user_sidebar") %>
+<!-- Main Content -->
+<div class="main-content">
+    <%- include("../../partials/alerts") %>
+    
+    <section class="section">
+        <div class="row ">
+            <input type="hidden" id="user_email" value="<%= user.email %>">
+            <input type="hidden" id="user_phone" value="<%= user.phone %>">
+            <input type="hidden" id="user_name" value="<%= user.name %>">
+            <input type="hidden" id="user_id" value="<%= user.id %>">
+            <div class="col-lg-12 col-md-12 col-sm-6 col-12">
+               <div class="card">
+                   <div class="card-header">
+                        <h4>Fund Crypto Wallet</h4>
+                        <!-- <button class="btn btn-primary float-right" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                            <i class="fas fa-arrow-down"></i>
+                        </button> -->
+                   </div>
+                   <div class="card-body" id="collapseExample">
+
+                        <form action="/createcheckout" method="post">
+                            <div class="form-group">
+                                <select name="productId" id="coin" class="form-control" required>
+                                  <option value="" disabled selected>Select Coin Type</option>
+                                  <% for(let i=0; i< products.length; i++) { %> 
+                                  <option value="<%= products[i].id  %>"><%= products[i].name  %></option>
+                                  <% } %>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="">Amount (In USD)</label>
+                                <input type="number" step="any" class="form-control" name="amount" id="usd-amount">
+                            </div>
+                            <button type="button" class="btn btn-primary" type="button" data-toggle="modal" id ="paycryptoBtn" data-target="#fundCrypto" >FUND CRYPTO WALLET</button>
+                        </form>
+                        
+                   </div>
+                   
+               </div>
+                
+            </div>
+            
+        </div> 
+        
+        <!-- <img src="https://chart.googleapis.com/chart?chs=300x300&amp;cht=qr&amp;chl=3QhA8dFP3w4p2V5ndWxT5LhRz7YYTWRyFk" id="wallet-img" class="img-fluid"> -->
+        <!-- <img src="http://api.qrserver.com/v1/create-qr-code/?data=HelloWorld!&size=100x100" alt=""> -->
+        <br>
+        <br>
+    </section>
+    <div class="modal fade" id="fundCrypto" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myCenterModalLabel">Generating Wallet</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    
+                    <center >
+                        <div id="spinner" >
+                            <img src="/assests/img/spinner.gif" alt="">
+                        </div>
+                        <div id="imgQr" style="display: none;">
+
+                        </div>
+                        <form method="post" action="/save/pre-payment" id="walletBox" style="display: none;">
+                            
+                            <p class="text-muted font-16" id="statement"></p>
+                            <h3 class="mb-0" id="address_name">Bitcoin Address</h3>
+                            <div class="form-group">
+                                <input id="walletAddress" name="wallet_address" class="text-muted form-control font-18 border-0 bg-white" readonly="">
+                            </div>
+                            <input id="qty" class="text-muted font-18 form-control text-center border-0 bg-white" readonly="">
+                            <input type="hidden" name="reference" id="reference">
+                            <input type="hidden" name="user_id" id="userId">
+                            <input type="hidden" name="coinId" id="coinId">
+                            <input type="hidden" name="amountSent" id="amt">
+                            <input type="hidden" name="quantity" id="quantity">
+                            <input type="hidden" name="currency" id="currency">
+                            <button class="btn btn-primary" type="submit">Sent</button>
+                        </form>                         
+                            
+                           
+                    </center>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div>
+    
+
+    
+
+</div>
+<%- include("../../partials/user_footer2") %>
+
+<!-- bitmint scripts -->
+<script src="https://js.paystack.co/v1/inline.js"></script>
+<script src="https://js.paylot.co/v1/inline.min.js"></script>
+<script src="/js/payments.js"></script>
+<script>
+    $(document).ready(()=>{
+        $("#paycryptoBtn").click(()=>{
+            var amount = $("#usd-amount").val();
+            var coinId = $("#coin").val()
+            var userId = $("#user_id").val()
+            $("#userId").val(userId)
+            $("#coinId").val(coinId)
+            $("#amt").val(amount)
+            // console.log(amount, coinId, userId);
+            $("#walletBox").hide()
+            $.ajax({
+                url:"/initialize-deposit",
+                method: "POST",
+                data: {amount, userId, coinId},
+                success: (res =>{
+                    console.log(res);
+                    if (res.success === true) {
+                        $("#myCenterModalLabel").text("Address Generated")
+                        var address = res.data.address
+                        var qty = res.data.amount
+                        var symbol = res.product.symbol
+                        var quantity = `${qty}  ${symbol}`
+                        $("#address_name").text(res.product.name+" Address")
+                        $("#imgQr").show()
+                        var qr = `http://api.qrserver.com/v1/create-qr-code/?data=${address}!&size=300x300`
+                        var img = `https://chart.googleapis.com/chart?chs=300x300&amp;cht=qr&amp;chl=${address}`;
+                        var imag =  $('<img />', { 
+                                        id: 'Myid',
+                                        src: `${qr}`,
+                                        alt: 'MyAlt'
+                                    });
+                        imag.appendTo('#imgQr');
+                        console.log( address,img);
+                        $("#walletAddress").val(address);
+                        $("#qty").val(quantity);
+                        // $("#wallet-img").attr("src", img)
+                        $("#reference").val(res.data.reference)
+                        $("#quantity").val(res.data.amount)
+                        $("#currency").val(res.payload.data.currency)
+                        $("#walletBox").show()
+                        $("#spinner").hide()
+                    }
+                })
+            })
+        })
+
+    })
+</script>
+</body>
+
+</html>
+

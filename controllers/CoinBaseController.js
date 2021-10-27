@@ -3,8 +3,8 @@ const crypto = require("crypto");
 
 
 const key = {
-  APIKEY: 'pEq4hin3Qb5RT0kG',
-  APISECRET: 'cBBS04jAWXvLkI2GHQxec7MTxt51h93w'
+  APIKEY: 'XGIcPDqpedaXCIyp',
+  APISECRET: 'MRiSq8hPK4k25TxmFgL145dlyuNyF4H7'
 }
 
 
@@ -110,7 +110,7 @@ exports.accountData = async(req,res) =>{
     var encHash = {
       baseUrl: 'https://api.coinbase.com',
       method: 'GET',
-      path: '/v2/accounts/2de2684a-064f-5190-a44d-47a3005fa683',
+      path: '/v2/accounts/bbc2e3f7-a851-50ab-b4b3-a0f2a700846f',
       body: ''
     };
       const sign = generateHashKey(encHash, key.APISECRET);
@@ -120,6 +120,7 @@ exports.accountData = async(req,res) =>{
           'CB-ACCESS-SIGN': sign.signature,
           'CB-ACCESS-TIMESTAMP': sign.timestamp,
           'CB-ACCESS-KEY': key.APIKEY,
+          'CB-VERSION': '2021-10-15'
         }
       }
       // const url = `${reqParam.baseUrl}/v2/exchange-rates?currency=NGN`
@@ -133,12 +134,15 @@ exports.accountData = async(req,res) =>{
 
 exports.createWallet = async(req,res) =>{
   try {
-    const name = "Test ETH Address"
+    const name = "Test BTC Address";
+    const body = {
+      name: name
+    }
     var encHash = {
       baseUrl: 'https://api.coinbase.com',
       method: 'POST',
-      path: '/v2/accounts/2de2684a-064f-5190-a44d-47a3005fa683/addresses',
-      body: '',
+      path: '/v2/accounts/bbc2e3f7-a851-50ab-b4b3-a0f2a700846f/addresses',
+      body: body,
       scopes: "wallet:addresses:create"
     };
       const sign = generateHashKey(encHash, key.APISECRET);
@@ -148,15 +152,13 @@ exports.createWallet = async(req,res) =>{
           'CB-ACCESS-SIGN': sign.signature,
           'CB-ACCESS-TIMESTAMP': sign.timestamp,
           'CB-ACCESS-KEY': key.APIKEY,
-          'CB-VERSION': '2020-07-20'
+          'CB-VERSION': '2021-10-15'
         }
       }
-      const body = {
-        name: name
-      }
-      const url = `${encHash.baseUrl}/${encHash.path}`
+      
+      const url = `${encHash.baseUrl}${encHash.path}`
       console.log(url);
-      var options = await axios.post(url, config); 
+      var options = await axios.post(url, body, config); 
       return res.send({data: options.data})
   } catch (error) {
       // console.error(error);

@@ -23,6 +23,7 @@
     <!--JQuery-->
     <script src="jquery-3.5.1.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   </head>
   <body>
       <div class="container-form">
@@ -37,6 +38,9 @@
                 <input type="email" required class="form-control input" placeholder="youremail@email.com" name="email" id="email">
                 <label for="Password">Enter your password</label>
                 <input type="password" required class="form-control input" placeholder="Password" name="password" id="password">
+                <div class="form-group">
+                  <div class="g-recaptcha" data-sitekey="6Lf6LPUcAAAAAKG-dS1-w27UisrLfjZD9idjEa8B"></div>
+                </div>
                 <input type="submit" class="btn btn-block login-btn" value="LOGIN" name="submit">
             </form>
             <p class="dont-have-acc">Don't have an account? <a class="link-below-form" href="/signup">Sign Up</a></p>

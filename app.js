@@ -213,13 +213,15 @@ cron.schedule("* 6 * * *", () => {
     // }
 });
 
-cron.schedule("*/10 * * * *", async() => {
+cron.schedule("*/40 * * * *", async() => {
    const products = await Product.findAll();
-   const rate = await Rate.findOne({where:{name: "Dollar"}})
+   
     await Promise.all(products.map(async product =>{
-        console.log(product.name.toLowerCase(), rate.naira);
+        
         const data = await Service.Coingecko.getCoinDetails(product.name.toLowerCase());
         const {image, current_price} = data[0];
+        const rate = await Rate.findOne({where:{productId: product.id}})
+        console.log(product.name, rate.naira);
         const nairaRate = Number(rate.naira) * Number(current_price)
 
         await Product.update({rate: nairaRate, dollarRate:current_price, image}, {where:{id:product.id}})

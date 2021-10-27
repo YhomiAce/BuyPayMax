@@ -120,12 +120,44 @@ exports.fundYourWallet = async(req, res) =>{
         }
     ]});
     const coins = user.coins;
+    const products = await Product.findAll()
 
     res.render("dashboards/users/wallet_action", {
       user,
       messages,
       moment,
-      coins
+      coins,
+      products
+    });
+
+  } catch (error) {
+    req.flash('error', "Server error!");
+    res.redirect("/home");
+  }
+}
+
+exports.fundYourCryptoWallet = async(req, res) =>{
+  try {
+    const messages = await AdminMessages.findAll();
+    const user = await Users.findOne({where:{id: req.session.userId}, include:[
+        {
+            model: Coin,
+            as: "coins",
+            include: {
+                model: Product,
+                as: "coinTypes"
+            }
+        }
+    ]});
+    const coins = user.coins;
+    const products = await Product.findAll()
+
+    res.render("dashboards/users/crypto_wallet", {
+      user,
+      messages,
+      moment,
+      coins,
+      products
     });
 
   } catch (error) {
@@ -361,9 +393,7 @@ exports.postEditUser = async (req, res, next) => {
 
 
 exports.fundWallet = async (req, res, next) => {
-    try {
-      // first check if the user email is valid
-    
+  try {
     const {email, amount, reference, channel, walletAddress, currency, payment_reference} = req.body
     
     const user = await Users.findOne({
@@ -373,44 +403,44 @@ exports.fundWallet = async (req, res, next) => {
           }
       }
     });
-        
-      if (user) {
-          // add it to transaction as deposits, and also add it to the deposit table with useful details
-        await Transactions.create({
-          user_id: user.id,
-          amount,
-          type: "DEPOSIT"
-        });
-                      
-        await Deposits.create({
-          user_id: user.id,
-          amount,
-          reference,
-          channel,
-          walletAddress,
-          currency
-        });
+      
+    if (user) {
+        // add it to transaction as deposits, and also add it to the deposit table with useful details
+      await Transactions.create({
+        user_id: user.id,
+        amount,
+        type: "DEPOSIT"
+      });
+                    
+      await Deposits.create({
+        user_id: user.id,
+        amount,
+        reference,
+        channel,
+        walletAddress,
+        currency
+      });
 
-       if (channel === "PAYSTACK") {
-          // Safe Paystack transaction
-          const payment = {
-            user_id: user.id,
-            payment_category: req.body.payment_category,
-            payment_reference: reference,
-            amount
-          }
-          await Payment.create(payment);
+      if (channel === "PAYSTACK") {
+        // Safe Paystack transaction
+        const payment = {
+          user_id: user.id,
+          payment_category: req.body.payment_category,
+          payment_reference: reference,
+          amount
         }
-                              
-        return res.status(200).send({status: true, message: "Deposit Made Successfully"});
-                                
-      } else {
-          console.log(`user not found`);
-          return res.status(400).send({status: false, message: "User Not Found"})
+        await Payment.create(payment);
       }
-    } catch (error) {
-      return res.status(500).send({status: false, message: "Server Error"})
+                            
+      return res.status(200).send({status: true, message: "Deposit Made Successfully"});
+                              
+    } else {
+        console.log(`user not found`);
+        return res.status(400).send({status: false, message: "User Not Found"})
     }
+  } catch (error) {
+    return res.status(500).send({status: false, message: "Server Error"})
+  }
         
 }
 

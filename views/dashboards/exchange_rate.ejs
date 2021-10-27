@@ -24,6 +24,7 @@
                       <th class="text-center">#</th>
                       <th>Name</th>
                       <th>Naira</th>
+                      <th>Coin</th>
                       <th>Date</th>
                       <th>Edit</th>
                       <th>Delete</th>
@@ -35,6 +36,7 @@
                       <td><%= i + 1 %></td>
                       <td>1 <%= rates[i].name %></td>
                       <td><%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'NGN' }).format(rates[i].naira) %></td>
+                      <td><%= rates[i].product.name %></td>
                       <td><%= moment(rates[i].createdAt).format('DD-MM-YYYY') %></td>
                       <td>
                          <a href="/edit/exchange-rate/<%= rates[i].id %>" class="btn btn-info"> Edit </a>
@@ -73,6 +75,14 @@
               <div class="form-group">
                 <label for="currency">Currency Name</label>
                   <input type="text" class="form-control" name="name">
+              </div>
+              <div class="form-group">
+                <select name="productId" id="coin" class="form-control" required>
+                  <option value="" disabled selected>Select Coin Type</option>
+                  <% for(let i=0; i< products.length; i++) { %> 
+                  <option value="<%= products[i].id  %>"><%= products[i].name  %></option>
+                  <% } %>
+                </select>
               </div>
               <div class="form-group">
                   <input type="number" class="form-control" name="naira" placeholder="Enter Naira Equivalent">
