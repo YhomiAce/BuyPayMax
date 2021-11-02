@@ -140,7 +140,39 @@
                            </div> <!-- end card-->
                        </div> <!-- end col-->
                       
-               
+                       <div class="col-md-6 stretch-card grid-margin">
+                        <div class="card">
+                          <div class="card-body">
+                            <h4>Notifications</h4>
+                            <% if (notifications.length > 0 ) { %>
+                                <ul class="icon-data-list">
+                                    <% for( let i = 0; i < notifications.length; i++ ) { %>
+                                        
+                                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                            <strong><%= notifications[i].message %></strong> 
+                                            <br>
+                                            <small><%= moment(notifications[i].createdAt).format("DD-MM-YYYY hh:mm A") %></small>
+                                            
+                                            <form action="/remove/notification" method="post">
+                                                <input type="hidden" id="notifyId" name="id" value="<%=  notifications[i].id %> ">
+                                                <button type="submit" class="close">
+                                                    <span aria-hidden="true" id="closeBtn">&times;</span>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    <% } %>
+                                 
+                                    
+                                 
+                                </ul>
+                            
+                            <% } else { %>
+                             <h4>No Active Notifications</h4>
+                             <% } %>
+                             
+                          </div>
+                        </div>
+                    </div>
                
                       
                                                                       
@@ -166,5 +198,7 @@
 </div>
 
 <%- include("../../partials/user_footer") %>
-<!-- scripts -->
+<script>
+    
+</script>
 

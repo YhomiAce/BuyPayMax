@@ -28,6 +28,7 @@ const Coin = require("../models").Coin;
 const Product = require("../models").Product;
 const Withdrawals = require("../models").Withdrawal;
 const parameters = require("../config/params");
+const notification = require("../helpers/notification");
 //Here admin can
 //1 View all deposits - approved and declined
 // 2 Approves all deposits
@@ -97,14 +98,7 @@ exports.viewADeposit = (req, res, next) => {
             include: ["user"],
         })
         .then(deposits => {
-            // if (deposits) {
-            //     res.render("dashboards/view_bank_deposit", {
-            //         deposits: deposits
-            //     });
-            // } else {
-            //     req.flash('error', "Server error!");
-            //     res.redirect("/");
-            // }
+            
             res.render("dashboards/view_bank_deposit", {
                 deposits: deposits,
                 messages: unansweredChats,
@@ -113,12 +107,12 @@ exports.viewADeposit = (req, res, next) => {
         })
         .catch(error => {
             req.flash('error', "Server error!");
-            res.redirect("/");
+            res.redirect("back");
         }); 
     })
     .catch(error => {
         req.flash('error', "Server error!");
-        res.redirect("/");
+        res.redirect("back");
     });
 }
 
@@ -399,7 +393,7 @@ exports.approveDeposits = async(req, res, next) => {
         .then(bankdeposit => {
             if (bankdeposit) {
                 let owner = bankdeposit.user_id
-                amount = Math.abs(Number(bankdeposit.amount));
+                let amount = Math.abs(Number(bankdeposit.amount));
                 // fund the users account before anything
                 let userWallet = Math.abs(Number(bankdeposit.user.wallet));
                 let currentWallet = userWallet + amount;
@@ -414,15 +408,18 @@ exports.approveDeposits = async(req, res, next) => {
                 })
                 .then(async userUpdated => {
                     const referral = await Referrals.findOne({where:{user_id: bankdeposit.user_id}});
-                    const hasTakeBonus = referral.haveCollectedBonus
-                    if (referral && !hasTakeBonus) {
-                        const refBonus = amount*0.1; // 10% of the amount being deposited
-                        const userToCollectBonus = await Users.findOne({where:{id: referral.referral_id}});
-                        const usersBalance = Number(userToCollectBonus.wallet)
-                        const wallBal = refBonus + usersBalance
-                        await Users.update({wallet: wallBal}, {where:{id: referral.referral_id}})
-                        await Referrals.update({haveCollectedBonus: true}, {where:{user_id: bankdeposit.user_id}})
-                        console.log('Refferal Bonus added: '+refBonus);
+                    if (referral) {
+                        const hasTakeBonus = referral.haveCollectedBonus
+                        if (hasTakeBonus === false) {
+                            const refBonus = amount*0.1; // 10% of the amount being deposited
+                            const userToCollectBonus = await Users.findOne({where:{id: referral.referral_id}});
+                            const usersBalance = Number(userToCollectBonus.wallet)
+                            const wallBal = refBonus + usersBalance
+                            await Users.update({wallet: wallBal}, {where:{id: referral.referral_id}})
+                            await Referrals.update({haveCollectedBonus: true}, {where:{user_id: bankdeposit.user_id}})
+                            console.log('Refferal Bonus added: '+refBonus);
+                        }
+                        
                     }
                     Deposits.update({
                         status: "approved"
@@ -433,10 +430,12 @@ exports.approveDeposits = async(req, res, next) => {
                             }
                         }
                     })
-                    .then(updatedDeposit => {
-                          
-                        let desc = 'Your deposit was approved'
+                    .then(async updatedDeposit => {
                         let type = bankdeposit.channel === "PAYSTACK" ? 'Naira Wallet' : "Crytpo Wallet"
+                        const message = `Your ${type} deposit of ${bankdeposit.currency} ${amount} was Approved by Admin`;
+                        await notification.createNotification({userId:owner, message, type: "user"})
+                        let desc = 'Your deposit was approved'
+                        
                         History.create({
                             user_id:owner,
                             type,
@@ -490,7 +489,9 @@ exports.unApproveADeposits = (req, res, next) => {
                             [Op.eq]: id
                         }
                     }
-                }).then(approved =>{
+                }).then(async approved =>{
+                    const message = `Your deposit of ${bankdeposit.currency} ${bankdeposit.amount} was Disapproved by Admin`;
+                    await notification.createNotification({userId:bankdeposit.user_id, message, type: "user"})
                     req.flash('success', "Wallet Deposit disapproved");
                     res.redirect("back");
                 })

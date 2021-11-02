@@ -12,6 +12,7 @@ const Chats = require("../models").Chat;
 const AdminMessages = require('../models').AdminMessage;
 const Admins = require('../models').Admin;
 const Product = require('../models').Product;
+const Notification = require('../models').Notification;
 const Coin = require('../models').Coin;
 const Deposit = require('../models').Deposit;
 const Withdrawal = require('../models').Withdrawal;
@@ -62,6 +63,11 @@ exports.home = async(req, res, next) => {
         });
         const coins = user.coins;
         const products = await Product.findAll();
+        const notifications = await Notification.findAll({where:{type:"user", userId: req.session.userId, status: false}, order:[["createdAt", "DESC"]], include:[{
+            model: Users,
+            as: "user",
+            attributes: ["id", "name"]
+        }]});
         if (kyc) {
             res.render("dashboards/users/user_home", {
                 user: user,
@@ -75,7 +81,7 @@ exports.home = async(req, res, next) => {
                 moment,
                 coins,
                 products,
-                reflink: params.REF_LINK
+                notifications
             });
         } else {
             res.render("dashboards/users/user_home", {
@@ -91,7 +97,7 @@ exports.home = async(req, res, next) => {
                 moment,
                 coins,
                 products,
-                reflink: params.REF_LINK
+                notifications
             });
         }
     
@@ -218,6 +224,11 @@ exports.AdminHome = async(req,res,next) =>{
         const unansweredChats = await AdminMessages.findAll();
         const referral = await Referrals.findAll();
         const referralCount = referral.length;
+        const notifications = await Notification.findAll({where:{type:"admin", status: false}, order:[["createdAt", "DESC"]], include:[{
+            model: Users,
+            as: "user",
+            attributes: ["id", "name"]
+        }]})
         res.render("dashboards/home", {
             usersCount: usersCount,
             adminCount: adminCount,
@@ -226,7 +237,8 @@ exports.AdminHome = async(req,res,next) =>{
             packageCount: packageCount,
             users: user,
             messages: unansweredChats,
-            moment
+            moment,
+            notifications
       })
     } catch (err) {
         res.redirect("/")

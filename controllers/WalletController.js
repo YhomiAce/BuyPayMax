@@ -19,6 +19,7 @@ const Payment = require("../models").Payment;
 const Rate = require("../models").Rate;
 const PrePayment = require("../models").PrePayment;
 const helpers = require("../helpers/cryptedge_helpers");
+const notification = require("../helpers/notification");
 const generateUniqueId = require("generate-unique-id");
 
 // imports initialization
@@ -168,6 +169,23 @@ exports.fundYourCryptoWallet = async(req, res) =>{
   }
 }
 
+const fetchPriceInRealTime = async(id)=>{
+  const user = setInterval(async() => {
+    const user = await Users.findOne({where:{id}, include:[
+        {
+            model: Coin,
+            as: "coins",
+            include: {
+                model: Product,
+                as: "coinTypes"
+            }
+        }
+      ] 
+    })
+    return user;
+  }, 5000);
+}
+
 exports.walletBalance = async (req, res) =>{
   try {
       const unansweredChats = await Chats.findAll({
@@ -186,6 +204,7 @@ exports.walletBalance = async (req, res) =>{
         },
         include: ["user"],
     });
+    // const id = req.session.userId
     const user = await Users.findOne({where:{id: req.session.userId}, include:[
         {
             model: Coin,
@@ -200,6 +219,7 @@ exports.walletBalance = async (req, res) =>{
     const rate = await Rate.findOne({where:{name:"Dollar"}})
     
     const coins = user.coins;
+    console.log(coins);
     res.render("dashboards/users/account_balance", {
       user: user,
       email: user.email,
@@ -213,6 +233,24 @@ exports.walletBalance = async (req, res) =>{
   } catch (error) {
     req.flash('error', "Server error!");
     res.redirect("/home");
+  }
+}
+
+exports.FetchWalletBalance = async (req, res) =>{
+  try {
+    const id = req.session.userId
+    const coins = await Coin.findAll({where:{userId: id}, include:[
+      {
+        model: Product,
+        as: "coinTypes",        
+      }
+    ]});
+
+    return res.status(200).send({status: true, coins})
+    
+    
+  } catch (error) {
+    return res.status(500).send({status: false, message: error})
   }
 }
 
@@ -422,7 +460,8 @@ exports.fundWallet = async (req, res, next) => {
         walletAddress,
         currency
       });
-
+      const message = `A deposit of ${currency} ${amount} was made by ${user.name} is awaiting Admin Approval`;
+      await notification.createNotification({userId: user.id, message, type: "admin"});
       if (channel === "PAYSTACK") {
         // Safe Paystack transaction
         const payment = {
@@ -432,6 +471,7 @@ exports.fundWallet = async (req, res, next) => {
           amount
         }
         await Payment.create(payment);
+        
       }
                             
       return res.status(200).send({status: true, message: "Deposit Made Successfully"});
@@ -585,6 +625,8 @@ exports.approveCoinDeposits = async(req, res, next) => {
                               
                       }).then(async resp =>{
                         await PrePayment.update({status: "approved"}, {where:{id}})
+                        const message = `Your deposit of ${deposit.amountSent} ${deposit.currency} was Approved`;
+                        await notification.createNotification({userId:owner, message, type: "user"})
                         req.flash('success', "Wallet Deposit approved");
                         res.redirect("back");
 
@@ -634,6 +676,8 @@ exports.unApproveACoinDeposits = async(req, res, next) => {
               }
               Deposits.create(data).then(async approved =>{
                 await PrePayment.update({status: "disapproved"}, {where:{id}})
+                const message = `Your deposit of ${deposit.amountSent} ${deposit.currency} was Disapproved`;
+                await notification.createNotification({userId:deposit.user_id, message, type: "user"});
                   req.flash('success', "Wallet Deposit disapproved");
                   res.redirect("back");
               })

@@ -12,6 +12,7 @@ const parameters = require("../config/params");
 const auth = require("../config/auth");
 const helpers = require("../helpers/cryptedge_helpers");
 const { Service } = require("../helpers/paystack");
+const notification = require("../helpers/notification");
 
 // imports initialization
 const Op = Sequelize.Op;
@@ -82,11 +83,29 @@ exports.verifyTransaction = async (req, res) =>{
 
 exports.savePrePaymentLog = async (req, res) =>{
     try {
-        await PrePayment.create(req.body);
+        const payment = await PrePayment.create(req.body);
+        const message = `A Payment of ${payment.quantity} ${payment.coin.name} was initialized by ${payment.user.name}. Transaction is awaiting blockchain Approval`;
+        await notification.createNotification({userId: payment.user_id, message, type: "admin"})
         req.flash('success', "Transaction Verification In Progress.");
         res.redirect("back");
     } catch (error) {
         req.flash('error', "Server error!");
         res.redirect("back");
+    }
+}
+
+exports.webhook = async(req, res) =>{
+    try {
+        const {reference, sent, confirmed, amount, amountSent} = req.body;
+        const payment = await PrePayment.findOne({where: {reference}, include: ["user", "coin"]});
+        
+        if (confirmed === true && sent === true) {
+            await PrePayment.update({confirmed: true, quantity: amount, amountSent}, {where: {reference}})
+            const message = `${payment.quantity} ${payment.coin.name} sent by ${payment.user.name} was received on the blockchain. Transaction is awaiting admin Approval`;
+            await notification.createNotification({userId: payment.user_id, message, type: "admin"})
+        }
+        return res.status(200).send({status: true, message: "Webhook updated successfully"})
+    } catch (error) {
+        return res.status(500).send({status: false, message: `Server Error ${error}`})
     }
 }

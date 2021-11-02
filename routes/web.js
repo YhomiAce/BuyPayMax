@@ -33,6 +33,7 @@ const PackageController = require("../controllers/PackageController");
 const ManagerController = require("../controllers/ManagerController");
 const UserController = require("../controllers/UserController");
 const TestController = require("../controllers/TestController");
+const NotificationController = require("../controllers/NotificationController");
 
 const ChatController = require("../controllers/ChatController");
 const WalletController = require("../controllers/WalletController");
@@ -481,7 +482,7 @@ router.get("/edit/exchange-rate/:id", AuthMiddleware.redirectAdminLogin, Transac
 router.get("/check-coin/balance/:userId/:coinId", TransactionController.checkBalance);
 router.post("/buy/transaction/code", TransactionController.sendConfirmationCodeForBuy);
 
-router.post("/test/quantity", TransactionController.testQuery)
+router.post("/test/quantity", TransactionController.testQuery);
 
 // users
 router.get("/settings", AuthMiddleware.redirectLogin, ProfileController.settingsPage);
@@ -649,6 +650,11 @@ router.get("/coin-deposits", AuthMiddleware.redirectAdminLogin, WalletController
 router.get("/view/coin-deposit/:id", AuthMiddleware.redirectAdminLogin, WalletController.viewCoinDepositsTransaction);
 router.post("/approve-coin-deposit", AuthMiddleware.redirectAdminLogin, WalletController.approveCoinDeposits);
 router.post("/disapprove-coin-deposit", AuthMiddleware.redirectAdminLogin, WalletController.unApproveACoinDeposits);
+
+router.post("/remove/notification", AuthMiddleware.redirectAdminLogin, NotificationController.deleteNotification)
+// Webhook 
+router.post("/webhook", PaylotController.webhook);
+router.get("/get-user/wallet", WalletController.FetchWalletBalance);
 
 // Test Route
 router.get("/get-kycs", KycController.unApprovedKyc);

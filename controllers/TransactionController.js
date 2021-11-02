@@ -34,6 +34,7 @@ const Investment = require('../models').Investment;
 const Rate = require('../models').Rate;
 const Transaction = require("../models").Transaction;
 const { Service } = require("../helpers/paystack");
+const notification = require("../helpers/notification");
 
 
 const router = require("../routes/web");
@@ -314,6 +315,8 @@ exports.InvestNow = async (req, res) =>{
             const desc = `Made Investment for ${package.name} plan`;
             await History.create({type, value: amtUsed, desc, user_id});
             await Transactions.create({type: "INVESTMENT", user_id, amount});
+            const message = `An Investment of ${package.name} Plan was made by ${user.name}`;
+            await notification.createNotification({userId:user_id, message, type: "admin"})
             const output = `<head>
            <title>TRANSACTION RECEIPT</title>
          </head>
@@ -483,6 +486,8 @@ exports.withdrawFromCoinWallet = async(req, res, next) => {
                                         value:amount,
                                         user_id:userId
                                     });
+            const message = `A  Withdrawal Request of ${amount} ${product.name} was made by ${user.name}`;
+            await notification.createNotification({userId:user.id, message, type: "admin"})
     
             req.flash('success', "Transfer success, awaiting disbursement!");
             res.redirect("back");
@@ -561,7 +566,9 @@ exports.withdrawFromWallet = async(req, res, next) => {
                             desc,
                             value:req.body.amount,
                             user_id:req.session.userId
-                        })
+                        });
+                        const message = `A Naira Withdrawal Request of ${amount} was made by ${user.name}`;
+                        await notification.createNotification({userId:user.id, message, type: "admin"})
                         req.flash('success', "Withdrawal success, awaiting disbursement!");
                         res.redirect("back");
                         return
@@ -956,6 +963,8 @@ exports.postApproveWithdrawal = async(req, res, next) => {
                 amount: withdrawal.amount
             }
             await Transaction.create(request);
+            const message = `Your Withdrawal Request of ${withdrawal.amount} was Approved by Admin`;
+            await notification.createNotification({userId: withdrawal.user_id, message, type: "user"})
             const now  = moment();
             const output =`<!DOCTYPE html>
             <html lang="en">
@@ -1226,7 +1235,9 @@ exports.postApproveCoinWithdrawal = async(req, res, next) => {
     const coinBalance = Number(user.balance);
     const withdrawAmoount = Number(withdrawal.amount);
     const userBalance = coinBalance - withdrawAmoount;
-    await Coin.update({balance: userBalance}, {where:{userId:withdrawal.userId, coinId:withdrawal.coinId}})
+    await Coin.update({balance: userBalance}, {where:{userId:withdrawal.userId, coinId:withdrawal.coinId}});
+    const message = `Your Withdrawal Request of ${withdrawal.amount} ${withdrawal.coin.symbol} was Approved by Admin`;
+    await notification.createNotification({userId: withdrawal.userId, message, type: "user"})
         const now  = moment();
         const charge = Number(withdrawal.charge);
         const actualAmount = (charge/100) * withdrawAmoount;
@@ -1386,30 +1397,102 @@ exports.approveExternalTransaction = async(req, res, next) => {
                          }
                      }
                  })
-                 .then(updatedWithdrawal => {
+                 .then(async updatedWithdrawal => {
                     const now  = moment();
-                    const output = `<html>
-         <head>
-           <title>TRANSACTION RECEIPT</title>
-         </head>
-         <body>
-         <p>Your Transaction was successful. You just sold ${withdrawal.quantity} ${withdrawal.coin.symbol} to PayBuyMax</p>
-         <h2> Details Of Transaction </h2>
-         <ul>
-             
-             <li>Name:.....................${withdrawal.name} </li>
-             <li>Email:.....................${withdrawal.email} </li>
-             <li>Sold:.....................${withdrawal.quantity} ${withdrawal.coin.symbol}</li>
-             <li>Rate:.....................${ Intl.NumberFormat('de-DE', { style: 'currency', currency: 'NGN' }).format(withdrawal.currentRate.toFixed(3)) }</li>
-             <li>Amount:.....................${ Intl.NumberFormat('de-DE', { style: 'currency', currency: 'NGN' }).format(withdrawal.amount.toFixed(3)) }</li>
-             <li>Transaction Reference:.....................${withdrawal.reference}</li>
-             <li>Transaction Receipt:.....................<a href="${docPath}">Reciept</a></li>
-             <li>Date:.....................${now}</li>
-         </ul>
-
-         <h5>Thank You for Trading with Us!</h5>
-         </body>
-                 </html>`;
+                   
+                 const output =`<!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta http-equiv="X-UA-Compatible" content="IE=edge">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Paybuymax Receipt</title>
+                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+                <style>
+                    .receipt-div{
+                        border: 1px solid rgb(202, 202, 202);
+                        padding: 12px;
+                    }
+                    .receipt-div img{
+                        padding-bottom: 30px;
+                    }
+                    .receipt-div .header-alert{
+                        background-color: #BB702B;
+                        padding: 10px;
+                        color: #fff;
+                        font-size: 20px;
+                    }
+                    .receipt-div .amount-div{
+                        padding: 30px 10px !important;
+                        background-color: rgb(238, 238, 238);
+                    }
+                    .receipt-div .amount-div .amount{
+                        margin-top: -10px;
+                        font-size: 45px;
+                        color: #BB702B;
+                        font-weight: bold;
+                    }
+                    .receipt-div .amount-div p{
+                        font-size: 20px;
+                    }
+                    .receipt-div .details p{
+                        font-size: 15px;
+                        font-weight: bold;
+                    }
+                </style>
+            </head>
+            <body>
+                <main>
+                    <div class="container py-2">
+                        <div class="row">
+                            <div class="col-sm-3"></div>
+                            <div class="col-sm-6">
+                                <div class="receipt-div">
+                                    <div class="row">
+                                        <div class="col-sm-12 text-center">
+                                            <img src="https://res.cloudinary.com/yhomi1996/image/upload/v1635179234/ecoin/logo_creup6.png" alt="Paybuymax Logo">
+                                        </div>
+                                        <div class="col-sm-12 text-center header-alert">
+                                        Your Transaction was successful. 
+                                        </div>
+                                        <div class="col-sm-12 text-center amount-div">
+                                            <p>You just sold</p>
+                                            <h1 class="amount">${withdrawal.quantity} ${withdrawal.coin.symbol} </h1>
+                                            <p>to PayBuyMax</p>
+                                        </div>
+                                        <div class="col-sm-12 py-3 text-center" style="font-size: 25px; font-weight: bold; text-decoration: underline;">
+                                            Transaction Details
+                                        </div>
+                                        <div class="col-sm-12 details">
+                                           
+                                            <p><span>Name:</span> <span style="float: right;">${withdrawal.name}</span></p>
+                                            <hr size="3">
+                                            <p><span>Email:</span> <span style="float: right;">${withdrawal.email}</span></p>
+                                            <hr size="3">
+                                            <p><span>Naira Amount:</span> <span style="float: right;">${withdrawal.amount}</span></p>
+                                            <hr size="3">
+                                            <p><span>Dollar Amount:</span> <span style="float: right;">${withdrawal.dollarAmount}</span></p>
+                                            <hr size="3">
+                                            <p><span>Rate:</span> <span style="float: right;">${withdrawal.currentRate}</span></p>
+                                            <hr size="3">
+                                            <p><span>Sold:</span> <span style="float: right;">${withdrawal.quantity} ${withdrawal.coin.symbol}</span></p>
+                                            <hr size="3">
+                                            <p><span>Transaction Reference:</span> <span style="float: right;">${withdrawal.reference}</span></p>
+                                            <hr size="3">
+                                           
+                                            <p><span>Transaction Date:</span> <span style="float: right;">${now}</span></p>
+                                            <hr size="3">
+                                            <h5>Thank You for Trading with Us!</h5>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-3"></div>
+                        </div>
+                    </div>
+                </main>
+            </body>
+            </html>`
        let transporter = nodemailer.createTransport({
          host: parameters.EMAIL_HOST,
          port: parameters.EMAIL_PORT,
@@ -1425,7 +1508,7 @@ exports.approveExternalTransaction = async(req, res, next) => {
        let mailOptions = {
          from: ` "PayBuyMax" <${parameters.EMAIL_USERNAME}>`, // sender address
          to: `${withdrawal.email}`, // list of receivers
-         subject: "[PayBuyMax] Withdrawal Receipt", // Subject line
+         subject: "[PayBuyMax] Transaction Receipt", // Subject line
          text: "PayBuyMax", // plain text body
          html: output, // html body
        };
@@ -1482,30 +1565,104 @@ exports.approveGiftCardTransaction = async(req, res, next) => {
                  })
                  .then(updatedWithdrawal => {
                     const now  = moment();
-                    const output = `<html>
-         <head>
-           <title>TRANSACTION RECEIPT</title>
-         </head>
-         <body>
-         <p>Your Transaction was successful. You just sold ${withdrawal.quantity} ${withdrawal.card.name} to PayBuyMax</p>
-         <h2> Details Of Transaction </h2>
-         <ul>
-             
-             <li>Name:.....................${withdrawal.name} </li>
-             <li>Email:.....................${withdrawal.email} </li>
-             <li>Sold:.....................${withdrawal.quantity} ${withdrawal.card.name}</li>
-             <li>Amount Sent:.....................N${withdrawal.amountPaid} </li>
-             <li>Bank Name:.....................${withdrawal.bankName} </li>
-             <li>Account Name:.....................${withdrawal.acctName} </li>
-             <li>Account Number:.....................${withdrawal.acctNumber} </li>
-             <li>Transaction Reference:.....................${withdrawal.reference}</li>
-             <li>Transaction Receipt:.....................<a href="${docPath}">Reciept</a></li>
-             <li>Date:.....................${now}</li>
-         </ul>
-
-         <h5>Thank You for Trading with Us!</h5>
-         </body>
-                 </html>`;
+                    
+                 const output =`<!DOCTYPE html>
+                 <html lang="en">
+                 <head>
+                     <meta charset="UTF-8">
+                     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                     <title>Paybuymax Receipt</title>
+                     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+                     <style>
+                         .receipt-div{
+                             border: 1px solid rgb(202, 202, 202);
+                             padding: 12px;
+                         }
+                         .receipt-div img{
+                             padding-bottom: 30px;
+                         }
+                         .receipt-div .header-alert{
+                             background-color: #BB702B;
+                             padding: 10px;
+                             color: #fff;
+                             font-size: 20px;
+                         }
+                         .receipt-div .amount-div{
+                             padding: 30px 10px !important;
+                             background-color: rgb(238, 238, 238);
+                         }
+                         .receipt-div .amount-div .amount{
+                             margin-top: -10px;
+                             font-size: 45px;
+                             color: #BB702B;
+                             font-weight: bold;
+                         }
+                         .receipt-div .amount-div p{
+                             font-size: 20px;
+                         }
+                         .receipt-div .details p{
+                             font-size: 15px;
+                             font-weight: bold;
+                         }
+                     </style>
+                 </head>
+                 <body>
+                     <main>
+                         <div class="container py-2">
+                             <div class="row">
+                                 <div class="col-sm-3"></div>
+                                 <div class="col-sm-6">
+                                     <div class="receipt-div">
+                                         <div class="row">
+                                             <div class="col-sm-12 text-center">
+                                                 <img src="https://res.cloudinary.com/yhomi1996/image/upload/v1635179234/ecoin/logo_creup6.png" alt="Paybuymax Logo">
+                                             </div>
+                                             <div class="col-sm-12 text-center header-alert">
+                                             Your Transaction was successful. 
+                                             </div>
+                                             <div class="col-sm-12 text-center amount-div">
+                                                 <p>You just sold</p>
+                                                 <h1 class="amount">${withdrawal.quantity} ${withdrawal.card.name} </h1>
+                                                 <p>to PayBuyMax</p>
+                                             </div>
+                                             <div class="col-sm-12 py-3 text-center" style="font-size: 25px; font-weight: bold; text-decoration: underline;">
+                                                 Transaction Details
+                                             </div>
+                                             <div class="col-sm-12 details">
+                                             
+                                                 <p><span>Name:</span> <span style="float: right;">${withdrawal.name}</span></p>
+                                                 <hr size="3">
+                                                 <p><span>Email:</span> <span style="float: right;">${withdrawal.email}</span></p>
+                                                 <hr size="3">
+                                                 <p><span>Sold:</span> <span style="float: right;">${withdrawal.quantity} ${withdrawal.card.name}</span></p>
+                                                 <hr size="3">
+                                                 <p><span>Amount Sent:</span> <span style="float: right;">N${withdrawal.amountPaid}</span></p>
+                                                 <hr size="3">
+                                                 <p><span>Bank Name:</span> <span style="float: right;">${withdrawal.bankName}</span></p>
+                                                 <hr size="3">
+                                                 <p><span>Account Name:</span> <span style="float: right;">${withdrawal.acctName}</span></p>
+                                                 <hr size="3">
+                                                 <p><span>Account Number:</span> <span style="float: right;">${withdrawal.acctNumber}</span></p>
+                                                 <hr size="3">
+                                                 <p><span>Transaction Reference:</span> <span style="float: right;">${withdrawal.reference}</span></p>
+                                                 <hr size="3">
+                                                <p><span>Transaction Receipt:</span> <span style="float: right;"><a href="${docPath}">Reciept</a></span></p>
+                                                 <hr size="3">
+                                                
+                                                 <p><span>Transaction Date:</span> <span style="float: right;">${now}</span></p>
+                                                 <hr size="3">
+                                                 <h5>Thank You for Trading with Us!</h5>
+                                             </div>
+                                         </div>
+                                     </div>
+                                 </div>
+                                 <div class="col-sm-3"></div>
+                             </div>
+                         </div>
+                     </main>
+                 </body>
+                 </html>`
        let transporter = nodemailer.createTransport({
          host: parameters.EMAIL_HOST,
          port: parameters.EMAIL_PORT,
@@ -1592,29 +1749,100 @@ exports.approveInternalTransaction = async(req, res, next) => {
                             await Coin.update({balance: newBal}, {where:{userId: withdrawal.userId, coinId: withdrawal.coinId}})
                             console.log("Coin Updated");
                              const now  = moment();
-                             const output = `<html>
-                  <head>
-                    <title>TRANSACTION RECEIPT</title>
-                  </head>
-                  <body>
-                  <p>Your Transaction was successful. You just sold ${withdrawal.qty} ${withdrawal.coin.symbol} to PayBuyMax</p>
-                  <h2> Details Of Transaction </h2>
-                  <ul>
-                      
-                      <li>Name:.....................${withdrawal.customerName} </li>
-                      <li>Email:.....................${withdrawal.customerEmail} </li>
-                      <li>Sold:.....................${withdrawal.qty} ${withdrawal.coin.symbol}</li>
-                      <li>Rate:.....................${withdrawal.coin.dollarRate}</li>
-                      <li>Amount Paid:.....................N${ withdrawal.nairaAmount }</li>
-                      <li>Transaction Reference:.....................${withdrawal.reference}</li>
-                      <li>Transaction Receipt:.....................<a href="${docPath}">Reciept</a></li>
-                      <li>Date Paid:.....................${withdrawal.createdAt}</li>
-                      <li>Date Approved:.....................${now}</li>
-                  </ul>
-         
-                  <h5>Thank You for Trading with Us!</h5>
-                  </body>
-                          </html>`;
+                             
+                          const output =`<!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta http-equiv="X-UA-Compatible" content="IE=edge">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Paybuymax Receipt</title>
+                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+                <style>
+                    .receipt-div{
+                        border: 1px solid rgb(202, 202, 202);
+                        padding: 12px;
+                    }
+                    .receipt-div img{
+                        padding-bottom: 30px;
+                    }
+                    .receipt-div .header-alert{
+                        background-color: #BB702B;
+                        padding: 10px;
+                        color: #fff;
+                        font-size: 20px;
+                    }
+                    .receipt-div .amount-div{
+                        padding: 30px 10px !important;
+                        background-color: rgb(238, 238, 238);
+                    }
+                    .receipt-div .amount-div .amount{
+                        margin-top: -10px;
+                        font-size: 45px;
+                        color: #BB702B;
+                        font-weight: bold;
+                    }
+                    .receipt-div .amount-div p{
+                        font-size: 20px;
+                    }
+                    .receipt-div .details p{
+                        font-size: 15px;
+                        font-weight: bold;
+                    }
+                </style>
+            </head>
+            <body>
+                <main>
+                    <div class="container py-2">
+                        <div class="row">
+                            <div class="col-sm-3"></div>
+                            <div class="col-sm-6">
+                                <div class="receipt-div">
+                                    <div class="row">
+                                        <div class="col-sm-12 text-center">
+                                            <img src="https://res.cloudinary.com/yhomi1996/image/upload/v1635179234/ecoin/logo_creup6.png" alt="Paybuymax Logo">
+                                        </div>
+                                        <div class="col-sm-12 text-center header-alert">
+                                        Your Transaction was successful. 
+                                        </div>
+                                        <div class="col-sm-12 text-center amount-div">
+                                            <p>You just sold</p>
+                                            <h1 class="amount">${withdrawal.qty} ${withdrawal.coin.symbol} </h1>
+                                            <p>to PayBuyMax</p>
+                                        </div>
+                                        <div class="col-sm-12 py-3 text-center" style="font-size: 25px; font-weight: bold; text-decoration: underline;">
+                                            Transaction Details
+                                        </div>
+                                        <div class="col-sm-12 details">
+
+
+                                            <p><span>Name:</span> <span style="float: right;">${withdrawal.customerName}</span></p>
+                                            <hr size="3">
+                                            <p><span>Email:</span> <span style="float: right;">${withdrawal.customerEmail}</span></p>
+                                            <hr size="3">
+                                            <p><span>Sold:</span> <span style="float: right;">${withdrawal.qty} ${withdrawal.coin.symbol}</span></p>
+                                            <hr size="3">
+                                            <p><span>Rate:</span> <span style="float: right;">${withdrawal.coin.dollarRate}</span></p>
+                                            <hr size="3">
+                                            <p><span>Amount Paid:</span> <span style="float: right;">N${ withdrawal.nairaAmount }</span></p>
+                                            <hr size="3">
+                                            <p><span>Transaction Reference:</span> <span style="float: right;">${withdrawal.reference}</span></p>
+                                            <hr size="3">
+                                            <p><span>Date Paid:</span> <span style="float: right;">${withdrawal.createdAt}</span></p>
+                                            <hr size="3">
+                                            <p><span>Date Approved:</span> <span style="float: right;">${now}</span></p>
+                                            <hr size="3">
+                                            <h5>Thank You for Trading with Us!</h5>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-3"></div>
+                        </div>
+                    </div>
+                </main>
+            </body>
+            </html>`
                 let transporter = nodemailer.createTransport({
                   host: parameters.EMAIL_HOST,
                   port: parameters.EMAIL_PORT,
@@ -1668,7 +1896,8 @@ exports.postDisApproveWithdrawal = (req, res, next) => {
                 id: {
                     [Op.eq]: id
                 }
-            }
+            },
+            include: ['user']
         })
         .then(withdrawal => {
             if(withdrawal) {
@@ -1681,8 +1910,10 @@ exports.postDisApproveWithdrawal = (req, res, next) => {
                         }
                     }
                 })
-                .then(updatedWithdrawal => {
+                .then(async updatedWithdrawal => {
                     // Todo: Send mail
+                    const message = `Your Withdrawal Request of ${withdrawal.amount} was Disapproved by Admin`;
+                    await notification.createNotification({userId: withdrawal.user_id, message, type: "user"})
                     req.flash('success', "Withdrawal updated successfully");
                     res.redirect("back");
                 })
@@ -1983,8 +2214,8 @@ exports.sellCoinFromInternalWallet = async(req, res) =>{
         const coinTypes = product.name;
         const symbol = product.symbol;
         const now = moment();
-        // nairaAmount = Intl.NumberFormat('de-DE', { style: 'currency', currency: 'NGN' }).format(nairaAmount);
-        // dollarAmount = Intl.NumberFormat('de-DE', { style: 'currency', currency: 'USD' }).format(dollarAmount);
+        const message = `${user.name} just sold ${qty} ${product.name} from his Paybuymax Internal wallet `;
+        await notification.createNotification({userId: user_id, message, type: "admin"})
         const output = `<!DOCTYPE html>
         <html lang="en">
         <head>
@@ -2173,13 +2404,12 @@ exports.BuyCoinFromInternalWallet = async(req, res) =>{
             reference
         });
         
-        
-        
         const coinTypes = product.name;
         const symbol = product.symbol;
+        const message = `${user.name} just bought ${qty} ${symbol} using his Paybuymax naira wallet.`;
+        await notification.createNotification({userId: user_id, message, type: "admin"})
         const now = moment();
-        // nairaAmount = Intl.NumberFormat('de-DE', { style: 'currency', currency: 'NGN' }).format(nairaAmount);
-        // dollarAmount = Intl.NumberFormat('de-DE', { style: 'currency', currency: 'USD' }).format(dollarAmount);
+        
         const output = `<!DOCTYPE html>
         <html lang="en">
         <head>

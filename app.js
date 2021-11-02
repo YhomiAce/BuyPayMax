@@ -213,7 +213,9 @@ cron.schedule("* 6 * * *", () => {
     // }
 });
 
-cron.schedule("*/40 * * * *", async() => {
+
+
+cron.schedule("*/5 * * * * *", async() => {
    const products = await Product.findAll();
    
     await Promise.all(products.map(async product =>{
@@ -227,7 +229,9 @@ cron.schedule("*/40 * * * *", async() => {
         await Product.update({rate: nairaRate, dollarRate:current_price, image}, {where:{id:product.id}})
         console.log("Rates updated");
         
+        
     }))
+    
     
 });
 
