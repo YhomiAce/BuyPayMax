@@ -215,7 +215,7 @@ cron.schedule("* 6 * * *", () => {
 
 
 
-cron.schedule("*/5 * * * * *", async() => {
+cron.schedule("*/40 * * * *", async() => {
    const products = await Product.findAll();
    
     await Promise.all(products.map(async product =>{

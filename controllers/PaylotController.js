@@ -84,6 +84,8 @@ exports.verifyTransaction = async (req, res) =>{
 exports.savePrePaymentLog = async (req, res) =>{
     try {
         const payment = await PrePayment.create(req.body);
+        // const payment = await PrePayment.findOne({where:{id: payments.id}, include:["user"]})
+        console.log(payment);
         const message = `A Payment of ${payment.quantity} ${payment.coin.name} was initialized by ${payment.user.name}. Transaction is awaiting blockchain Approval`;
         await notification.createNotification({userId: payment.user_id, message, type: "admin"})
         req.flash('success', "Transaction Verification In Progress.");

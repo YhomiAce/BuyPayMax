@@ -110,7 +110,7 @@ exports.accountData = async(req,res) =>{
     var encHash = {
       baseUrl: 'https://api.coinbase.com',
       method: 'GET',
-      path: '/v2/accounts/bbc2e3f7-a851-50ab-b4b3-a0f2a700846f',
+      path: '/v2/accounts',
       body: ''
     };
       const sign = generateHashKey(encHash, key.APISECRET);

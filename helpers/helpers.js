@@ -22,7 +22,7 @@ const numFormatter = (num) => {
 const ucfirst = (str) =>{
     var firstLetter = str.slice(0,1);
     return firstLetter.toUpperCase() + str.substring(1);
-  }
+}
 
 const  stripHtml = (str)=> {
     if ((str===null) || (str===''))
